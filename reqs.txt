@@ -1,0 +1,24 @@
+Modern (OpenGL 4.0+)
+Shaders
+File format
+	Scene
+	Objecten (mesh + texture)
+	Animaties????
+Water
+	Geometry shaders (sine waves)
+Multitexture
+DXT5
+Lightmapping
+	Baking??
+Skybox
+Particles
+Shadows
+	Only baked??
+Collisions?
+Occlusion culling???
+Backface culling
+SSAO?? lol you crazy?
+	http://ogldev.atspace.co.uk/www/tutorial45/tutorial45.html
+Anti aliasing
+Transparantie???
+Megatexture???
