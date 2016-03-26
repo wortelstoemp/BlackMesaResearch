@@ -100,62 +100,80 @@ struct Quaternion
 
 inline Vec2 operator+(const Vec2& lhs, const Vec2& rhs)
 {
-	Vec2 result = { lhs.X + rhs.X, lhs.Y + rhs.Y };
+	const Vec2 result = { lhs.X + rhs.X, lhs.Y + rhs.Y };
 	return result;
 }
 
 inline Vec2 operator-(const Vec2& lhs, const Vec2& rhs)
 {
-	Vec2 result = { lhs.X - rhs.X, lhs.Y - rhs.Y };
+	const Vec2 result = { lhs.X - rhs.X, lhs.Y - rhs.Y };
+	return result;
+}
+
+inline Vec2 operator-(const Vec2& v)
+{
+	const Vec2 result = { -v.X, -v.Y };
 	return result;
 }
 
 inline Vec2 operator*(const Matrix2x2& lhs, const Vec2& rhs)
 {
-	Vec2 result = { 0 };
-	result.X = lhs.a11 * rhs.X + lhs.a12 * rhs.Y;
-	result.Y = lhs.a21 * rhs.X + lhs.a22 * rhs.Y;
+	const Vec2 result =
+	{
+		lhs.a11 * rhs.X + lhs.a12 * rhs.Y,
+		lhs.a21 * rhs.X + lhs.a22 * rhs.Y
+	};
+	
 	return result;
 }
 
 // Vec3
+
 inline Vec3 operator+(const Vec3& lhs, const Vec3& rhs)
 {
-	Vec3 result = { lhs.X + rhs.X, lhs.Y + rhs.Y, lhs.Z + rhs.Z};
+	const Vec3 result = { lhs.X + rhs.X, lhs.Y + rhs.Y, lhs.Z + rhs.Z};
 	return result;
 }
 
 inline Vec3 operator-(const Vec3& lhs, const Vec3& rhs)
 {
-	Vec3 result = { lhs.X - rhs.X, lhs.Y - rhs.Y, lhs.Z - rhs.Z};
+	const Vec3 result = { lhs.X - rhs.X, lhs.Y - rhs.Y, lhs.Z - rhs.Z};
+	return result;
+}
+
+inline Vec3 operator-(const Vec3& v)
+{
+	const Vec3 result = { -v.X, -v.Y, -v.Z };
 	return result;
 }
 
 inline Vec3 operator*(const Matrix3x3& lhs, const Vec3& rhs)
 {
-	Vec3 result = { 0 };
-
-	result.X = lhs.a11 * rhs.X + lhs.a12 * rhs.Y + lhs.a13 * rhs.Z;
-	result.Y = lhs.a21 * rhs.X + lhs.a22 * rhs.Y + lhs.a23 * rhs.Z;
-	result.Z = lhs.a31 * rhs.X + lhs.a32 * rhs.Y + lhs.a33 * rhs.Z;
+	const Vec3 result =
+	{ 
+		lhs.a11 * rhs.X + lhs.a12 * rhs.Y + lhs.a13 * rhs.Z,
+		lhs.a21 * rhs.X + lhs.a22 * rhs.Y + lhs.a23 * rhs.Z,
+		lhs.a31 * rhs.X + lhs.a32 * rhs.Y + lhs.a33 * rhs.Z
+	};
 	
 	return result;
 }
 
 inline Vec3 operator*(const Matrix4x4 lhs, const Vec3& rhs)
 {
-	Vec3 result = { 0 };
-
-	result.X = lhs.a11 * rhs.X + lhs.a12 * rhs.Y + lhs.a13 * rhs.Z + lhs.a14;
-	result.Y = lhs.a21 * rhs.X + lhs.a22 * rhs.Y + lhs.a23 * rhs.Z + lhs.a24;
-	result.Z = lhs.a31 * rhs.X + lhs.a32 * rhs.Y + lhs.a33 * rhs.Z + lhs.a34;
+	const Vec3 result =
+	{ 
+		lhs.a11 * rhs.X + lhs.a12 * rhs.Y + lhs.a13 * rhs.Z + lhs.a14,
+		lhs.a21 * rhs.X + lhs.a22 * rhs.Y + lhs.a23 * rhs.Z + lhs.a24,
+		lhs.a31 * rhs.X + lhs.a32 * rhs.Y + lhs.a33 * rhs.Z + lhs.a34
+	};
 
 	return result;
 }
 
 inline Vec3 operator*(const Vec3& lhs, const float rhs)
 {
-	Vec3 result = { lhs.X * rhs, lhs.Y * rhs, lhs.Z * rhs };
+	const Vec3 result = { lhs.X * rhs, lhs.Y * rhs, lhs.Z * rhs };
 	return result;
 }
 
@@ -166,7 +184,7 @@ inline Vec3 operator*(const float lhs, const Vec3& rhs)
 
 inline Vec3 operator/(const Vec3& lhs, const float& rhs)
 {
-	Vec3 result = { lhs.X / rhs, lhs.Y / rhs, lhs.Z / rhs};
+	const Vec3 result = { lhs.X / rhs, lhs.Y / rhs, lhs.Z / rhs};
 	return result;
 }
 
@@ -177,7 +195,7 @@ inline float Dot(const Vec3& lhs, const Vec3& rhs)
 
 inline Vec3 Cross(const Vec3& lhs, const Vec3& rhs)
 {
-	Vec3 result =
+	const Vec3 result =
 	{ 
 		(lhs.Y * rhs.Z) - (lhs.Z * rhs.Y),
 		(lhs.Z * rhs.X) - (lhs.X * rhs.Z),
@@ -201,7 +219,7 @@ inline Vec3 Normalized(const Vec3& v)
 {
 	const float invLength = 1.0 / Length(v);
 	
-	Vec3 result =
+	const Vec3 result =
 	{ 
 		v.X * invLength,
 		v.Y * invLength,
@@ -218,14 +236,14 @@ inline float Distance(const Vec3& v1, const Vec3& v2)
 
 inline float DistanceSquared(const Vec3& v1, const Vec3& v2)
 {
-	return Length(v1 - v2);
+	return LengthSquared(v1 - v2);
 }
 
 inline Vec3 Lerp(const Vec3& v1, const Vec3& v2, const float amount)
 {
 	const float diff = 1.0f - amount;
 	
-	Vec3 result =
+	const Vec3 result =
 	{ 
 		diff * v1.X + amount * v2.X,
 		diff * v1.Y + amount * v2.Y,
