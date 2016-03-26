@@ -22,27 +22,25 @@ int CompileAndAttachShader(int programID, char* source, GLenum shaderType)
 	{
 		return 0;
 	}
-	else
+	
+	int size = strlen(source);
+	int shaderId = glCreateShader(shaderType);
+	glShaderSource(shaderId, 1, &source, &size);
+	glCompileShader(shaderId);
+
+	int compiled;
+	glGetShaderiv(shaderId, GL_COMPILE_STATUS, &compiled);
+	if (compiled != GL_TRUE)
 	{
-		int size = strlen(source);
-		int shaderId = glCreateShader(shaderType);
-		glShaderSource(shaderId, 1, &source, &size);
-		glCompileShader(shaderId);
-
-		int compiled;
-		glGetShaderiv(shaderId, GL_COMPILE_STATUS, &compiled);
-		if (compiled != GL_TRUE)
-		{
-			GLsizei log_length = 0;
-			GLchar message[1024];
-			glGetShaderInfoLog(shaderId, 1024, &log_length, message);
-			OutputDebugString(message);
-		}
-
-		glAttachShader(programID, shaderId);
-
-		return shaderId;
+		GLsizei log_length = 0;
+		GLchar message[1024];
+		glGetShaderInfoLog(shaderId, 1024, &log_length, message);
+		OutputDebugString(message);
 	}
+
+	glAttachShader(programID, shaderId);
+
+	return shaderId;
 }
 
 ShaderProgram* CreateShader(ShaderProgram* program,

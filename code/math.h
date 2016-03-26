@@ -248,7 +248,7 @@ inline float LengthSquared(const Quaternion& q)
 
 inline Quaternion Normalized(const Quaternion& q)
 {
-	const invLength = 1.0 / Length(q);
+	const float invLength = 1.0 / Length(q);
 	const Quaternion result = 
 	{
 		q.X * invLength, 
@@ -258,6 +258,37 @@ inline Quaternion Normalized(const Quaternion& q)
 	};
 	
 	return result;
+}
+
+inline Quaternion Rotated(const Quaternion& q, 
+	const float ax, const float ay, const float az, const float angle)
+{
+	const float halfRad = angle * PI / 360;
+	const float halfSin = sin(halfRad);
+	const float halfCos = cos(halfRad);
+
+	const float invLength = 1.0 / sqrt(ax * ax + ay * ay + az * az);
+
+	const float rx = -ax * invLength * halfSin;
+	const float ry = -ay * invLength * halfSin;
+	const float rz = -az * invLength * halfSin;
+	const float rw = halfCos;
+	
+	const Quaternion result = 
+	{
+		rw * q.X + rx * q.W + ry * q.Z - rz * q.Y,
+		rw * q.Y + ry * q.W + rz * q.X - rx * q.Z,
+		rw * q.Z + rz * q.W + rx * q.Y - ry * q.X,
+		rw * q.W - rx * q.X - ry * q.Y - rz * q.Z
+	};
+	
+	return Normalized(result);
+}
+
+inline Quaternion Rotated(const Quaternion& q, 
+	const Vec3& axis, const float angle)
+{
+	return Rotated(axis.X, axis.Y, axis.Z, angle);
 }
 
 inline float Dot(const Quaternion& lhs, const Quaternion& rhs)
@@ -272,7 +303,6 @@ inline Quaternion Conjugate(const Quaternion& q)
 	return result;
 }
 
-//TODO
 inline Quaternion Inverse(const Quaternion& q)
 {
 	const float invLengthSquared = 1.0 / LengthSquared(q);
@@ -287,20 +317,220 @@ inline Quaternion Inverse(const Quaternion& q)
 	return result;
 }
 
-inline Quaternion FromAxis(const Vec3& axis, const float angle)
+inline Quaternion FromAxis(const float ax, const float ay, const float az, 
+	const float angle)
 {
 	const float halfRad = angle * PI / 360;
 	const float halfSin = sin(halfRad);
 	const float halfCos = cos(halfRad);
 	const Quaternion result = 
 	{
-		-axis.X * halfSin, 
-		-axis.Y * halfSin, 
-		-axis.Z * halfSin, 
+		-ax * halfSin, 
+		-ay * halfSin, 
+		-az * halfSin, 
 		halfCos
 	};
 	
 	return Normalized(result);
 }
 
-// FromEuler
+inline Quaternion FromAxis(const Vec3& axis, const float angle)
+{
+	return FromAxis(axis.X, axis.Y, axis.Z, angle);
+}
+
+
+inline Quaternion FromEuler(const float x, const float y, const float z)
+{
+	const float rx = x * PI / 360;
+	const float ry = y * PI / 360;
+	const float rz = z * PI / 360;
+	
+	const float sinX = -sin(rx);
+	const float sinY = -sin(ry);
+	const float sinZ = -sin(rz);
+	
+	const float cosX = cos(rx);
+	const float cosY = cos(ry);
+	const float cosZ = cos(rz);
+	
+	const float sinXsinY = sinX * sinY;
+	const float sinXcosY = sinX * cosY;
+	const float cosXcosY = cosX * cosY;
+	const float cosXsinY = cosX * sinY;
+	
+	const Quaternion result =
+	{ 
+		cosXsinY * sinZ + sinXcosY * cosZ, 
+		cosXsinY * cosZ + sinXcosY * sinZ, 
+		cosXcosY * sinZ - sinXsinY * cosZ, 
+		cosXcosY * cosZ - sinXsinY * sinZ
+	};
+	
+	return result;
+}
+
+inline Quaternion FromEuler(const Vec3& v)
+{
+	return FromEuler(v.X, v.Y, v.Z);
+}
+
+inline Matrix4x4 ToMatrix4x4(const Quaternion& q)
+{
+	const float xx2 = 2 * q.X * q.X;
+	const float xy2 = 2 * q.X * q.Y;
+	const float xz2 = 2 * q.X * q.Z;
+	const float xw2 = 2 * q.X * q.W;
+	const float yy2 = 2 * q.Y * q.Y;
+	const float yz2 = 2 * q.Y * q.Z;
+	const float yw2 = 2 * q.Y * q.W;
+	const float zz2 = 2 * q.Z * q.Z;
+	const float zw2 = 2 * q.Z * q.W;
+	
+	const Matrix4x4 result =
+	{ 
+		1.0 - (yy2 + zz2), xy2 + zw2, xz2 - yw2, 0.0,
+		xy2 - zw2, 1.0 - (xx2 + zz2), yz2 + xw2, 0.0,
+		xz2 + yw2, yz2 - xw2, 1.0 - (xx2 + yy2), 0.0,
+		0.0, 0.0, 0.0, 1.0
+	};
+	
+	return result;
+}
+
+inline Vec3 Forward(const Quaternion& q)
+{
+	const Vec3 result =
+	{
+		2.0 * q.X * q.Z + 2.0 * q.Y * q.W,
+		2.0 * q.Y * q.X - 2.0 * q.X * q.W,
+		1.0 - (2.0 * q.X * q.X + 2.0 * q.Y * q.Y)
+	};
+	
+	return result;
+}
+
+inline Vec3 Backward(const Quaternion& q)
+{
+	const Vec3 result =
+	{
+		-2.0 * q.X * q.Z - 2.0 * q.Y * q.W,
+		-2.0 * q.Y * q.X + 2.0 * q.X * q.W,
+		-1.0 + (2.0 * q.X * q.X + 2.0 * q.Y * q.Y)
+	};
+	
+	return result;
+}
+
+inline Vec3 Up(const Quaternion& q)
+{
+	const Vec3 result =
+	{
+		2.0 * q.X * q.Y - 2.0 * q.Z * q.W,
+		1.0 - (2.0 * q.X * q.X + 2.0 * q.Z * q.Z),
+		2.0 * q.Y * q.Z + 2.0 * q.X * q.W
+	};
+	
+	return result;
+}
+
+inline Vec3 Down(const Quaternion& q)
+{
+	const Vec3 result =
+	{
+		-2.0 * q.X * q.Y + 2.0 * q.Z * q.W,
+		-1.0 + (2.0 * q.X * q.X + 2.0 * q.Z * q.Z),
+		-2.0 * q.Y * q.Z - 2.0 * q.X * q.W
+	};
+	
+	return result;
+}
+
+inline Vec3 Left(const Quaternion& q)
+{
+	const Vec3 result =
+	{
+		1.0 - (2.0 * q.Y * q.Y + 2.0 * q.Z * q.Z),
+		2.0 * q.X * q.Y + 2.0 * q.Z * q.W,
+		2.0 * q.X * q.Z - 2.0 * q.Y * q.W
+	};
+	
+	return result;
+}
+
+inline Vec3 Right(const Quaternion& q)
+{
+	const Vec3 result =
+	{
+		-1.0 + (2.0 * q.Y * q.Y + 2.0 * q.Z * q.Z),
+		-2.0 * q.X * q.Y - 2.0 * q.Z * q.W,
+		-2.0 * q.X * q.Z + 2.0 * q.Y * q.W
+	};
+	
+	return result;
+}
+
+inline Quaternion operator+(const Quaternion& lhs, const Quaternion& rhs)
+{
+	const Quaternion result =
+	{ 
+		lhs.X + rhs.X, 
+		lhs.Y + rhs.Y, 
+		lhs.Z + rhs.Z, 
+		lhs.W + rhs.W
+	};
+	
+	return result;
+}
+
+inline Quaternion operator-(const Quaternion& lhs, const Quaternion& rhs)
+{
+	const Quaternion result =
+	{ 
+		lhs.X - rhs.X, 
+		lhs.Y - rhs.Y, 
+		lhs.Z - rhs.Z, 
+		lhs.W - rhs.W
+	};
+	
+	return result;
+}
+
+inline Quaternion operator*(const Quaternion& lhs, const Quaternion& rhs)
+{
+	const Quaternion result =
+	{ 
+		lhs.W * rhs.X + lhs.X * rhs.W + lhs.Y * rhs.Z - lhs.Z * rhs.Y,
+		lhs.W * rhs.Y + lhs.Y * rhs.W + lhs.Z * rhs.X - lhs.X * rhs.Z,
+		lhs.W * rhs.Z + lhs.Z * rhs.W + lhs.X * rhs.Y - lhs.Y * rhs.X,
+		lhs.W * rhs.W - lhs.X * rhs.X - lhs.Y * rhs.Y - lhs.Z * rhs.Z
+	};
+	
+	return result;
+}
+
+inline Quaternion operator*(const Quaternion& lhs, const float rhs)
+{
+	const Quaternion result =
+	{ 
+		lhs.X * rhs,
+		lhs.Y * rhs, 
+		lhs.Z * rhs, 
+		lhs.W * rhs
+	};
+	
+	return result;
+}
+
+inline Quaternion operator*(const float lhs, const Quaternion& rhs)
+{
+	const Quaternion result =
+	{ 
+		rhs.X * lhs,
+		rhs.Y * lhs, 
+		rhs.Z * lhs, 
+		rhs.W * lhs
+	};
+	
+	return result;
+}
