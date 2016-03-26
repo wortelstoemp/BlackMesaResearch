@@ -10,6 +10,7 @@ typedef unsigned int uint;
 #include "gltk.h"
 #include "file.h"
 #include "shader.h"
+#include "math.h"
 
 // Author(s): Simon, Tom 
 

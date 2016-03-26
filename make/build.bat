@@ -16,5 +16,5 @@ mkdir ..\bin
 xcopy /D "..\deps\libs\*.dll" "..\bin\"
 
 pushd ..\bin
-cl %options% /SUBSYSTEM:CONSOLE
+cl -EHsc %options% /SUBSYSTEM:CONSOLE
 popd
