@@ -1,5 +1,3 @@
-#pragma once
-
 // Author(s): Simon
 
 struct ShaderProgram

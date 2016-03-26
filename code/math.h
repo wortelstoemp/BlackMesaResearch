@@ -234,7 +234,7 @@ inline Matrix4x4 operator*(const Matrix4x4& lhs, const Matrix4x4& rhs)
 	return result;
 }
 
-//TODO(Tom): Quaternion
+// Quaternion
 
 inline float Length(const Quaternion& q)
 {

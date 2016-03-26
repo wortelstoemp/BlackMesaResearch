@@ -5,13 +5,14 @@
 #include <SDL.h>
 #include <string.h>
 
+typedef unsigned int uint;
+
 #include "gltk.h"
 #include "file.h"
 #include "shader.h"
 
 // Author(s): Simon, Tom 
 
-typedef unsigned int uint;
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
