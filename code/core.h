@@ -47,44 +47,39 @@ namespace core
 		}
 	};
 	
-	// TODO: Camera API
 	struct Camera
 	{
-		Matrix4x4 viewProjection;	
+		Transform transform;
+		Matrix4x4 viewProjection;
+		
+		inline static Camera CreateOrtho(const Transform& transform,
+			const float width, const float height, 
+			const float zNear, const float zFar)
+		{
+			Camera result;
+			result.transform = transform;
+			result.viewProjection =
+				Ortho(0, width, 0, height, zNear, zFar) * 
+				ViewMatrix4x4(transform.position, transform.orientation);
+		
+			return result;
+		}
+		
+		inline static Camera CreatePerspective(const Transform& transform,
+			const float fovy, const float aspect, const float zNear, const float zFar)
+		{
+			Camera result;
+			result.transform = transform;
+			result.viewProjection =
+				Perspective(fovy, aspect, zNear, zFar) * 
+				ViewMatrix4x4(transform.position, transform.orientation);
+		
+			return result;
+		}
 	};
 	
-	inline Matrix4x4 MVP(const Transform& transform, const Camera& camera)
+	inline Matrix4x4 ModelViewProjection(const Transform& transform, const Camera& camera)
 	{
 		return camera.viewProjection * transform.Model();
-	}
-	
-	inline Camera CreateOrthoCamera(const Transform& transform,
-		const float width, const float height, const float zNear, const float zFar)
-	{
-		const Camera result =
-		{
-			Ortho(0, width, 0, height, zNear, zFar) * 
-			ViewMatrix4x4(transform.position, transform.orientation)
-		};
-		
-		return result;
-	}
-	
-	inline Camera CreatePerspectiveCamera(const Transform& transform,
-		const float fovy, const float width, const float height,
-		const float zNear, const float zFar)
-	{
-		const Camera result =
-		{
-			Perspective(fovy, width/height, zNear, zFar) * 
-			ViewMatrix4x4(transform.position, transform.orientation)
-		};
-		
-		return result;
-	}
-	
-	inline void UpdateCamera(Camera* camera, const Transform& transform)
-	{
-		
 	}
 }
