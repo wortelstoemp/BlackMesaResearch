@@ -670,6 +670,19 @@ namespace math {
 		return translate * m;
 	}
 	
+	inline Matrix4x4 Translate(const Vec3& v)
+	{
+		const Matrix4x4 result =
+		{ 
+			1, 0, 0, v.X,
+			0, 1, 0, v.Y,
+			0, 0, 1, v.Z,
+			0, 0, 0, 1  
+		};
+		
+		return result;
+	}
+	
 	inline Matrix4x4 Scale(const Matrix4x4& m, const Vec3& v)
 	{
 		const Matrix4x4 scale =
@@ -683,6 +696,19 @@ namespace math {
 		return scale * m;
 	}
 	
+	inline Matrix4x4 Scale(const Vec3& v)
+	{
+		const Matrix4x4 result =
+		{ 
+			v.X, 0, 0, 0,
+			0, v.Y, 0, 0,
+			0, 0, v.Z, 0,
+			0, 0, 0, 1  
+		};
+		
+		return result;
+	}
+	
 	inline Matrix4x4 Mirror(const Matrix4x4& m)
 	{
 		const Matrix4x4 scale =
@@ -694,6 +720,19 @@ namespace math {
 		};
 		
 		return scale * m;
+	}
+	
+	inline Matrix4x4 Mirror()
+	{
+		const Matrix4x4 result =
+		{ 
+			-1, 0, 0, 0,
+			0, -1, 0, 0,
+			0, 0, -1, 0,
+			0, 0, 0, 1  
+		};
+		
+		return result;
 	}
 	
 	inline Matrix4x4 Ortho(const float left, const float right,

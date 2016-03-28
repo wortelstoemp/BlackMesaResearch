@@ -12,6 +12,7 @@ typedef unsigned int uint;
 #include "file.h"
 #include "shader.h"
 #include "math.h"
+#include "core.h"
 
 // Author(s): Simon, Tom 
 
