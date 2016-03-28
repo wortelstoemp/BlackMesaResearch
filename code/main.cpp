@@ -3,6 +3,7 @@
 #include <gl/gl.h>
 #include <stdio.h>
 #include <SDL.h>
+#include <cmath>
 #include <string.h>
 
 typedef unsigned int uint;
