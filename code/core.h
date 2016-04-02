@@ -37,7 +37,7 @@ namespace core
 			orientation = FromEuler(x, y, z) * orientation;
 		}
 		
-		inline Matrix4x4 Model() const
+		inline Matrix4x4 CalculateModel() const
 		{
 			const Matrix4x4 translation = Translate(position);
 			const Matrix4x4 rotation = CreateMatrix4x4(orientation);
@@ -47,17 +47,37 @@ namespace core
 		}
 	};
 	
-	enum CameraType
+	union Camera
 	{
-		CAMERA_ORTHO,
-		CAMERA_PERSPECTIVE,	
-	};
-	
-	struct Camera
-	{
-		Transform transform;
-		Matrix4x4 viewProjection;
-		CameraType cameraType;
+		enum CameraType
+		{
+			CAMERA_ORTHO,
+			CAMERA_PERSPECTIVE,	
+		};
+		
+		// Perspective
+		struct
+		{
+			Transform transform;
+			Matrix4x4 viewProjection;
+			CameraType cameraType;
+			float fovy;
+			float aspect;
+			float zNear;
+			float zFar;
+		};
+		
+		// Ortho
+		struct
+		{
+			Transform transform;
+			Matrix4x4 viewProjection;
+			CameraType cameraType;
+			float width;
+			float height;
+			float zNear;
+			float zFar;
+		};
 		
 		inline static Camera CreateOrtho(const Transform& transform,
 			const float width, const float height, 
@@ -86,28 +106,26 @@ namespace core
 			return result;
 		}
 		
-		inline Matrix4x4 UpdateViewProjection() const
+		inline void Update()
 		{
-			// switch(cameraType)
-			// {
-			// 	case CAMERA_ORTHO:
-			// 		viewProjection =
-			// 			Ortho(0, width, 0, height, zNear, zFar) * 
-			// 			ViewMatrix4x4(transform.position, transform.orientation);
-			// 		break;
-			// 	case CAMERA_PERSPECTIVE:
-			// 		viewProjection =
-			// 			Perspective(fovy, aspect, zNear, zFar) * 
-			// 			ViewMatrix4x4(transform.position, transform.orientation);
-			// 		break;
-			// }
-			
-			return viewProjection;
+			switch (cameraType)
+			{
+			case CAMERA_ORTHO:
+				viewProjection = Ortho(0, width, 0, height, zNear, zFar) * 
+					ViewMatrix4x4(transform.position, transform.orientation);
+				break;
+			case CAMERA_PERSPECTIVE:
+				viewProjection = Perspective(fovy, aspect, zNear, zFar) * 
+					ViewMatrix4x4(transform.position, transform.orientation);
+				break;
+			default:
+				break;
+			}
 		}
 	};
 	
-	inline Matrix4x4 ModelViewProjection(const Transform& transform, const Camera& camera)
+	inline Matrix4x4 CalculateMVP(const Transform& transform, const Camera& camera)
 	{
-		return camera.UpdateViewProjection() * transform.Model();
+		return camera.viewProjection * transform.CalculateModel();
 	}
 }
