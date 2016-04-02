@@ -51,8 +51,8 @@ namespace core
 	{
 		enum CameraType
 		{
+			CAMERA_PERSPECTIVE,
 			CAMERA_ORTHO,
-			CAMERA_PERSPECTIVE,	
 		};
 		
 		// Perspective
@@ -79,6 +79,19 @@ namespace core
 			float zFar;
 		};
 		
+		inline static Camera CreatePerspective(const Transform& transform,
+			const float fovy, const float aspect, const float zNear, const float zFar)
+		{
+			Camera result;
+			result.transform = transform;
+			result.viewProjection =
+				Perspective(fovy, aspect, zNear, zFar) * 
+				ViewMatrix4x4(transform.position, transform.orientation);
+			result.cameraType = CAMERA_PERSPECTIVE;			
+		
+			return result;
+		}
+		
 		inline static Camera CreateOrtho(const Transform& transform,
 			const float width, const float height, 
 			const float zNear, const float zFar)
@@ -93,29 +106,16 @@ namespace core
 			return result;
 		}
 		
-		inline static Camera CreatePerspective(const Transform& transform,
-			const float fovy, const float aspect, const float zNear, const float zFar)
-		{
-			Camera result;
-			result.transform = transform;
-			result.viewProjection =
-				Perspective(fovy, aspect, zNear, zFar) * 
-				ViewMatrix4x4(transform.position, transform.orientation);
-			result.cameraType = CAMERA_PERSPECTIVE;			
-		
-			return result;
-		}
-		
 		inline void Update()
 		{
 			switch (cameraType)
 			{
-			case CAMERA_ORTHO:
-				viewProjection = Ortho(0, width, 0, height, zNear, zFar) * 
-					ViewMatrix4x4(transform.position, transform.orientation);
-				break;
 			case CAMERA_PERSPECTIVE:
 				viewProjection = Perspective(fovy, aspect, zNear, zFar) * 
+					ViewMatrix4x4(transform.position, transform.orientation);
+				break;
+			case CAMERA_ORTHO:
+				viewProjection = Ortho(0, width, 0, height, zNear, zFar) * 
 					ViewMatrix4x4(transform.position, transform.orientation);
 				break;
 			default:
