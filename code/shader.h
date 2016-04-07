@@ -34,7 +34,7 @@ int CompileAndAttachShader(int programID, char** source, GLenum shaderType)
 		GLsizei log_length = 0;
 		GLchar message[1024];
 		glGetShaderInfoLog(shaderId, 1024, &log_length, message);
-		OutputDebugString(message);
+		printf("%s\n", message);
 	}
 
 	glAttachShader(programID, shaderId);
@@ -50,7 +50,7 @@ void CreateShader(ShaderProgram* program,
 	char* fragSource)
 {
 	program->shaderProgram = glCreateProgram();
-
+	
 	program->vertexShader = CompileAndAttachShader(program->shaderProgram, &vertexShaderSource, GL_VERTEX_SHADER);
 	program->tesselationControlShader = CompileAndAttachShader(program->shaderProgram, &tessControlSource, GL_TESS_CONTROL_SHADER);
 	program->tesselationEvaluationShader = CompileAndAttachShader(program->shaderProgram, &tessEvalSource, GL_TESS_EVALUATION_SHADER);
@@ -67,6 +67,6 @@ void CreateShader(ShaderProgram* program,
 		GLsizei log_length = 0;
 		GLchar message[1024];
 		glGetProgramInfoLog(program->shaderProgram, 1024, &log_length, message);
-		OutputDebugString(message);
+		printf("%s\n", message);
 	}
 }

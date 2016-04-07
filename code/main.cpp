@@ -1,4 +1,3 @@
-#include <windows.h>
 #include <glew.h>
 #include <gl/gl.h>
 #include <stdio.h>
@@ -57,8 +56,8 @@ void InitShaders()
 {
 	if (!shaderInit)
 	{
-		char* vertexSource = ReadFile("..\\data\\shaders\\simpleVert.glsl");
-		char* fragSource = ReadFile("..\\data\\shaders\\simpleFrag.glsl");
+		char* vertexSource = ReadFile("../data/shaders/simpleVert.glsl");
+		char* fragSource = ReadFile("../data/shaders/simpleFrag.glsl");
 
 		CreateShader(&shaderProgram, vertexSource, 0, 0, 0, fragSource);
 
