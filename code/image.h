@@ -1,32 +1,91 @@
 #pragma once
 
-namespace image
+// Author(s): Tom
+// Usage:
+// Image image = ReadImage("./file.dds");
+// ...
+// FreeImage(image);
+
+struct Image
 {
-	static unsigned char* LoadBMP(const char* fileName)
+	unsigned char* data;
+	unsigned int width;
+	unsigned int height;
+};
+
+Image ReadDDS(const char* fileName)
+{
+	printf("DDS\n");
+	Image image = {0};
+	return image;
+}
+
+// NOTE(Tom): Only used for testing, use .DDS files for performance
+Image ReadBMP(const char* fileName)
+{
+	Image image;
+	FILE* file;
+	fopen_s(&file, fileName, "rb");
+	if (!file)
 	{
-		printf("BMP\n");
-		return nullptr;
+		printf("Can't open image!\n");
+		image = {0};
+		return image;
 	}
 	
-	static unsigned char* LoadDDS(const char* fileName)
+	const int headerSize = 54;
+	unsigned char header[headerSize];
+	
+	if (fread(header, 1, headerSize, file) != headerSize ||
+		header[0] != 'B' || header[1] != 'M' ||
+		*(int*)&(header[28]) != 24 || *(int*)&(header[30]) != 0)
 	{
-		printf("DDS\n");
-		return nullptr;
+    	printf("Is not a correct 24 bit BMP image!\n");
+		fclose(file);
+		image = {0};
+    	return image;	
 	}
 	
-	unsigned char* Load(const char* fileName)
+	image.width = *(int*)&(header[18]);
+	image.height = *(int*)&(header[22]);
+	unsigned int imageSize = *(int*)&(header[34]);
+	
+	if (imageSize == 0)
 	{
-		const int length = strlen(fileName);
-		if (!strcmp(fileName + length - 4, ".dds"))
-		{
-			return LoadDDS(fileName);
-		}
-		else if (!strcmp(fileName + length - 4, ".bmp"))
-		{
-			return LoadBMP(fileName);
-		}
-		
+		imageSize = image.width * image.height * 3; // RGB
+	}
+	
+	image.data = (unsigned char*) malloc(sizeof(unsigned char) * imageSize);
+	fread(image.data, 1, imageSize, file);
+	fclose(file);
+	
+	return image;
+}
+
+Image ReadImage(const char* fileName)
+{
+	const int length = strlen(fileName);
+	const char* extension = fileName + length - 4;
+	Image image;
+	
+	if (!strcmp(extension, ".dds"))
+	{
+		image = ReadDDS(fileName);
+	}
+	else if (!strcmp(extension, ".bmp"))
+	{
+		image = ReadBMP(fileName);
+	}
+	else
+	{
+		image = {0};
 		printf("Image file format not supported!\n");
-		return nullptr;
 	}
-} 
+	
+	return image;
+}
+
+void FreeImage(const Image& image)
+{
+	free(image.data);
+}

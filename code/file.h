@@ -2,28 +2,30 @@
 
 // Author(s): Simon
 
-#include <stdio.h>
-#include <stdlib.h>
-
-char* ReadFile(char* fileName)
+char* ReadFile(const char* fileName)
 {
 	FILE* f = {0};
 	fopen_s(&f, fileName, "rb");
 	if (f)
 	{
 		fseek(f, 0, SEEK_END);
-		unsigned long fsize = ftell(f);
+		ulong fsize = ftell(f);
 		fseek(f, 0, SEEK_SET);
 
-		char* string = (char*)malloc(fsize + 1);
-		fread(string, fsize, 1, f);
+		char* str = (char*) malloc(fsize + 1);
+		fread(str, fsize, 1, f);
 		fclose(f);
 
-		string[fsize] = 0;
-		return string;
+		str[fsize] = 0;
+		return str;
 	}
 	else
 	{
 		return 0;
 	}
+}
+
+void FreeFile(char* file)
+{
+	free(file);
 }
