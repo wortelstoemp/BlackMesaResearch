@@ -2,27 +2,30 @@
 #include <glew.h>
 #include <gl/gl.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <SDL.h>
 #include <cmath>
 #include <string.h>
 
-typedef unsigned int uint;
-
-#include "gltk.h"
+//YEP WE'RE DOING A UNITY BUILD HERE
+#include "typedefs.h"
 #include "file.h"
 #include "shader.h"
 #include "math.h"
 #include "core.h"
+#include "image.h"
 
 // Author(s): Simon, Tom 
 
-
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 480;
+const int SCREEN_WIDTH = 1600;
+const int SCREEN_HEIGHT = 900;
 const int DESIRED_FPS = 30;
 
 const uint points = 4;
 const uint floatsPerPoint = 3;
+
+ShaderProgram shaderProgram = {0};
+bool shaderInit = false;
 
 bool HandleEvent(SDL_Event* event)
 {
@@ -49,40 +52,67 @@ bool HandleEvent(SDL_Event* event)
 	return isRunning;
 }
 
+//NOTE(Simon): This is purely for testing. Delete!
+void InitShaders()
+{
+	if (!shaderInit)
+	{
+		char* vertexSource = ReadFile("..\\data\\shaders\\simpleVert.glsl");
+		char* fragSource = ReadFile("..\\data\\shaders\\simpleFrag.glsl");
+
+		CreateShader(&shaderProgram, vertexSource, 0, 0, 0, fragSource);
+
+		shaderInit = true;
+	}
+}
+
 void GameUpdateAndRender(SDL_Window* window, float deltaTime)
 {
-	glClearColor(1, 0, 1, 1);
+	(void) deltaTime;
+	
+	InitShaders();
+	
+	// Create Vertex Array Object
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
 
-	glClear(GL_COLOR_BUFFER_BIT);
+	// Create a Vertex Buffer Object and copy the vertex data to it
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
 
-	GLfloat square[points][floatsPerPoint] =
-	{
-		{ -0.5,  0.5,  0.5 }, // Top left
-		{  0.5,  0.5,  0.5 }, // Top right
-		{  0.5, -0.5,  0.5 }, // Bottom right
-		{ -0.5, -0.5,  0.5 }, // Bottom left
+	GLfloat vertices[] = {
+		0.0f,  0.5f,
+		0.5f, -0.5f,
+		-0.5f, -0.5f
 	};
 
- 	GLuint vbo[1], vao[1];
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
- 	uint positionAttributeIndex = 0;
- 	glGenBuffers(1, vbo);
- 	glGenVertexArrays(1, vao);
-	//glBufferData(GL_ARRAY_BUFFER, vbo[0]);
-		 
-	uint sizeInBytes = (points * floatsPerPoint) * sizeof(GLfloat);
-	glBufferData(GL_ARRAY_BUFFER, sizeInBytes, square, GL_STATIC_DRAW);
+	// Link the vertex and fragment shader into a shader program
+	glUseProgram(shaderProgram.shaderProgram);
 
-	glBindVertexArray(vao[0]);
-	glVertexAttribPointer(positionAttributeIndex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	// Specify the layout of the vertex data
+	GLint posAttrib = glGetAttribLocation(shaderProgram.shaderProgram, "position");
+	glEnableVertexAttribArray(posAttrib);
+	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
-	glEnableVertexAttribArray(positionAttributeIndex);
+	// Clear the screen to black
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 
+	// Draw a triangle from the 3 vertices
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	
 	SDL_GL_SwapWindow(window);
 }
 
 int main(int argc, char* argv[])
 {
+	(void) argc;
+	(void) argv;
+	
 	// Initialization
 	if(SDL_Init(SDL_INIT_VIDEO) != 0)
 	{

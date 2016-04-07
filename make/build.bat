@@ -13,7 +13,7 @@ set libs=/link opengl32.lib^
 set options=%DEBUGVARS% %code% %includes% %libs%
 
 mkdir ..\bin
-xcopy /D "..\deps\libs\*.dll" "..\bin\"
+
 
 pushd ..\bin
 cl -EHsc %options% /SUBSYSTEM:CONSOLE
