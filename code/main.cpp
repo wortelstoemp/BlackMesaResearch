@@ -1,20 +1,23 @@
-#include <glew.h>
-#include <gl/gl.h>
+// Author(s): Simon, Tom 
+
+// C Standard libraries
 #include <stdio.h>
 #include <stdlib.h>
-#include <SDL.h>
-#include <cmath>
 #include <string.h>
+#include <math.h>
+
+// Libraries
+#include <glew.h>
+#include <SDL.h>
 
 //YEP WE'RE DOING A UNITY BUILD HERE
 #include "typedefs.h"
-#include "file.h"
-#include "shader.h"
 #include "math.h"
 #include "core.h"
+#include "file.h"
 #include "image.h"
-
-// Author(s): Simon, Tom 
+#include "shader.h"
+#include "texture.h"
 
 const int SCREEN_WIDTH = 1600;
 const int SCREEN_HEIGHT = 900;

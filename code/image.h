@@ -1,22 +1,31 @@
 #pragma once
 
 // Author(s): Tom
+
 // Usage:
 // Image image = ReadImage("./file.dds");
 // ...
 // FreeImage(image);
+
+enum ImageFormat
+{
+	IMAGE_FORMAT_BMP,
+	IMAGE_FORMAT_DDS	
+};
 
 struct Image
 {
 	unsigned char* data;
 	unsigned int width;
 	unsigned int height;
+	ImageFormat format;
 };
 
 Image ReadDDS(const char* fileName)
 {
 	printf("DDS\n");
 	Image image = {0};
+	image.format = IMAGE_FORMAT_DDS;
 	return image;
 }
 
@@ -48,6 +57,7 @@ Image ReadBMP(const char* fileName)
 	
 	image.width = *(int*)&(header[18]);
 	image.height = *(int*)&(header[22]);
+	image.format = IMAGE_FORMAT_BMP;
 	unsigned int imageSize = *(int*)&(header[34]);
 	
 	if (imageSize == 0)

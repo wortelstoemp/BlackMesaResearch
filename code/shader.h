@@ -1,4 +1,6 @@
-// Author(s): Simon
+#pragma once
+
+// Author(s): Simon, Tom
 
 struct ShaderProgram
 {
