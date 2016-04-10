@@ -29,6 +29,28 @@ union Vec3
 	};
 };
 
+union Vec4
+{
+	struct
+	{
+		Vec2 XY;
+		float Z;
+		float W;
+	};
+	struct
+	{
+		Vec3 XYZ;
+		float W;
+	};	
+	struct
+	{
+		float X;
+		float Y;
+		float Z;
+		float W;		
+	};
+};
+
 union Matrix2x2
 {
 	float values[4];	

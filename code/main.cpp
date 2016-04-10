@@ -16,6 +16,8 @@
 #include "core.h"
 #include "file.h"
 #include "image.h"
+
+// TODO(Tom): Group these in renderer.h
 #include "shader.h"
 #include "texture.h"
 
@@ -28,6 +30,9 @@ const uint floatsPerPoint = 3;
 
 ShaderProgram shaderProgram = {0};
 bool shaderInit = false;
+
+// TODO(Tom): Put this in a shaders.h?
+// Basic shader
 
 bool HandleEvent(SDL_Event* event)
 {
@@ -72,6 +77,10 @@ void GameUpdateAndRender(SDL_Window* window, float deltaTime)
 {
 	(void) deltaTime;
 	
+	// Clear the screen to black
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	
 	InitShaders();
 	
 	// Create Vertex Array Object
@@ -99,10 +108,6 @@ void GameUpdateAndRender(SDL_Window* window, float deltaTime)
 	GLint posAttrib = glGetAttribLocation(shaderProgram.shaderProgram, "position");
 	glEnableVertexAttribArray(posAttrib);
 	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
-	// Clear the screen to black
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Draw a triangle from the 3 vertices
 	glDrawArrays(GL_TRIANGLES, 0, 3);

@@ -21,10 +21,18 @@ struct Image
 	ImageFormat format;
 };
 
-Image ReadDDS(const char* fileName)
+struct DDSImage
+{
+	unsigned char* data;
+	unsigned int width;
+	unsigned int height;
+	ImageFormat format;
+};
+
+DDSImage ReadDDS(const char* fileName)
 {
 	printf("DDS\n");
-	Image image = {0};
+	DDSImage image = {0};
 	image.format = IMAGE_FORMAT_DDS;
 	return image;
 }
@@ -72,6 +80,7 @@ Image ReadBMP(const char* fileName)
 	return image;
 }
 
+// TODO(Tom): Delete
 Image ReadImage(const char* fileName)
 {
 	const int length = strlen(fileName);
@@ -80,7 +89,7 @@ Image ReadImage(const char* fileName)
 	
 	if (!strcmp(extension, ".dds"))
 	{
-		image = ReadDDS(fileName);
+		//image = ReadDDS(fileName);
 	}
 	else if (!strcmp(extension, ".bmp"))
 	{
