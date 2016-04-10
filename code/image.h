@@ -3,108 +3,73 @@
 // Author(s): Tom
 
 // Usage:
-// Image image = ReadImage("./file.dds");
+// DDSImage image;
+// image.Create(fileName);
 // ...
-// FreeImage(image);
-
-enum ImageFormat
-{
-	IMAGE_FORMAT_BMP,
-	IMAGE_FORMAT_DDS	
-};
-
-struct Image
-{
-	unsigned char* data;
-	unsigned int width;
-	unsigned int height;
-	ImageFormat format;
-};
+// image.Delete();
 
 struct DDSImage
 {
 	unsigned char* data;
 	unsigned int width;
 	unsigned int height;
-	ImageFormat format;
+	
+	void Create(const char* fileName)
+	{
+		printf("DDS\n");
+	}
+	
+	inline void Delete()
+	{
+		free(this->data);
+	}
 };
 
-DDSImage ReadDDS(const char* fileName)
+// NOTE(Tom): BMP only used for testing, use DDS files for performance.
+struct BMPImage
 {
-	printf("DDS\n");
-	DDSImage image = {0};
-	image.format = IMAGE_FORMAT_DDS;
-	return image;
-}
-
-// NOTE(Tom): Only used for testing, use .DDS files for performance
-Image ReadBMP(const char* fileName)
-{
-	Image image;
-	FILE* file;
-	fopen_s(&file, fileName, "rb");
-	if (!file)
-	{
-		printf("Can't open image!\n");
-		image = {0};
-		return image;
-	}
+	unsigned char* data;
+	unsigned int width;
+	unsigned int height;
 	
-	const int headerSize = 54;
-	unsigned char header[headerSize];
-	
-	if (fread(header, 1, headerSize, file) != headerSize ||
-		header[0] != 'B' || header[1] != 'M' ||
-		*(int*)&(header[28]) != 24 || *(int*)&(header[30]) != 0)
+	void Create(const char* fileName)
 	{
-    	printf("Is not a correct 24 bit BMP image!\n");
+		FILE* file;
+		fopen_s(&file, fileName, "rb");
+		if (!file)
+		{
+			printf("Can't open image!\n");
+			return;
+		}
+	
+		const int headerSize = 54;
+		unsigned char header[headerSize];
+	
+		if (fread(header, 1, headerSize, file) != headerSize ||
+			header[0] != 'B' || header[1] != 'M' ||
+			*(int*)&(header[28]) != 24 || *(int*)&(header[30]) != 0)
+		{
+    		printf("Is not a correct 24 bit BMP image!\n");
+			fclose(file);
+    		return;	
+		}
+	
+		this->width = *(int*)&(header[18]);
+		this->height = *(int*)&(header[22]);
+		unsigned int imageSize = *(int*)&(header[34]);
+	
+		if (imageSize == 0)
+		{
+			imageSize = this->width * this->height * 3; // RGB
+		}
+	
+		this->data = (unsigned char*) malloc(sizeof(unsigned char) * imageSize);
+		fread(this->data, 1, imageSize, file);
 		fclose(file);
-		image = {0};
-    	return image;	
 	}
 	
-	image.width = *(int*)&(header[18]);
-	image.height = *(int*)&(header[22]);
-	image.format = IMAGE_FORMAT_BMP;
-	unsigned int imageSize = *(int*)&(header[34]);
-	
-	if (imageSize == 0)
+	inline void Delete()
 	{
-		imageSize = image.width * image.height * 3; // RGB
+		free(this->data);
 	}
-	
-	image.data = (unsigned char*) malloc(sizeof(unsigned char) * imageSize);
-	fread(image.data, 1, imageSize, file);
-	fclose(file);
-	
-	return image;
-}
-
-// TODO(Tom): Delete
-Image ReadImage(const char* fileName)
-{
-	const int length = strlen(fileName);
-	const char* extension = fileName + length - 4;
-	Image image;
-	
-	if (!strcmp(extension, ".dds"))
-	{
-		//image = ReadDDS(fileName);
-	}
-	else if (!strcmp(extension, ".bmp"))
-	{
-		image = ReadBMP(fileName);
-	}
-	else
-	{
-		image = {0};
-		printf("Image file format not supported!\n");
-	}
-	
-	return image;
-}
-
-void FreeImage(const Image& image)
-{
-	free(image.data);
-}
+};

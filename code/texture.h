@@ -20,10 +20,20 @@ inline void Renderer_UnbindTexture(const Texture& texture)
 
 void Renderer_ReadTexture(Texture* texture, const char* fileName)
 {
-	Image image = ReadImage(fileName);
-	switch(image.format)
+	const int length = strlen(fileName);
+	const char* extension = fileName + length - 4;
+
+	if (!strcmp(extension, ".dds"))
 	{
-	case IMAGE_FORMAT_BMP:
+		DDSImage image;
+		image.Create(fileName);
+		// ...
+		image.Delete();
+	}
+	else if (!strcmp(extension, ".bmp"))
+	{
+		BMPImage image;
+		image.Create(fileName);
 		glGenTextures(1, &texture->id);
 		glBindTexture(GL_TEXTURE_2D, texture->id);
 
@@ -36,8 +46,11 @@ void Renderer_ReadTexture(Texture* texture, const char* fileName)
 				0, GL_BGR, GL_UNSIGNED_BYTE, image.data);
 
 		glGenerateMipmap(GL_TEXTURE_2D);
-		FreeImage(image);
+		image.Delete();
 		glBindTexture(GL_TEXTURE_2D, 0);
-		break;
+	}
+	else
+	{
+		printf("Texture file format not supported!\n");
 	}
 }
