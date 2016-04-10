@@ -75,44 +75,46 @@ union Camera
 		float zFar;
 	};
 	
-	inline static Camera CreatePerspective(const Transform& transform,
+	inline void CreatePerspective(const Transform& transform,
 		const float fovy, const float aspect, const float zNear, const float zFar)
 	{
-		Camera result;
-		result.transform = transform;
-		result.viewProjection =
+		this->transform = transform;
+		this->viewProjection =
 			Perspective(fovy, aspect, zNear, zFar) * 
 			ViewMatrix4x4(transform.position, transform.orientation);
-		result.cameraType = CAMERA_PERSPECTIVE;			
-	
-		return result;
+		this->cameraType = CAMERA_PERSPECTIVE;
+		this->fovy = fovy;
+		this->aspect = aspect;
+		this->zNear = zNear;
+		this->zFar = zFar;
 	}
 	
-	inline static Camera CreateOrtho(const Transform& transform,
+	inline void CreateOrtho(const Transform& transform,
 		const float width, const float height, 
 		const float zNear, const float zFar)
 	{
-		Camera result;
-		result.transform = transform;
-		result.viewProjection =
+		this->transform = transform;
+		this->viewProjection =
 			Ortho(0, width, 0, height, zNear, zFar) * 
 			ViewMatrix4x4(transform.position, transform.orientation);
-		result.cameraType = CAMERA_ORTHO;
-	
-		return result;
+		this->cameraType = CAMERA_ORTHO;
+		this->width = width;
+		this->height = height;
+		this->zNear = zNear;
+		this->zFar = zFar;
 	}
 	
 	inline void Update()
 	{
-		switch (cameraType)
+		switch (this->cameraType)
 		{
 		case CAMERA_PERSPECTIVE:
-			viewProjection = Perspective(fovy, aspect, zNear, zFar) * 
-				ViewMatrix4x4(transform.position, transform.orientation);
+			this->viewProjection = Perspective(this->fovy, this->aspect, this->zNear, this->zFar) * 
+				ViewMatrix4x4(this->transform.position, this->transform.orientation);
 			break;
 		case CAMERA_ORTHO:
-			viewProjection = Ortho(0, width, 0, height, zNear, zFar) * 
-				ViewMatrix4x4(transform.position, transform.orientation);
+			this->viewProjection = Ortho(0, this->width, 0, this->height, this->zNear, this->zFar) * 
+				ViewMatrix4x4(this->transform.position, this->transform.orientation);
 			break;
 		default:
 			break;

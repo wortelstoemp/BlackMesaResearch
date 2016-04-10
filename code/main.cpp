@@ -16,8 +16,6 @@
 #include "core.h"
 #include "file.h"
 #include "image.h"
-
-// TODO(Tom): Group these in renderer.h
 #include "shader.h"
 #include "texture.h"
 
@@ -30,9 +28,6 @@ const uint floatsPerPoint = 3;
 
 ShaderProgram shaderProgram = {0};
 bool shaderInit = false;
-
-// TODO(Tom): Put this in a shaders.h?
-// Basic shader
 
 bool HandleEvent(SDL_Event* event)
 {
