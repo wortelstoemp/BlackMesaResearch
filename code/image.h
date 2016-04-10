@@ -8,15 +8,56 @@
 // ...
 // image.Delete();
 
+// Compress PNG images with AMDCompress(CLI) to DDS.
+// Only use compressed images (DXT1 = BC1), (DXT3 = BC2), (DXT5 = BC3).
+// For sprites compress to DXT5 for alpha (gradient) channel.
 struct DDSImage
 {
 	unsigned char* data;
-	unsigned int width;
 	unsigned int height;
+	unsigned int width;
+	unsigned int linearSize;
+	unsigned int mipMapCount;
+	unsigned int fourCC;
 	
 	void Create(const char* fileName)
 	{
-		printf("DDS\n");
+		FILE* file; 
+		fopen_s(&file, fileName, "rb"); 
+		if (!file)
+		{
+			printf("Can't open image!\n");
+			return;
+		}
+		
+		const int headerSize = 124;
+		unsigned char header[headerSize];
+		
+		char fileType[4]; 
+		fread(fileType, 1, 4, file); 
+		if (strncmp(fileType, "DDS ", 4))
+		{
+			printf("Is not a correct DDS image!\n");
+			fclose(file); 
+			return;
+		}
+		
+		fread(&header, headerSize, 1, file); 
+
+		this->height = *(unsigned int*)&(header[8]);
+		this->width	= *(unsigned int*)&(header[12]);
+		this->linearSize = *(unsigned int*)&(header[16]);
+		this->mipMapCount = *(unsigned int*)&(header[24]);
+		this->fourCC = *(unsigned int*)&(header[80]);
+		
+		const unsigned int imageSize = this->mipMapCount > 1 ? this->linearSize * 2 : this->linearSize;
+		this->data = (unsigned char*) malloc(imageSize * sizeof(unsigned char));
+		
+		if(this->data)
+		{
+			fread(this->data, 1, imageSize, file); 
+		}
+		fclose(file);
 	}
 	
 	inline void Delete()
@@ -64,7 +105,10 @@ struct BMPImage
 		}
 	
 		this->data = (unsigned char*) malloc(sizeof(unsigned char) * imageSize);
-		fread(this->data, 1, imageSize, file);
+		if(this->data)
+		{
+			fread(this->data, 1, imageSize, file);
+		}
 		fclose(file);
 	}
 	
