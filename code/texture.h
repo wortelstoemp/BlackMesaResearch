@@ -89,12 +89,12 @@ struct Texture
 		}
 	}
 	
-	void Bind()
+	inline void Bind()
 	{
 		glBindTexture(GL_TEXTURE_2D, this->id);
 	}
 	
-	void Unbind()
+	inline void Unbind()
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}

@@ -1,6 +1,11 @@
 #pragma once
 
-// Author(s): Simon
+// Author(s): Simon, Tom
+
+// Usage:
+// char* file = ReadFile("./path/file.txt");
+// ...
+// FreeFile(file);
 
 char* ReadFile(const char* fileName)
 {

@@ -2,7 +2,7 @@
 
 // Author(s): Tom
 
-// Usage:
+// Usage (same for BMPImage):
 // DDSImage image;
 // image.Create(fileName);
 // ...

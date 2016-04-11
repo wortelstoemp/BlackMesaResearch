@@ -26,9 +26,6 @@ const int DESIRED_FPS = 30;
 const uint points = 4;
 const uint floatsPerPoint = 3;
 
-ShaderProgram shaderProgram = {0};
-bool shaderInit = false;
-
 bool HandleEvent(SDL_Event* event)
 {
 	bool isRunning = true;
@@ -54,60 +51,11 @@ bool HandleEvent(SDL_Event* event)
 	return isRunning;
 }
 
-//NOTE(Simon): This is purely for testing. Delete!
-void InitShaders()
-{
-	if (!shaderInit)
-	{
-		char* vertexSource = ReadFile("../data/shaders/simpleVert.glsl");
-		char* fragSource = ReadFile("../data/shaders/simpleFrag.glsl");
-
-		CreateShader(&shaderProgram, vertexSource, 0, 0, 0, fragSource);
-
-		shaderInit = true;
-	}
-}
-
 void GameUpdateAndRender(SDL_Window* window, float deltaTime)
 {
 	(void) deltaTime;
 	
-	// Clear the screen to black
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
 	
-	InitShaders();
-	
-	// Create Vertex Array Object
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	// Create a Vertex Buffer Object and copy the vertex data to it
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-
-	GLfloat vertices[] = {
-		0.0f,  0.5f,
-		0.5f, -0.5f,
-		-0.5f, -0.5f
-	};
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	// Link the vertex and fragment shader into a shader program
-	glUseProgram(shaderProgram.shaderProgram);
-
-	// Specify the layout of the vertex data
-	GLint posAttrib = glGetAttribLocation(shaderProgram.shaderProgram, "position");
-	glEnableVertexAttribArray(posAttrib);
-	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
-	// Draw a triangle from the 3 vertices
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	
-	SDL_GL_SwapWindow(window);
 }
 
 int main(int argc, char* argv[])
@@ -149,11 +97,33 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 	
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	
+	GLfloat vertices[] = {
+		// Positions		Colors			Texture Coordinates
+		0.5, 0.5, 0.0,		1.0, 1.0, 1.0,	1.0, 1.0,	// Top Right
+		-0.5, 0.5, 0.0,		1.0, 1.0, 1.0,	0.0, 1.0,	// Top Left
+		-0.5, -0.5, 0.0,	1.0, 1.0, 1.0,	0.0, 0.0,	// Bottom Left
+		0.5, -0.5, 0.0,		1.0, 1.0, 1.0,	1.0, 0.0	// Bottom Right	
+	};
+	
+	GLuint indices[] = {
+		0, 1, 2,	// First Triangle
+		2, 3, 0		// Second Triangle
+	};
+	
+	ShaderProgram shader;
+	char* vertexSource = ReadFile("../data/shaders/simpleVert.glsl");
+	char* fragmentSource = ReadFile("../data/shaders/simpleFrag.glsl");
+	shader.Create(vertexSource, 0, 0, 0, fragmentSource);
+	FreeFile(vertexSource);
+	FreeFile(fragmentSource);	
+	
 	Uint64 previousTime = SDL_GetPerformanceCounter();
 	float tickSize = 1.0f / SDL_GetPerformanceFrequency();
+	bool isRunning = true;
 	
 	// Update
-	bool isRunning = true;
 	while (isRunning)
 	{
 		SDL_Event event;
@@ -164,11 +134,46 @@ int main(int argc, char* argv[])
 		
 		Uint64 currentTime = SDL_GetPerformanceCounter();
 		float deltaTime = (currentTime - previousTime) * tickSize;
-		GameUpdateAndRender(window, deltaTime);
+		
+		// Render
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+	
+		// Create Vertex Array Object
+		GLuint vao;
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+
+		// Create a Vertex Buffer Object and copy the vertex data to it
+		GLuint vbo;
+		glGenBuffers(1, &vbo);
+
+		GLfloat verticesOld[] = {
+			0.0f,  0.5f,
+			0.5f, -0.5f,
+			-0.5f, -0.5f
+		};
+
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(verticesOld), verticesOld, GL_STATIC_DRAW);
+
+		shader.Use();
+
+		// Specify the layout of the vertex data
+		GLint posAttrib = glGetAttribLocation(shader.shaderProgram, "position");
+		glEnableVertexAttribArray(posAttrib);
+		glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+		// Draw a triangle from the 3 verticesOld
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+	
+		SDL_GL_SwapWindow(window);	
+		
 		previousTime = currentTime;
 	}
 
 	// Shutdown
+	shader.Delete();
 	SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
