@@ -14,6 +14,7 @@
 #include "typedefs.h"
 #include "math.h"
 #include "core.h"
+#include "input.h"
 #include "file.h"
 #include "image.h"
 #include "shader.h"
@@ -21,31 +22,107 @@
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
-const int DESIRED_FPS = 30;
+const int DESIRED_FPS = 60;
 
 const uint points = 4;
 const uint floatsPerPoint = 3;
 
-bool HandleEvent(SDL_Event* event)
+bool HandleEvent(InputSystem* input, const SDL_Event& event)
 {
 	bool isRunning = true;
 
-	switch(event->type)
+	switch(event.type)
 	{
+		case SDL_KEYDOWN:
+		{
+			SDL_Keycode keyCode = event.key.keysym.sym;
+			switch(keyCode)
+			{
+				case SDLK_UP:
+				{
+					input->keys[InputSystem::KEY_UP] = true;
+					input->downKeys[InputSystem::KEY_UP] = true;
+				}
+				break;
+				
+				case SDLK_DOWN:
+				{
+					input->keys[InputSystem::KEY_DOWN] = true;
+					input->downKeys[InputSystem::KEY_DOWN] = true;
+				}
+				break;
+				
+				case SDLK_LEFT:
+				{
+					input->keys[InputSystem::KEY_LEFT] = true;
+					input->downKeys[InputSystem::KEY_LEFT] = true;
+				}
+				break;
+				
+				case SDLK_RIGHT:
+				{
+					input->keys[InputSystem::KEY_RIGHT] = true;
+					input->downKeys[InputSystem::KEY_RIGHT] = true;
+				}
+				break;
+			}
+		}
+		break;
+		
+		case SDL_KEYUP:
+		{
+			SDL_Keycode keyCode = event.key.keysym.sym;
+			switch(keyCode)
+			{
+				case SDLK_UP:
+				{
+					input->keys[InputSystem::KEY_UP] = false;
+					input->upKeys[InputSystem::KEY_UP] = true;
+				}
+				break;
+				
+				case SDLK_DOWN:
+				{
+					input->keys[InputSystem::KEY_DOWN] = false;
+					input->upKeys[InputSystem::KEY_DOWN] = true;
+				}
+				break;
+				
+				case SDLK_LEFT:
+				{
+					input->keys[InputSystem::KEY_LEFT] = false;
+					input->upKeys[InputSystem::KEY_LEFT] = true;
+				}
+				break;
+				
+				case SDLK_RIGHT:
+				{
+					input->keys[InputSystem::KEY_RIGHT] = false;
+					input->upKeys[InputSystem::KEY_RIGHT] = true;
+				}
+				break;
+			}
+		}
+		break;
+		
 		case SDL_QUIT:
 		{
 			isRunning = false;
-		} break;
+		}
+		break;
+		
 		case SDL_WINDOWEVENT:
 		{
-			switch(event->window.event)
+			switch(event.window.event)
 			{
 				case SDL_WINDOWEVENT_RESIZED:
 				{
 
-				} break;
+				}
+				break;
 			}
-		} break;
+		}
+		break;
 	}
 
 	return isRunning;
@@ -76,10 +153,12 @@ int main(int argc, char* argv[])
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 	
 	SDL_GLContext context = SDL_GL_CreateContext(window);
 	
@@ -90,7 +169,9 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 	
-	//glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	InputSystem input;
+	
+	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	
 	// Mesh stuff
 	// TODO(Tom): Make SimpleSprite struct
@@ -182,6 +263,8 @@ int main(int argc, char* argv[])
 	shader.CreateFromFiles("../data/shaders/default_vs.glsl", 0, 0, 0, "../data/shaders/default_fs.glsl");
 	shader.Init();
 	
+	float deltaTime;
+	Uint64 currentTime;
 	Uint64 previousTime = SDL_GetPerformanceCounter();
 	float tickSize = 1.0f / SDL_GetPerformanceFrequency();
 	bool isRunning = true;
@@ -189,19 +272,41 @@ int main(int argc, char* argv[])
 	// Update
 	while (isRunning)
 	{
+		currentTime = SDL_GetPerformanceCounter();
+		deltaTime = (currentTime - previousTime) * tickSize;
+		
 		SDL_Event event;
 		while(SDL_PollEvent(&event))
         {
-            isRunning = HandleEvent(&event);    
+            isRunning = HandleEvent(&input, event);    
         }
 		
-		Uint64 currentTime = SDL_GetPerformanceCounter();
-		float deltaTime = (currentTime - previousTime) * tickSize;
+		if (input.isKey(InputSystem::KEY_UP))
+		{
+			printf("Pressed key up!\n");
+		}
+		if (input.isKey(InputSystem::KEY_DOWN))
+		{
+			printf("Pressed key down!\n");
+		}
+		
+		if (input.isKeyUp(InputSystem::KEY_UP))
+		{
+			printf("Released key up!\n");
+		}
+		if (input.isKeyUp(InputSystem::KEY_DOWN))
+		{
+			printf("Released key down!\n");
+		}
+		
+		input.ResetKeys();
 		
 		// Render
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
+		camera.Update();
+		camera.transform.Rotate(0.0f, 5.0f * deltaTime, 0.0f);
 		texture.Bind();
 		shader.Use();
 		shader.Update(transform, camera, deltaTime);
