@@ -2,9 +2,9 @@
 
 // Author(s): Tom
 
-// Usage (same for BMPImage):
+// API Usage code (same for BMPImage):
 // DDSImage image;
-// image.Create(fileName);
+// image.CreateFromFile(fileName);
 // ...
 // image.Delete();
 
@@ -20,7 +20,7 @@ struct DDSImage
 	unsigned int mipMapCount;
 	unsigned int fourCC;
 	
-	void Create(const char* fileName)
+	void CreateFromFile(const char* fileName)
 	{
 		FILE* file; 
 		fopen_s(&file, fileName, "rb"); 
@@ -73,7 +73,7 @@ struct BMPImage
 	unsigned int width;
 	unsigned int height;
 	
-	void Create(const char* fileName)
+	void CreateFromFile(const char* fileName)
 	{
 		FILE* file;
 		fopen_s(&file, fileName, "rb");

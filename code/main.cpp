@@ -175,16 +175,11 @@ int main(int argc, char* argv[])
 	camera.CreatePerspective(cameraTransform, 45.0f, (float)SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.0f);
 	
 	Texture texture;
-	texture.Create("../data/textures/foo.bmp");
-	//texture.Create("../data/textures/foo.dds");
+	texture.CreateFromFile("../data/textures/foo.bmp");
+	//texture.CreateFromFile("../data/textures/foo.dds");
 	
 	DefaultShader shader;
-	char* vertexSource = ReadFile("../data/shaders/default_vs.glsl");
-	char* fragmentSource = ReadFile("../data/shaders/default_fs.glsl");
-	shader.Create(vertexSource, 0, 0, 0, fragmentSource);
-	FreeFile(vertexSource);
-	FreeFile(fragmentSource);
-	
+	shader.CreateFromFiles("../data/shaders/default_vs.glsl", 0, 0, 0, "../data/shaders/default_fs.glsl");
 	shader.Init();
 	
 	Uint64 previousTime = SDL_GetPerformanceCounter();

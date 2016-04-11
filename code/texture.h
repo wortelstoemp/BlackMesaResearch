@@ -1,11 +1,19 @@
 #pragma once
 
 // Author(s): Tom
+
+// API Usage code:
+// Texture texture;
+// texture.CreateFromFile("../data/textures/foo.bmp");
+// texture.Bind();
+// ...
+// texture.Unbind();
+
 struct Texture
 {
 	GLuint id;
 
-	void Create(const char* fileName)
+	void CreateFromFile(const char* fileName)
 	{
 		const int length = strlen(fileName);
 		const char* extension = fileName + length - 4;
@@ -13,7 +21,7 @@ struct Texture
 		if (!strcmp(extension, ".dds"))
 		{
 			DDSImage image;
-			image.Create(fileName);
+			image.CreateFromFile(fileName);
 			
 			const unsigned int FOURCC_DXT1 = 0x31545844;
 			const unsigned int FOURCC_DXT3 = 0x33545844;
@@ -70,7 +78,7 @@ struct Texture
 		else if (!strcmp(extension, ".bmp"))
 		{
 			BMPImage image;
-			image.Create(fileName);
+			image.CreateFromFile(fileName);
 			glGenTextures(1, &this->id);
 			glBindTexture(GL_TEXTURE_2D, this->id);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

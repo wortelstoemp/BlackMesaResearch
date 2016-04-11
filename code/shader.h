@@ -2,14 +2,9 @@
 
 // Author(s): Simon, Tom
 
-// TODO(Tom): Make simpeler API usage code?
-// Usage
+// API Usage code:
 // DefaultShader shader;
-// char* vertexSource = ReadFile("../data/shaders/default_vs.glsl");
-// char* fragmentSource = ReadFile("../data/shaders/default_fs.glsl");
-// shader.Create(vertexSource, 0, 0, 0, fragmentSource);
-// FreeFile(vertexSource);
-// FreeFile(fragmentSource);
+// shader.CreateFromFiles("../data/shaders/default_vs.glsl", 0, 0, 0, "../data/shaders/default_fs.glsl");
 // shader.Init();
 // ...
 // shader.Use();
@@ -32,9 +27,7 @@ struct Shader
 	void CompileAndAttachShader(int programID, char** source, GLenum shaderType) const
 	{
 		if (*source == 0)
-		{
 			return;
-		}
 	
 		int size = strlen(*source);
 		int shaderID = glCreateShader(shaderType);
@@ -84,6 +77,33 @@ struct Shader
 			glGetProgramInfoLog(shaderProgram, 1024, &log_length, message);
 			printf("%s\n", message);
 		}
+	}
+	
+	void CreateFromFiles(
+		char* vertexFile,
+		char* tessControlFile,
+		char* tessEvalFile,
+		char* geometryFile,
+		char* fragmentFile)
+	{
+		char* vertexSource = vertexFile ? ReadFile(vertexFile) : 0;
+		char* tessControlSource = tessControlFile ? ReadFile(tessControlFile) : 0;
+		char* tessEvalSource = tessEvalFile ? ReadFile(tessEvalFile) : 0;
+		char* geometrySource = geometryFile ? ReadFile(geometryFile) : 0;
+		char* fragmentSource = fragmentFile ? ReadFile(fragmentFile) : 0;
+		
+		Create(vertexSource, tessControlSource, tessEvalSource, geometrySource, fragmentSource);		
+	
+		if (vertexSource)
+			FreeFile(vertexSource);
+		if (tessControlSource)
+			FreeFile(tessControlSource);
+		if (tessEvalSource)
+			FreeFile(tessEvalSource);
+		if (geometrySource)
+			FreeFile(geometrySource);
+		if (fragmentSource)
+			FreeFile(fragmentSource);
 	}
 
 	inline void Delete()

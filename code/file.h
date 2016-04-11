@@ -2,7 +2,7 @@
 
 // Author(s): Simon, Tom
 
-// Usage:
+// API Usage code:
 // char* file = ReadFile("./path/file.txt");
 // ...
 // FreeFile(file);
