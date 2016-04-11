@@ -19,8 +19,8 @@
 #include "shader.h"
 #include "texture.h"
 
-const int SCREEN_WIDTH = 1600;
-const int SCREEN_HEIGHT = 900;
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 600;
 const int DESIRED_FPS = 30;
 
 const uint points = 4;
@@ -49,13 +49,6 @@ bool HandleEvent(SDL_Event* event)
 	}
 
 	return isRunning;
-}
-
-void GameUpdateAndRender(SDL_Window* window, float deltaTime)
-{
-	(void) deltaTime;
-	
-	
 }
 
 int main(int argc, char* argv[])
@@ -97,8 +90,10 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 	
-	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	//glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	
+	// Mesh stuff
+	// TODO(Tom): Make SimpleSprite struct
 	GLfloat vertices[] = {
 		// Positions		Colors			Texture Coordinates
 		0.5, 0.5, 0.0,		1.0, 1.0, 1.0,	1.0, 1.0,	// Top Right
@@ -112,12 +107,85 @@ int main(int argc, char* argv[])
 		2, 3, 0		// Second Triangle
 	};
 	
-	ShaderProgram shader;
-	char* vertexSource = ReadFile("../data/shaders/simpleVert.glsl");
-	char* fragmentSource = ReadFile("../data/shaders/simpleFrag.glsl");
+	// Create Vertex Array Object
+	GLuint vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+	GLuint vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	GLuint ebo;
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	
+	// Position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+	
+	// Color attribute
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+	
+	// Texture attribute
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(2);
+	
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//glBindVertexArray(0);
+
+	// Uncomment for wireframe mode
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	// Set state back to filled polygons
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	// Back Face Culling
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
+	//glFrontFace(GL_CCW);
+
+	// Depth testing
+	glEnable(GL_DEPTH_TEST);
+
+	// Alpha blending
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	Transform transform;
+	transform.position.X = 0.0f;
+	transform.position.Y = 0.0f;
+	transform.position.Z = 0.0f;
+	transform.scale.X = 1.0f;
+	transform.scale.Y = 1.0f;
+	transform.scale.Z = 1.0f;
+	transform.orientation = FromEuler(180.0f, 0.0f, 0.0f);
+	
+	Transform cameraTransform;
+	cameraTransform.position.X = 0.0f;
+	cameraTransform.position.Y = 0.0f;
+	cameraTransform.position.Z = 3.0f;
+	cameraTransform.scale.X = 1.0f;
+	cameraTransform.scale.Y = 1.0f;
+	cameraTransform.scale.Z = 1.0f;
+	cameraTransform.orientation = FromAxis(0.0f, 1.0f, 0.0f, 180.0f);	
+	
+	Camera camera;
+	camera.CreatePerspective(cameraTransform, 45.0f, (float)SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.0f);
+	
+	Texture texture;
+	texture.Create("../data/textures/foo.bmp");
+	//texture.Create("../data/textures/foo.dds");
+	
+	DefaultShader shader;
+	char* vertexSource = ReadFile("../data/shaders/default_vs.glsl");
+	char* fragmentSource = ReadFile("../data/shaders/default_fs.glsl");
 	shader.Create(vertexSource, 0, 0, 0, fragmentSource);
 	FreeFile(vertexSource);
-	FreeFile(fragmentSource);	
+	FreeFile(fragmentSource);
+	
+	shader.Init();
 	
 	Uint64 previousTime = SDL_GetPerformanceCounter();
 	float tickSize = 1.0f / SDL_GetPerformanceFrequency();
@@ -137,36 +205,18 @@ int main(int argc, char* argv[])
 		
 		// Render
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-	
-		// Create Vertex Array Object
-		GLuint vao;
-		glGenVertexArrays(1, &vao);
-		glBindVertexArray(vao);
-
-		// Create a Vertex Buffer Object and copy the vertex data to it
-		GLuint vbo;
-		glGenBuffers(1, &vbo);
-
-		GLfloat verticesOld[] = {
-			0.0f,  0.5f,
-			0.5f, -0.5f,
-			-0.5f, -0.5f
-		};
-
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(verticesOld), verticesOld, GL_STATIC_DRAW);
-
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		texture.Bind();
 		shader.Use();
+		shader.Update(transform, camera, deltaTime);
 
-		// Specify the layout of the vertex data
-		GLint posAttrib = glGetAttribLocation(shader.shaderProgram, "position");
-		glEnableVertexAttribArray(posAttrib);
-		glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
-		// Draw a triangle from the 3 verticesOld
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-	
+		glBindVertexArray(vao);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		texture.Unbind();
+		shader.Unuse();
+		glBindVertexArray(0);
+		
 		SDL_GL_SwapWindow(window);	
 		
 		previousTime = currentTime;
@@ -174,6 +224,9 @@ int main(int argc, char* argv[])
 
 	// Shutdown
 	shader.Delete();
+	glDeleteBuffers(1, &ebo);
+	glDeleteBuffers(1, &vbo);
+	glDeleteVertexArrays(1, &vao);
 	SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
