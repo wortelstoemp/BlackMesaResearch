@@ -549,7 +549,7 @@ inline Vec3 Forward(const Quaternion& q)
 		1.0f - (2.0f * q.X * q.X + 2.0f * q.Y * q.Y)
 	};
 	
-	return result;
+	return Normalized(result);
 }
 
 inline Vec3 Backward(const Quaternion& q)
@@ -561,7 +561,7 @@ inline Vec3 Backward(const Quaternion& q)
 		-1.0f + (2.0f * q.X * q.X + 2.0f * q.Y * q.Y)
 	};
 	
-	return result;
+	return Normalized(result);
 }
 
 inline Vec3 Up(const Quaternion& q)
@@ -573,7 +573,7 @@ inline Vec3 Up(const Quaternion& q)
 		2.0f * q.Y * q.Z + 2.0f * q.X * q.W
 	};
 	
-	return result;
+	return Normalized(result);
 }
 
 inline Vec3 Down(const Quaternion& q)
@@ -585,7 +585,7 @@ inline Vec3 Down(const Quaternion& q)
 		-2.0f * q.Y * q.Z - 2.0f * q.X * q.W
 	};
 	
-	return result;
+	return Normalized(result);
 }
 
 inline Vec3 Left(const Quaternion& q)
@@ -597,7 +597,7 @@ inline Vec3 Left(const Quaternion& q)
 		2.0f * q.X * q.Z - 2.0f * q.Y * q.W
 	};
 	
-	return result;
+	return Normalized(result);
 }
 
 inline Vec3 Right(const Quaternion& q)
@@ -609,7 +609,7 @@ inline Vec3 Right(const Quaternion& q)
 		-2.0f * q.X * q.Z + 2.0f * q.Y * q.W
 	};
 	
-	return result;
+	return Normalized(result);
 }
 
 // Matrix2x2
@@ -856,7 +856,7 @@ inline Matrix4x4 LookAt(const Vec3& eye, const Vec3& look, const Vec3& up)
 {
 	const Vec3 l = Normalized(look);
 	const Vec3 r = Cross(look, up);
-	const Vec3 u = Normalized(Cross(l, r));
+	const Vec3 u = Normalized(Cross(r, l));
 	
 	const Matrix4x4 result =
 	{ 

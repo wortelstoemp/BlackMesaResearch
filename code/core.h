@@ -52,16 +52,6 @@ struct Transform
 	{
 		orientation = Rotated(orientation, axis, angle);
 	}
-
-	inline void Rotate(const Vec3& eulerAmount)
-	{
-		orientation = FromEuler(eulerAmount) * orientation;
-	}
-	
-	inline void Rotate(const float dx, const float dy, const float dz)
-	{
-		orientation = FromEuler(dx, dy, dz) * orientation;
-	}
 	
 	inline Matrix4x4 CalculateModel() const
 	{
