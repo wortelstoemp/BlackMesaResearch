@@ -24,48 +24,10 @@ const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 const int DESIRED_FPS = 60;
 
-const uint points = 4;
-const uint floatsPerPoint = 3;
+const unsigned int points = 4;
+const unsigned int floatsPerPoint = 3;
 
-// TODO(Tom): Will this simplify a lot?
-/*
-void UpdateInput_Test(InputSystem* input)
-{
-    Uint8* keystate = SDL_GetKeyState(NULL);
-
-    //continuous-response keys
-    if(keystate[SDLK_LEFT])
-    {
-    }
-    if(keystate[SDLK_RIGHT])
-    {
-    }
-    if(keystate[SDLK_UP])
-    {
-    }
-    if(keystate[SDLK_DOWN])
-    {
-    }
-
-    //single-hit keys, mouse, and other general SDL events (eg. windowing)
-    while(SDL_PollEvent(&event))
-    {
-        switch (event.type)
-        {
-            case SDL_MOUSEMOTION:
-            break;
-
-            case SDL_QUIT:
-            case SDL_KEYDOWN:
-                if(event.key.keysym.sym == SDLK_ESCAPE)
-                    done = true; //quit
-            break;
-        }
-    }
-}
-*/
-
-bool UpdateInput(InputSystem* input)
+bool UpdateInput(Input* input)
 {
 	input->Reset();
 	
@@ -84,17 +46,17 @@ bool UpdateInput(InputSystem* input)
 			
 			case SDL_KEYDOWN:
 			{
-				int value = event.key.keysym.scancode;
-				input->SetKey(value, true);
-				input->SetKeyDown(value, true);
+				int code = event.key.keysym.scancode;
+				input->SetKey(code, true);
+				input->SetKeyDown(code, true);
 			}
 			break;
 			
 			case SDL_KEYUP:
 			{
-				int value = event.key.keysym.scancode;
-				input->SetKey(value, false);
-				input->SetKeyUp(value, true);
+				int code = event.key.keysym.scancode;
+				input->SetKey(code, false);
+				input->SetKeyUp(code, true);
 			}
 			break;
 			
@@ -109,111 +71,11 @@ bool UpdateInput(InputSystem* input)
 				}
 			}
 			break;
-		}
+		}		
 	}
 	
 	return isRunning;
 }
-
-
-// bool HandleEvent(InputSystem* input, const SDL_Event& event)
-// {
-// 	bool isRunning = true;
-// 
-// 	switch(event.type)
-// 	{
-// 		case SDL_KEYDOWN:
-//         case SDL_KEYUP:
-//         {
-//             SDL_Keycode keyCode = event.key.keysym.sym;
-//             bool isDown = (event.key.state == SDL_PRESSED);
-//             bool wasDown = false;
-//             if (event.key.state == SDL_RELEASED)
-//             {
-//                 wasDown = true;
-//             }
-//             else if (event.key.repeat != 0)
-//             {
-//                 wasDown = true;
-//             }
-//             
-//             if (event.key.repeat == 0)
-//             {
-//                 if(keyCode == SDLK_UP)
-//                 {
-//                     if(isDown)
-//                     {
-// 						input->SetKey(InputSystem::KEY_UP, true);
-// 						input->SetKeyDown(InputSystem::KEY_UP, true);
-//                     }
-// 					
-//                     if(wasDown)
-//                     {
-// 						input->SetKey(InputSystem::KEY_UP, false);
-// 						input->SetKeyUp(InputSystem::KEY_UP, true);
-//                     }
-//                 }
-//                 else if(keyCode == SDLK_LEFT)
-//                 {
-// 					printf("Left: ");
-//                     if(isDown)
-//                     {
-//                         printf("isDown ");
-//                     }
-//                     if(wasDown)
-//                     {
-//                         printf("wasDown");
-//                     }
-//                     printf("\n");
-//                 }
-//                 else if(keyCode == SDLK_DOWN)
-//                 {
-//                 }
-//                 else if(keyCode == SDLK_RIGHT)
-//                 {
-//                 }
-//                 else if(keyCode == SDLK_f)
-//                 {
-//                     printf("F: ");
-//                     if(isDown)
-//                     {
-//                         printf("isDown ");
-//                     }
-//                     if(wasDown)
-//                     {
-//                         printf("wasDown");
-//                     }
-//                     printf("\n");
-//                 }
-//                 else if(keyCode == SDLK_l)
-//                 {
-//                 }
-//             }
-// 		}
-// 		break;
-// 		
-// 		case SDL_QUIT:
-// 		{
-// 			isRunning = false;
-// 		}
-// 		break;
-// 		
-// 		case SDL_WINDOWEVENT:
-// 		{
-// 			switch(event.window.event)
-// 			{
-// 				case SDL_WINDOWEVENT_RESIZED:
-// 				{
-// 
-// 				}
-// 				break;
-// 			}
-// 		}
-// 		break;
-// 	}
-// 
-// 	return isRunning;
-// }
 
 int main(int argc, char* argv[])
 {
@@ -262,7 +124,7 @@ int main(int argc, char* argv[])
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	
 	// Input initialization
-	InputSystem input;
+	Input input;
 	
 	// Mesh stuff
 	// TODO(Tom): Make SimpleSprite struct
@@ -367,14 +229,25 @@ int main(int argc, char* argv[])
 		deltaTime = (currentTime - previousTime) * tickSize;
 		
 		isRunning = UpdateInput(&input);
-		if (input.IsKey(InputSystem::KEY_UP))
+		
+		if (input.IsKey(Input::KEY_UP))
 		{
-			printf("Pressed key up!\n");
+			printf("Pressed up!\n");
 		}
 		
-		if (input.IsKeyUp(InputSystem::KEY_UP))
+		if (input.IsKeyUp(Input::KEY_UP))
 		{
-			printf("Released key up!\n");
+			printf("Released up!\n");
+		}
+		
+		if (input.IsKey(Input::KEY_DOWN))
+		{
+			printf("Pressed down!\n");
+		}
+		
+		if (input.IsKeyUp(Input::KEY_DOWN))
+		{
+			printf("Released down!\n");
 		}	
 		
 		// Render

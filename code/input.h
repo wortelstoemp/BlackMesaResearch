@@ -1,6 +1,32 @@
+#pragma once
+
 // Author(s): Tom
 
-struct InputSystem
+// API usage code:
+// Initialize:
+//	Input input;
+//-------------------------------------------
+// In input library:
+//	Reset keys every frame:
+//	input.Reset();
+//
+// 	For key down:
+//	int code = GetScanCodeFromSomewhere();
+//	input.SetKey(code, true);
+//	input.SetKeyDown(code, true);
+//
+// 	For key up:
+//	int code = GetScanCodeFromSomewhere();
+//	input.SetKey(code, false);
+//	input.SetKeyUp(code, true);
+//-------------------------------------------
+// Polling:
+//	if (input.IsKey(Input::KEY_UP))
+//	{
+//		printf("Pressed up arrow!\n");
+//	}
+
+struct Input
 {
 private:	
 	static const int MAX_KEYS = 512;
@@ -9,7 +35,7 @@ private:
 	bool upKeys[MAX_KEYS] = {false};
 
 public:	
-	// Qwerty Layout !!!
+	// Qwerty US Keyboard Layout!
 	enum ScanCode
 	{
 		KEY_UNKNOWN = 0,
@@ -255,76 +281,38 @@ public:
 		KEY_APP2 = 284		
 	};
 	
-	//Delete
-	inline bool IsKey(ScanCode keyCode) const
+	inline bool IsKey(int code) const
 	{
-		return keys[keyCode];
+		return keys[code];
 	}
 	
-	inline bool IsKey(int keyCode) const
+	inline bool IsKeyDown(int code) const
 	{
-		return keys[keyCode];
+		return downKeys[code];
 	}
 	
-	// Delete
-	inline bool IsKeyDown(ScanCode keyCode) const
+	inline bool IsKeyUp(int code) const
 	{
-		return downKeys[keyCode];
+		return upKeys[code];
 	}
 	
-	inline bool IsKeyDown(int keyCode) const
+	inline void SetKey(int code, bool value)
 	{
-		return downKeys[keyCode];
+		keys[code] = value;
 	}
 	
-	// Delete
-	inline bool IsKeyUp(ScanCode keyCode) const
+	inline void SetKeyDown(int code, bool value)
 	{
-		return upKeys[keyCode];
+		downKeys[code] = value;
 	}
 	
-	inline bool IsKeyUp(int keyCode) const
+	inline void SetKeyUp(int code, bool value)
 	{
-		return upKeys[keyCode];
-	}
-	
-	// Delete
-	inline void SetKey(ScanCode keyCode, bool value)
-	{
-		keys[keyCode] = value;
-	}
-	
-	inline void SetKey(int keyCode, bool value)
-	{
-		keys[keyCode] = value;
-	}
-	
-	// Delete
-	inline void SetKeyDown(ScanCode keyCode, bool value)
-	{
-		downKeys[keyCode] = value;
-	}
-	
-	inline void SetKeyDown(int keyCode, bool value)
-	{
-		downKeys[keyCode] = value;
-	}
-	
-	// Delete
-	inline void SetKeyUp(ScanCode keyCode, bool value)
-	{
-		upKeys[keyCode] = value;
-	}
-	
-	inline void SetKeyUp(int keyCode, bool value)
-	{
-		upKeys[keyCode] = value;
+		upKeys[code] = value;
 	}
 	
 	void Reset()
 	{
-		for (int i = 0; i < MAX_KEYS; i++)
-			keys[i] = false;
 		for (int i = 0; i < MAX_KEYS; i++)
 			downKeys[i] = false;
 		for (int i = 0; i < MAX_KEYS; i++)
