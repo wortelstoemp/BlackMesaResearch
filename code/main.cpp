@@ -19,6 +19,7 @@
 #include "image.h"
 #include "shader.h"
 #include "texture.h"
+#include "mesh.h" 
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
@@ -128,46 +129,8 @@ int main(int argc, char* argv[])
 	
 	// Mesh stuff
 	// TODO(Tom): Make SimpleSprite struct
-	GLfloat vertices[] = {
-		// Positions		Colors			Texture Coordinates
-		0.5, 0.5, 0.0,		1.0, 1.0, 1.0,	1.0, 1.0,	// Top Right
-		-0.5, 0.5, 0.0,		1.0, 1.0, 1.0,	0.0, 1.0,	// Top Left
-		-0.5, -0.5, 0.0,	1.0, 1.0, 1.0,	0.0, 0.0,	// Bottom Left
-		0.5, -0.5, 0.0,		1.0, 1.0, 1.0,	1.0, 0.0	// Bottom Right	
-	};
-	
-	GLuint indices[] = {
-		0, 1, 2,	// First Triangle
-		2, 3, 0		// Second Triangle
-	};
-	
-	// Create Vertex Array Object
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-	GLuint vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	GLuint ebo;
-	glGenBuffers(1, &ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	
-	// Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
-	
-	// Color attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(1);
-	
-	// Texture attribute
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(2);
-	
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//glBindVertexArray(0);
+	SimpleSpriteMesh mesh;
+	mesh.Create();
 
 	// Uncomment for wireframe mode
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -260,15 +223,16 @@ int main(int argc, char* argv[])
 		
 		camera.Update();
 		//camera.transform.Rotate(0.0f, 5.0f * deltaTime, 0.0f);
-		texture.Bind();
 		shader.Use();
+		texture.Use();
+		mesh.Use();
+		
 		shader.Update(transform, camera, deltaTime);
-
-		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		texture.Unbind();
+		mesh.Render();
+		
+		mesh.Unuse();
+		texture.Unuse();
 		shader.Unuse();
-		glBindVertexArray(0);
 		
 		SDL_GL_SwapWindow(window);	
 		
@@ -277,9 +241,7 @@ int main(int argc, char* argv[])
 
 	// Shutdown
 	shader.Delete();
-	glDeleteBuffers(1, &ebo);
-	glDeleteBuffers(1, &vbo);
-	glDeleteVertexArrays(1, &vao);
+	mesh.Delete();
 	SDL_GL_DeleteContext(openglContext);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
