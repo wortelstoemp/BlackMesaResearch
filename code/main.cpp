@@ -27,181 +27,200 @@ const int DESIRED_FPS = 60;
 const uint points = 4;
 const uint floatsPerPoint = 3;
 
-bool HandleEvent(InputSystem* input, const SDL_Event& event)
+// TODO(Tom): Will this simplify a lot?
+/*
+void UpdateInput_Test(InputSystem* input)
 {
-	bool isRunning = true;
+    Uint8* keystate = SDL_GetKeyState(NULL);
 
-	switch(event.type)
-	{
-		case SDL_KEYDOWN:
-        case SDL_KEYUP:
+    //continuous-response keys
+    if(keystate[SDLK_LEFT])
+    {
+    }
+    if(keystate[SDLK_RIGHT])
+    {
+    }
+    if(keystate[SDLK_UP])
+    {
+    }
+    if(keystate[SDLK_DOWN])
+    {
+    }
+
+    //single-hit keys, mouse, and other general SDL events (eg. windowing)
+    while(SDL_PollEvent(&event))
+    {
+        switch (event.type)
         {
-            SDL_Keycode keyCode = event.key.keysym.sym;
-            bool isDown = (event.key.state == SDL_PRESSED);
-            bool wasDown = false;
-            if (event.key.state == SDL_RELEASED)
-            {
-                wasDown = true;
-            }
-            else if (event.key.repeat != 0)
-            {
-                wasDown = true;
-            }
-            
-            if (event.key.repeat == 0)
-            {
-                if(keyCode == SDLK_UP)
-                {
-					printf("Up: ");
-                    if(isDown)
-                    {
-                        printf("isDown ");
-                    }
-                    if(wasDown)
-                    {
-                        printf("wasDown");
-                    }
-                    printf("\n");
-                }
-                else if(keyCode == SDLK_LEFT)
-                {
-					printf("Left: ");
-                    if(isDown)
-                    {
-                        printf("isDown ");
-                    }
-                    if(wasDown)
-                    {
-                        printf("wasDown");
-                    }
-                    printf("\n");
-                }
-                else if(keyCode == SDLK_DOWN)
-                {
-                }
-                else if(keyCode == SDLK_RIGHT)
-                {
-                }
-                else if(keyCode == SDLK_f)
-                {
-                    printf("F: ");
-                    if(isDown)
-                    {
-                        printf("isDown ");
-                    }
-                    if(wasDown)
-                    {
-                        printf("wasDown");
-                    }
-                    printf("\n");
-                }
-                else if(keyCode == SDLK_l)
-                {
-                }
-            }
-		}
-		break;
-		// case SDL_KEYDOWN:
-		// {
-		// 	SDL_Keycode keyCode = event.key.keysym.sym;
-		// 	switch(keyCode)
-		// 	{
-		// 		case SDLK_UP:
-		// 		{
-		// 			input->keys[InputSystem::KEY_UP] = true;
-		// 			input->downKeys[InputSystem::KEY_UP] = true;
-		// 		}
-		// 		break;
-		// 		
-		// 		case SDLK_DOWN:
-		// 		{
-		// 			input->keys[InputSystem::KEY_DOWN] = true;
-		// 			input->downKeys[InputSystem::KEY_DOWN] = true;
-		// 		}
-		// 		break;
-		// 		
-		// 		case SDLK_LEFT:
-		// 		{
-		// 			input->keys[InputSystem::KEY_LEFT] = true;
-		// 			input->downKeys[InputSystem::KEY_LEFT] = true;
-		// 		}
-		// 		break;
-		// 		
-		// 		case SDLK_RIGHT:
-		// 		{
-		// 			input->keys[InputSystem::KEY_RIGHT] = true;
-		// 			input->downKeys[InputSystem::KEY_RIGHT] = true;
-		// 		}
-		// 		break;
-		// 	}
-		// }
-		// break;
-		// 
-		// case SDL_KEYUP:
-		// {
-		// 	SDL_Keycode keyCode = event.key.keysym.sym;
-		// 	switch(keyCode)
-		// 	{
-		// 		case SDLK_UP:
-		// 		{
-		// 			input->keys[InputSystem::KEY_UP] = false;
-		// 			input->upKeys[InputSystem::KEY_UP] = true;
-		// 		}
-		// 		break;
-		// 		
-		// 		case SDLK_DOWN:
-		// 		{
-		// 			input->keys[InputSystem::KEY_DOWN] = false;
-		// 			input->upKeys[InputSystem::KEY_DOWN] = true;
-		// 		}
-		// 		break;
-		// 		
-		// 		case SDLK_LEFT:
-		// 		{
-		// 			input->keys[InputSystem::KEY_LEFT] = false;
-		// 			input->upKeys[InputSystem::KEY_LEFT] = true;
-		// 		}
-		// 		break;
-		// 		
-		// 		case SDLK_RIGHT:
-		// 		{
-		// 			input->keys[InputSystem::KEY_RIGHT] = false;
-		// 			input->upKeys[InputSystem::KEY_RIGHT] = true;
-		// 		}
-		// 		break;
-		// 	}
-		// }
-		// break;
-		
-		case SDL_QUIT:
+            case SDL_MOUSEMOTION:
+            break;
+
+            case SDL_QUIT:
+            case SDL_KEYDOWN:
+                if(event.key.keysym.sym == SDLK_ESCAPE)
+                    done = true; //quit
+            break;
+        }
+    }
+}
+*/
+
+bool UpdateInput(InputSystem* input)
+{
+	input->Reset();
+	
+	bool isRunning = true;
+	
+	SDL_Event event;
+	while (SDL_PollEvent(&event))
+	{
+		switch (event.type)
 		{
-			isRunning = false;
-		}
-		break;
-		
-		case SDL_WINDOWEVENT:
-		{
-			switch(event.window.event)
+			case SDL_QUIT:
 			{
-				case SDL_WINDOWEVENT_RESIZED:
-				{
-
-				}
-				break;
+				isRunning = false;
 			}
+			break;
+			
+			case SDL_KEYDOWN:
+			{
+				int value = event.key.keysym.scancode;
+				input->SetKey(value, true);
+				input->SetKeyDown(value, true);
+			}
+			break;
+			
+			case SDL_KEYUP:
+			{
+				int value = event.key.keysym.scancode;
+				input->SetKey(value, false);
+				input->SetKeyUp(value, true);
+			}
+			break;
+			
+			case SDL_WINDOWEVENT:
+			{
+				switch(event.window.event)
+				{
+					case SDL_WINDOWEVENT_RESIZED:
+					{
+					}
+					break;
+				}
+			}
+			break;
 		}
-		break;
 	}
-
+	
 	return isRunning;
 }
+
+
+// bool HandleEvent(InputSystem* input, const SDL_Event& event)
+// {
+// 	bool isRunning = true;
+// 
+// 	switch(event.type)
+// 	{
+// 		case SDL_KEYDOWN:
+//         case SDL_KEYUP:
+//         {
+//             SDL_Keycode keyCode = event.key.keysym.sym;
+//             bool isDown = (event.key.state == SDL_PRESSED);
+//             bool wasDown = false;
+//             if (event.key.state == SDL_RELEASED)
+//             {
+//                 wasDown = true;
+//             }
+//             else if (event.key.repeat != 0)
+//             {
+//                 wasDown = true;
+//             }
+//             
+//             if (event.key.repeat == 0)
+//             {
+//                 if(keyCode == SDLK_UP)
+//                 {
+//                     if(isDown)
+//                     {
+// 						input->SetKey(InputSystem::KEY_UP, true);
+// 						input->SetKeyDown(InputSystem::KEY_UP, true);
+//                     }
+// 					
+//                     if(wasDown)
+//                     {
+// 						input->SetKey(InputSystem::KEY_UP, false);
+// 						input->SetKeyUp(InputSystem::KEY_UP, true);
+//                     }
+//                 }
+//                 else if(keyCode == SDLK_LEFT)
+//                 {
+// 					printf("Left: ");
+//                     if(isDown)
+//                     {
+//                         printf("isDown ");
+//                     }
+//                     if(wasDown)
+//                     {
+//                         printf("wasDown");
+//                     }
+//                     printf("\n");
+//                 }
+//                 else if(keyCode == SDLK_DOWN)
+//                 {
+//                 }
+//                 else if(keyCode == SDLK_RIGHT)
+//                 {
+//                 }
+//                 else if(keyCode == SDLK_f)
+//                 {
+//                     printf("F: ");
+//                     if(isDown)
+//                     {
+//                         printf("isDown ");
+//                     }
+//                     if(wasDown)
+//                     {
+//                         printf("wasDown");
+//                     }
+//                     printf("\n");
+//                 }
+//                 else if(keyCode == SDLK_l)
+//                 {
+//                 }
+//             }
+// 		}
+// 		break;
+// 		
+// 		case SDL_QUIT:
+// 		{
+// 			isRunning = false;
+// 		}
+// 		break;
+// 		
+// 		case SDL_WINDOWEVENT:
+// 		{
+// 			switch(event.window.event)
+// 			{
+// 				case SDL_WINDOWEVENT_RESIZED:
+// 				{
+// 
+// 				}
+// 				break;
+// 			}
+// 		}
+// 		break;
+// 	}
+// 
+// 	return isRunning;
+// }
 
 int main(int argc, char* argv[])
 {
 	(void) argc;
 	(void) argv;
 	
-	// Initialization
+	// Window initialization
 	if(SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
 		printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
@@ -212,6 +231,8 @@ int main(int argc, char* argv[])
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);	
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -229,17 +250,19 @@ int main(int argc, char* argv[])
 	);
 	
 	SDL_GLContext openglContext = SDL_GL_CreateContext(window);
+	SDL_GL_SetSwapInterval(1);
 	
 	glewExperimental = GL_TRUE;
-	if (glewInit() != 0)
+	if (glewInit() != GLEW_OK)
 	{
-		printf("glew could not initialize!");
+		printf("GLEW could not initialize!");
 		return -1;
 	}
 	
-	InputSystem input;
-	
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	
+	// Input initialization
+	InputSystem input;
 	
 	// Mesh stuff
 	// TODO(Tom): Make SimpleSprite struct
@@ -343,31 +366,16 @@ int main(int argc, char* argv[])
 		currentTime = SDL_GetPerformanceCounter();
 		deltaTime = (currentTime - previousTime) * tickSize;
 		
-		SDL_Event event;
-		while(SDL_PollEvent(&event))
-        {
-            isRunning = HandleEvent(&input, event);    
-        }
-		
-		if (input.isKey(InputSystem::KEY_UP))
+		isRunning = UpdateInput(&input);
+		if (input.IsKey(InputSystem::KEY_UP))
 		{
 			printf("Pressed key up!\n");
 		}
-		if (input.isKey(InputSystem::KEY_DOWN))
-		{
-			printf("Pressed key down!\n");
-		}
 		
-		if (input.isKeyUp(InputSystem::KEY_UP))
+		if (input.IsKeyUp(InputSystem::KEY_UP))
 		{
 			printf("Released key up!\n");
-		}
-		if (input.isKeyUp(InputSystem::KEY_DOWN))
-		{
-			printf("Released key down!\n");
-		}
-		
-		input.ResetKeys();
+		}	
 		
 		// Render
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
