@@ -8,9 +8,39 @@ struct Transform
 	Vec3 scale;
 	Quaternion orientation;
 
-	inline void MoveTowards(const Vec3& direction, const float amount)
+	inline void TranslateTowards(const Vec3& direction, const float amount)
 	{
 		position = position + (Normalized(direction) * amount);
+	}
+	
+	inline void TranslateUp(const float amount)
+	{
+		TranslateTowards(Up(orientation), amount);
+	}
+	
+	inline void TranslateDown(const float amount)
+	{
+		TranslateTowards(Down(orientation), amount);
+	}
+	
+	inline void TranslateLeft(const float amount)
+	{
+		TranslateTowards(Left(orientation), amount);
+	}
+	
+	inline void TranslateRight(const float amount)
+	{
+		TranslateTowards(Right(orientation), amount);
+	}
+	
+	inline void TranslateForward(const float amount)
+	{
+		TranslateTowards(Forward(orientation), amount);
+	}
+	
+	inline void TranslateBackward(const float amount)
+	{
+		TranslateTowards(Backward(orientation), amount);
 	}
 	
 	inline void Rotate(const Quaternion& amount)

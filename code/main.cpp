@@ -230,25 +230,24 @@ int main(int argc, char* argv[])
 		
 		isRunning = UpdateInput(&input);
 		
-		// TODO(Tom): Make transform API simpeler because this is a pain in the ass.
 		if (input.IsKey(Input::KEY_UP))
 		{
-			camera.transform.MoveTowards(Forward(camera.transform.orientation), 2.0f * deltaTime);
+			camera.transform.TranslateForward(2.0f * deltaTime);
 		}
 		
 		if (input.IsKey(Input::KEY_DOWN))
 		{
-			camera.transform.MoveTowards(Backward(camera.transform.orientation), 2.0f * deltaTime);
+			camera.transform.TranslateBackward(2.0f * deltaTime);
 		}
 		
 		if (input.IsKey(Input::KEY_LEFT))
 		{
-			camera.transform.MoveTowards(Left(camera.transform.orientation), 2.0f * deltaTime);
+			camera.transform.TranslateLeft(2.0f * deltaTime);
 		}
 		
 		if (input.IsKey(Input::KEY_RIGHT))
 		{
-			camera.transform.MoveTowards(Right(camera.transform.orientation), 2.0f * deltaTime);
+			camera.transform.TranslateRight(2.0f * deltaTime);
 		}
 		
 		// Render
