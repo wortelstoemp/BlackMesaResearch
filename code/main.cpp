@@ -230,32 +230,33 @@ int main(int argc, char* argv[])
 		
 		isRunning = UpdateInput(&input);
 		
+		// TODO(Tom): Make transform API simpeler because this is a pain in the ass.
 		if (input.IsKey(Input::KEY_UP))
 		{
-			printf("Pressed up!\n");
-		}
-		
-		if (input.IsKeyUp(Input::KEY_UP))
-		{
-			printf("Released up!\n");
+			camera.transform.MoveTowards(Forward(camera.transform.orientation), 2.0f * deltaTime);
 		}
 		
 		if (input.IsKey(Input::KEY_DOWN))
 		{
-			printf("Pressed down!\n");
+			camera.transform.MoveTowards(Backward(camera.transform.orientation), 2.0f * deltaTime);
 		}
 		
-		if (input.IsKeyUp(Input::KEY_DOWN))
+		if (input.IsKey(Input::KEY_LEFT))
 		{
-			printf("Released down!\n");
-		}	
+			camera.transform.MoveTowards(Left(camera.transform.orientation), 2.0f * deltaTime);
+		}
+		
+		if (input.IsKey(Input::KEY_RIGHT))
+		{
+			camera.transform.MoveTowards(Right(camera.transform.orientation), 2.0f * deltaTime);
+		}
 		
 		// Render
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		camera.Update();
-		camera.transform.Rotate(0.0f, 5.0f * deltaTime, 0.0f);
+		//camera.transform.Rotate(0.0f, 5.0f * deltaTime, 0.0f);
 		texture.Bind();
 		shader.Use();
 		shader.Update(transform, camera, deltaTime);

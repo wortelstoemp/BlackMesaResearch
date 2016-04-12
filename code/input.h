@@ -29,7 +29,7 @@
 struct Input
 {
 private:	
-	static const int MAX_KEYS = 512;
+	static const int MAX_KEYS = 512;	
 	bool keys[MAX_KEYS] = {false};
 	bool downKeys[MAX_KEYS] = {false};
 	bool upKeys[MAX_KEYS] = {false};
@@ -281,33 +281,54 @@ public:
 		KEY_APP2 = 284		
 	};
 	
+	enum MouseButtons
+	{
+		MOUSE_LEFT_BUTTON = 1,
+		MOUSE_MIDDLE_BUTTON = 2,
+		MOUSE_RIGHT_BUTTON = 3,
+		MOUSE_WHEEL_UP = 4,
+		MOUSE_WHEEL_DOWN = 5
+	};
+	
 	inline bool IsKey(int code) const
 	{
+		if (code >= MAX_KEYS)
+			return 0;
 		return keys[code];
 	}
 	
 	inline bool IsKeyDown(int code) const
 	{
+		if (code >= MAX_KEYS)
+			return 0;
 		return downKeys[code];
 	}
 	
 	inline bool IsKeyUp(int code) const
 	{
+		if (code >= MAX_KEYS)
+			return 0;
 		return upKeys[code];
 	}
 	
 	inline void SetKey(int code, bool value)
 	{
+		if (code >= MAX_KEYS)
+			return;
 		keys[code] = value;
 	}
 	
 	inline void SetKeyDown(int code, bool value)
 	{
+		if (code >= MAX_KEYS)
+			return;
 		downKeys[code] = value;
 	}
 	
 	inline void SetKeyUp(int code, bool value)
 	{
+		if (code >= MAX_KEYS)
+			return;
 		upKeys[code] = value;
 	}
 	
