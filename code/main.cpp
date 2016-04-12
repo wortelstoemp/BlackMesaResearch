@@ -232,22 +232,26 @@ int main(int argc, char* argv[])
 		
 		if (input.IsKey(Input::KEY_UP))
 		{
-			camera.transform.TranslateForward(2.0f * deltaTime);
+			//camera.transform.TranslateForward(2.0f * deltaTime);
+			camera.transform.Rotate(Vec3::PositiveXAxis(), -20.0f * deltaTime);
 		}
 		
 		if (input.IsKey(Input::KEY_DOWN))
 		{
-			camera.transform.TranslateBackward(2.0f * deltaTime);
+			//camera.transform.TranslateBackward(2.0f * deltaTime);
+			camera.transform.Rotate(Vec3::PositiveXAxis(), 20.0f * deltaTime);		
 		}
 		
 		if (input.IsKey(Input::KEY_LEFT))
 		{
-			camera.transform.TranslateLeft(2.0f * deltaTime);
+			camera.transform.Rotate(Vec3::PositiveYAxis(), -20.0f * deltaTime);
+			//camera.transform.TranslateLeft(2.0f * deltaTime);
 		}
 		
 		if (input.IsKey(Input::KEY_RIGHT))
 		{
-			camera.transform.TranslateRight(2.0f * deltaTime);
+			camera.transform.Rotate(Vec3::PositiveYAxis(), 20.0f * deltaTime);
+			//camera.transform.TranslateRight(2.0f * deltaTime);
 		}
 		
 		// Render

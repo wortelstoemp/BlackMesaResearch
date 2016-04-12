@@ -53,14 +53,14 @@ struct Transform
 		orientation = Rotated(orientation, axis, angle);
 	}
 
-	inline void Rotate(const Vec3& euler)
+	inline void Rotate(const Vec3& eulerAmount)
 	{
-		orientation = FromEuler(euler) * orientation;
+		orientation = FromEuler(eulerAmount) * orientation;
 	}
 	
-	inline void Rotate(const float x, const float y, const float z)
+	inline void Rotate(const float dx, const float dy, const float dz)
 	{
-		orientation = FromEuler(x, y, z) * orientation;
+		orientation = FromEuler(dx, dy, dz) * orientation;
 	}
 	
 	inline Matrix4x4 CalculateModel() const

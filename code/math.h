@@ -12,6 +12,30 @@ struct Vec2
 {
 	float X;
 	float Y;
+	
+	inline static Vec2 PositiveXAxis()
+	{
+		const Vec2 result = { 1.0f, 0.0f };
+		return result;
+	}
+
+	inline static Vec2 NegativeXAxis()
+	{
+		const Vec2 result = { -1.0f, 0.0f };
+		return result;
+	}
+	
+	inline static Vec2 PositiveYAxis()
+	{
+		const Vec2 result = { 0.0f, 1.0f };
+		return result;
+	}
+
+	inline static Vec2 NegativeYAxis()
+	{
+		const Vec2 result = { 0.0f, -1.0f };
+		return result;
+	}
 };
 
 union Vec3
@@ -27,6 +51,42 @@ union Vec3
 		float Y;
 		float Z;
 	};
+	
+	inline static Vec3 PositiveXAxis()
+	{
+		const Vec3 result = { 1.0f, 0.0f, 0.0f };
+		return result;
+	}
+
+	inline static Vec3 NegativeXAxis()
+	{
+		const Vec3 result = { -1.0f, 0.0f, 0.0f };
+		return result;
+	}
+	
+	inline static Vec3 PositiveYAxis()
+	{
+		const Vec3 result = { 0.0f, 1.0f, 0.0f };
+		return result;
+	}
+
+	inline static Vec3 NegativeYAxis()
+	{
+		const Vec3 result = { 0.0f, -1.0f, 0.0f };
+		return result;
+	}
+	
+	inline static Vec3 PositiveZAxis()
+	{
+		const Vec3 result = { 0.0f, 0.0f, 1.0f };
+		return result;
+	}
+
+	inline static Vec3 NegativeZAxis()
+	{
+		const Vec3 result = { 0.0f, 0.0f, -1.0f };
+		return result;
+	}
 };
 
 union Vec4
