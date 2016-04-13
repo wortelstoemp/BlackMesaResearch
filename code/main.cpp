@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <vector>
 
 // Libraries
 #include <glew.h>
@@ -169,7 +170,7 @@ int main(int argc, char* argv[])
 	cameraTransform.orientation = FromAxis(0.0f, 1.0f, 0.0f, 180.0f);	
 	
 	Camera camera;
-	camera.CreatePerspective(cameraTransform, 45.0f, (float)SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.0f);
+	camera.CreatePerspective(cameraTransform, 60.0f, (float)SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.0f);
 	
 	Texture texture;
 	texture.CreateFromFile("../data/textures/foo.bmp");
@@ -193,28 +194,40 @@ int main(int argc, char* argv[])
 		
 		isRunning = UpdateInput(&input);
 		
-		if (input.IsKey(Input::KEY_UP))
+		// TODO(Tom): First Person Shooter movement 
+		// TODO(cont.): (vector projection on XZ-plane + normalization)
+		// TODO(cont.): Use mouse to look around instead of arrow keys.
+		if (input.IsKey(Input::KEY_W))
 		{
-			//camera.transform.TranslateForward(2.0f * deltaTime);
-			camera.transform.Rotate(Right(camera.transform.orientation), -20.0f * deltaTime);		
+			camera.transform.TranslateForward(2.0f * deltaTime);
 		}
-		
-		if (input.IsKey(Input::KEY_DOWN))
+		if (input.IsKey(Input::KEY_S))
 		{
-			//camera.transform.TranslateBackward(2.0f * deltaTime);
-			camera.transform.Rotate(Right(camera.transform.orientation), 20.0f * deltaTime);	
+			camera.transform.TranslateBackward(2.0f * deltaTime);
 		}
-		
+		if (input.IsKey(Input::KEY_A))
+		{
+			camera.transform.TranslateLeft(2.0f * deltaTime);
+		}
+		if (input.IsKey(Input::KEY_D))
+		{
+			camera.transform.TranslateRight(2.0f * deltaTime);
+		}
+		// if (input.IsKey(Input::KEY_UP))
+		// {
+		// 	camera.transform.Rotate(Right(camera.transform.orientation), -50.0f * deltaTime);		
+		// }
+		// if (input.IsKey(Input::KEY_DOWN))
+		// {
+		// 	camera.transform.Rotate(Right(camera.transform.orientation), 50.0f * deltaTime);	
+		// }
 		if (input.IsKey(Input::KEY_LEFT))
 		{
-			//camera.transform.TranslateLeft(2.0f * deltaTime);
-			camera.transform.Rotate(Vec3::PositiveYAxis(), -20.0f * deltaTime);
+			camera.transform.Rotate(Vec3::PositiveYAxis(), -50.0f * deltaTime);
 		}
-		
 		if (input.IsKey(Input::KEY_RIGHT))
 		{
-			//camera.transform.TranslateRight(2.0f * deltaTime);
-			camera.transform.Rotate(Vec3::PositiveYAxis(), 20.0f * deltaTime);
+			camera.transform.Rotate(Vec3::PositiveYAxis(), 50.0f * deltaTime);
 		}
 		
 		// Render

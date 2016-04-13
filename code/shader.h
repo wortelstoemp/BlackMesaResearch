@@ -188,3 +188,20 @@ struct DefaultShader : public Shader
 		SetUniform(transformUniform, CalculateMVP(transform, camera));
 	}
 };
+
+// TODO(Tom): Implement Phong shader (ambient, diffuse, specular)
+struct PhongShader : public Shader
+{
+	ShaderUniform transformUniform;
+	
+	void Init()
+	{
+		transformUniform.name = "transform";
+		AddUniform(&transformUniform);
+	}
+	
+	void Update(const Transform& transform, const Camera& camera, float deltaTime)
+	{
+		SetUniform(transformUniform, CalculateMVP(transform, camera));
+	}
+};

@@ -1,6 +1,39 @@
 #pragma once
 
 // Author(s): Tom
+
+struct Vertex
+{
+	Vec3 position;
+	Vec3 normal;
+	Vec2 uv;
+};
+
+// TODO: Mesh created with Assimp library
+struct Mesh
+{
+private:
+	std::vector<Vertex> vertices;
+	std::vector<GLuint> indices;
+	std::vector<Texture> textures;
+	GLuint vao;
+	GLuint vbo;
+	GLuint ebo;
+	
+public:
+	inline void Create()
+	{
+		
+	}
+};
+
+struct SimpleVertex
+{
+	Vec3 position;
+	Vec3 color;
+	Vec2 uv;
+};
+
 struct SimpleSpriteMesh
 {
 private:
