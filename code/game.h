@@ -5,7 +5,7 @@
 
 struct Scene
 {
-	
+	Camera mainCamera;
 };
 
 struct Game

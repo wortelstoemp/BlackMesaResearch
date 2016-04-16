@@ -483,7 +483,7 @@ inline Quaternion Inverse(const Quaternion& q)
 	return result;
 }
 
-inline Quaternion FromAxis(const float ax, const float ay, const float az, 
+inline Quaternion QuaternionFromAxis(const float ax, const float ay, const float az, 
 	const float angle)
 {
 	const float halfRad = angle * PI / 360;
@@ -500,12 +500,12 @@ inline Quaternion FromAxis(const float ax, const float ay, const float az,
 	return Normalized(result);
 }
 
-inline Quaternion FromAxis(const Vec3& axis, const float angle)
+inline Quaternion QuaternionFromAxis(const Vec3& axis, const float angle)
 {
-	return FromAxis(axis.X, axis.Y, axis.Z, angle);
+	return QuaternionFromAxis(axis.X, axis.Y, axis.Z, angle);
 }
 
-inline Quaternion FromEuler(const float x, const float y, const float z)
+inline Quaternion QuaternionFromEuler(const float x, const float y, const float z)
 {
 	const float rx = x * PI / 360;
 	const float ry = y * PI / 360;
@@ -535,9 +535,9 @@ inline Quaternion FromEuler(const float x, const float y, const float z)
 	return result;
 }
 
-inline Quaternion FromEuler(const Vec3& v)
+inline Quaternion QuaternionFromEuler(const Vec3& v)
 {
-	return FromEuler(v.X, v.Y, v.Z);
+	return QuaternionFromEuler(v.X, v.Y, v.Z);
 }
 
 inline Vec3 Forward(const Quaternion& q)

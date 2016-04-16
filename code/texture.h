@@ -107,3 +107,28 @@ struct Texture
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 };
+
+struct MultiTexture
+{
+	std::vector<Texture> textures;
+	
+	inline void Use()
+	{
+		int numTextures = this->textures.size();
+		for(GLuint i = 0; i < numTextures; i++)
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+            glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
+        }
+	}
+	
+	inline void Unuse()
+	{
+		int numTextures = this->textures.size();
+		for(GLuint i = 0; i < numTextures; i++)
+		{
+			glActiveTexture(GL_TEXTURE0 + i);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
+	}
+};

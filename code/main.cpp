@@ -1,6 +1,7 @@
 // Author(s): Simon, Tom 
 
 // C Standard libraries
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -158,7 +159,7 @@ int main(int argc, char* argv[])
 	transform.scale.X = 1.0f;
 	transform.scale.Y = 1.0f;
 	transform.scale.Z = 1.0f;
-	transform.orientation = FromEuler(180.0f, 0.0f, 0.0f);
+	transform.orientation = QuaternionFromEuler(180.0f, 0.0f, 0.0f);
 	
 	Transform cameraTransform;
 	cameraTransform.position.X = 0.0f;
@@ -167,7 +168,7 @@ int main(int argc, char* argv[])
 	cameraTransform.scale.X = 1.0f;
 	cameraTransform.scale.Y = 1.0f;
 	cameraTransform.scale.Z = 1.0f;
-	cameraTransform.orientation = FromAxis(0.0f, 1.0f, 0.0f, 180.0f);	
+	cameraTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 180.0f);	
 	
 	Camera camera;
 	camera.CreatePerspective(cameraTransform, 60.0f, (float)SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.0f);
