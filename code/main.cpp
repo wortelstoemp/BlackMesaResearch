@@ -19,6 +19,7 @@
 #include "input.h"
 #include "file.h"
 #include "image.h"
+#include "lighting.h"
 #include "shader.h"
 #include "texture.h"
 #include "mesh.h" 
@@ -177,9 +178,14 @@ int main(int argc, char* argv[])
 	texture.CreateFromFile("../data/textures/foo.bmp");
 	//texture.CreateFromFile("../data/textures/foo.dds");
 	
-	DefaultShader shader;
-	shader.CreateFromFiles("../data/shaders/default_vs.glsl", 0, 0, 0, "../data/shaders/default_fs.glsl");
-	shader.Init();
+	DirectionalLight directionalLight;
+	directionalLight.Color.X = 1.0f;
+	directionalLight.Color.Y = 1.0f;
+	directionalLight.Color.Z = 1.0f;
+	directionalLight.Ambient = 1.0f;
+	
+	PhongShader shader;
+	shader.CreateFromFiles("../data/shaders/phong_vs.glsl", 0, 0, 0, "../data/shaders/phong_fs.glsl");
 	
 	float deltaTime;
 	Uint64 currentTime;
@@ -242,6 +248,7 @@ int main(int argc, char* argv[])
 		mesh.Use();
 		
 		shader.Update(transform, camera, deltaTime);
+		shader.Update(directionalLight);
 		mesh.Render();
 		
 		mesh.Unuse();

@@ -5,7 +5,6 @@
 // API Usage code:
 // DefaultShader shader;
 // shader.CreateFromFiles("../data/shaders/default_vs.glsl", 0, 0, 0, "../data/shaders/default_fs.glsl");
-// shader.Init();
 // ...
 // shader.Use();
 // shader.Update(transform, camera, deltaTime);
@@ -49,7 +48,7 @@ struct Shader
 	}
 	
 	virtual void Init() = 0;
-	virtual void Update(const Transform& transform, const Camera& camera, float deltaTime) = 0;
+	//virtual void Update(const Transform& transform, const Camera& camera, float deltaTime) = 0;
 
 	void Create(
 		char* vertexSource,
@@ -77,6 +76,8 @@ struct Shader
 			glGetProgramInfoLog(shaderProgram, 1024, &log_length, message);
 			printf("%s\n", message);
 		}
+		
+		Init();
 	}
 	
 	void CreateFromFiles(
@@ -177,13 +178,13 @@ struct DefaultShader : public Shader
 {
 	ShaderUniform transformUniform;
 	
-	void Init()
+	inline void Init()
 	{
 		transformUniform.name = "transform";
 		AddUniform(&transformUniform);
 	}
 	
-	void Update(const Transform& transform, const Camera& camera, float deltaTime)
+	inline void Update(const Transform& transform, const Camera& camera, float deltaTime)
 	{
 		SetUniform(transformUniform, CalculateMVP(transform, camera));
 	}
@@ -193,15 +194,28 @@ struct DefaultShader : public Shader
 struct PhongShader : public Shader
 {
 	ShaderUniform transformUniform;
+	ShaderUniform dirLightColor;
+	ShaderUniform dirLightAmbient;	
 	
-	void Init()
+	inline void Init()
 	{
 		transformUniform.name = "transform";
 		AddUniform(&transformUniform);
+		
+		dirLightColor.name = "directionalLight.Color";
+		AddUniform(&dirLightColor);
+		dirLightAmbient.name = "directionalLight.Ambient";
+		AddUniform(&dirLightAmbient);
 	}
 	
-	void Update(const Transform& transform, const Camera& camera, float deltaTime)
+	inline void Update(const Transform& transform, const Camera& camera, float deltaTime)
 	{
-		SetUniform(transformUniform, CalculateMVP(transform, camera));
+		SetUniform(this->transformUniform, CalculateMVP(transform, camera));
+	}
+	
+	inline void Update(const DirectionalLight& dirLight)
+	{
+		SetUniform(this->dirLightColor, dirLight.Color);
+		SetUniform(this->dirLightAmbient, dirLight.Ambient);		
 	}
 };
