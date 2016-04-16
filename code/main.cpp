@@ -153,35 +153,25 @@ int main(int argc, char* argv[])
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
-	Transform transform;
-	transform.position.X = 0.0f;
-	transform.position.Y = 0.0f;
-	transform.position.Z = 0.0f;
-	transform.scale.X = 1.0f;
-	transform.scale.Y = 1.0f;
-	transform.scale.Z = 1.0f;
-	transform.orientation = QuaternionFromEuler(180.0f, 0.0f, 0.0f);
-	
 	Transform cameraTransform;
-	cameraTransform.position.X = 0.0f;
-	cameraTransform.position.Y = 0.0f;
-	cameraTransform.position.Z = 3.0f;
-	cameraTransform.scale.X = 1.0f;
-	cameraTransform.scale.Y = 1.0f;
-	cameraTransform.scale.Z = 1.0f;
-	cameraTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 180.0f);	
+	cameraTransform.Position = { 0.0f, 0.0f, 3.0f };
+	cameraTransform.Scaling = { 1.0f, 1.0f, 1.0f };
+	cameraTransform.Orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 180.0f);	
 	
 	Camera camera;
 	camera.CreatePerspective(cameraTransform, 60.0f, (float)SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.0f);
+	
+	Transform transform;
+	transform.Position = { 0.0f, 0.0f, 0.0f };
+	transform.Scaling = { 1.0f, 1.0f, 1.0f };
+	transform.Orientation = QuaternionFromEuler(180.0f, 0.0f, 0.0f);
 	
 	Texture texture;
 	texture.CreateFromFile("../data/textures/foo.bmp");
 	//texture.CreateFromFile("../data/textures/foo.dds");
 	
 	DirectionalLight directionalLight;
-	directionalLight.Color.X = 1.0f;
-	directionalLight.Color.Y = 1.0f;
-	directionalLight.Color.Z = 1.0f;
+	directionalLight.Color = { 1.0f, 1.0f, 1.0f };
 	directionalLight.Ambient = 1.0f;
 	
 	PhongShader shader;
@@ -248,7 +238,7 @@ int main(int argc, char* argv[])
 		mesh.Use();
 		
 		shader.Update(transform, camera, deltaTime);
-		shader.Update(directionalLight);
+		shader.UpdateLight(directionalLight);
 		mesh.Render();
 		
 		mesh.Unuse();

@@ -12,9 +12,9 @@ struct DirectionalLight
 };
 
 uniform DirectionalLight directionalLight;
-uniform sampler2D appTexture;
+uniform sampler2D diffuseTexture;
 
 void main()
 {
-	outColor = texture(appTexture, fragUV) * vec4(fragColor, 1.0) * vec4(directionalLight.Color, 1.0f) * directionalLight.Ambient;
+	outColor = texture(diffuseTexture, fragUV) * vec4(fragColor, 1.0) * vec4(directionalLight.Color, 1.0f) * directionalLight.Ambient;
 }

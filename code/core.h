@@ -4,60 +4,60 @@
 
 struct Transform
 {
-	Vec3 position;
-	Vec3 scale;
-	Quaternion orientation;
+	Vec3 Position;
+	Vec3 Scaling;
+	Quaternion Orientation;
 
 	inline void TranslateTowards(const Vec3& direction, const float amount)
 	{
-		position = position + (Normalized(direction) * amount);
+		Position = Position + (Normalized(direction) * amount);
 	}
 	
 	inline void TranslateUp(const float amount)
 	{
-		TranslateTowards(Up(orientation), amount);
+		TranslateTowards(Up(Orientation), amount);
 	}
 	
 	inline void TranslateDown(const float amount)
 	{
-		TranslateTowards(Down(orientation), amount);
+		TranslateTowards(Down(Orientation), amount);
 	}
 	
 	inline void TranslateLeft(const float amount)
 	{
-		TranslateTowards(Left(orientation), amount);
+		TranslateTowards(Left(Orientation), amount);
 	}
 	
 	inline void TranslateRight(const float amount)
 	{
-		TranslateTowards(Right(orientation), amount);
+		TranslateTowards(Right(Orientation), amount);
 	}
 	
 	inline void TranslateForward(const float amount)
 	{
-		TranslateTowards(Forward(orientation), amount);
+		TranslateTowards(Forward(Orientation), amount);
 	}
 	
 	inline void TranslateBackward(const float amount)
 	{
-		TranslateTowards(Backward(orientation), amount);
+		TranslateTowards(Backward(Orientation), amount);
 	}
 	
 	inline void Rotate(const Quaternion& amount)
 	{
-		orientation = amount * orientation;
+		Orientation = amount * Orientation;
 	}
 	
 	inline void Rotate(const Vec3& axis, const float angle)
 	{
-		orientation = Rotated(orientation, axis, angle);
+		Orientation = Rotated(Orientation, axis, angle);
 	}
 	
 	inline Matrix4x4 CalculateModel() const
 	{
-		const Matrix4x4 translation = Translate(position);
-		const Matrix4x4 rotation = CreateMatrix4x4(orientation);
-		const Matrix4x4 scale = Scale(this->scale);	
+		const Matrix4x4 translation = Translate(Position);
+		const Matrix4x4 rotation = CreateMatrix4x4(Orientation);
+		const Matrix4x4 scale = Scale(this->Scaling);	
 	
 		return translation * rotation * scale;	
 	}
@@ -101,7 +101,7 @@ union Camera
 		this->transform = transform;
 		this->viewProjection =
 			Perspective(fovy, aspect, zNear, zFar) * 
-			ViewMatrix4x4(transform.position, transform.orientation);
+			ViewMatrix4x4(transform.Position, transform.Orientation);
 		this->cameraType = CAMERA_PERSPECTIVE;
 		this->fovy = fovy;
 		this->aspect = aspect;
@@ -116,7 +116,7 @@ union Camera
 		this->transform = transform;
 		this->viewProjection =
 			Ortho(0, width, 0, height, zNear, zFar) * 
-			ViewMatrix4x4(transform.position, transform.orientation);
+			ViewMatrix4x4(transform.Position, transform.Orientation);
 		this->cameraType = CAMERA_ORTHO;
 		this->width = width;
 		this->height = height;
@@ -130,11 +130,11 @@ union Camera
 		{
 		case CAMERA_PERSPECTIVE:
 			this->viewProjection = Perspective(this->fovy, this->aspect, this->zNear, this->zFar) * 
-				ViewMatrix4x4(this->transform.position, this->transform.orientation);
+				ViewMatrix4x4(this->transform.Position, this->transform.Orientation);
 			break;
 		case CAMERA_ORTHO:
 			this->viewProjection = Ortho(0, this->width, 0, this->height, this->zNear, this->zFar) * 
-				ViewMatrix4x4(this->transform.position, this->transform.orientation);
+				ViewMatrix4x4(this->transform.Position, this->transform.Orientation);
 			break;
 		default:
 			break;

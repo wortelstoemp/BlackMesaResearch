@@ -213,7 +213,7 @@ struct PhongShader : public Shader
 		SetUniform(this->transformUniform, CalculateMVP(transform, camera));
 	}
 	
-	inline void Update(const DirectionalLight& dirLight)
+	inline void UpdateLight(const DirectionalLight& dirLight)
 	{
 		SetUniform(this->dirLightColor, dirLight.Color);
 		SetUniform(this->dirLightAmbient, dirLight.Ambient);		

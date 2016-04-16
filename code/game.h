@@ -5,12 +5,12 @@
 
 struct Scene
 {
-	Camera mainCamera;
+	Camera MainCamera;
 };
 
 struct Game
 {
-	Scene currentScene;
+	Scene CurrentScene;
 	// Later on more scenes can be queued in some cache datastructure
-	bool isRunning;
+	bool IsRunning;
 };
