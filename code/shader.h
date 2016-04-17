@@ -219,7 +219,7 @@ struct PhongShader : public Shader
 	inline void Update(const Transform& transform, const Camera& camera, float deltaTime)
 	{
 		SetUniform(this->mvp, CalculateMVP(transform, camera));
-		//SetUniform(this->model, CalculateMVP(transform, camera));		
+		SetUniform(this->model, CalculateMVP(transform, camera));		
 	}
 	
 	inline void UpdateLight(const AmbientLight& ambientLight)

@@ -172,11 +172,11 @@ int main(int argc, char* argv[])
 	
 	AmbientLight ambientLight;
 	ambientLight.color = { 1.0f, 1.0f, 1.0f };
-	ambientLight.intensity = 1.0f;
+	ambientLight.intensity = 0.7f;
 	
 	DirectionalLight dirLight;
-	dirLight.direction = { 0.0f, 0.0f, 1.0f};
-	dirLight.diffuseIntensity = 1.0f;	
+	dirLight.direction = { 0.0f, 0.0f, -1.0f};
+	dirLight.diffuseIntensity = 0.5f;	
 	
 	PhongShader shader;
 	shader.CreateFromFiles("../data/shaders/phong_vs.glsl", 0, 0, 0, "../data/shaders/phong_fs.glsl");
