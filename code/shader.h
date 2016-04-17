@@ -127,7 +127,7 @@ struct Shader
 		uniform->id = glGetUniformLocation(shaderProgram, (const GLchar*)uniform->name);
 		if (uniform->id == -1)
 		{
-			printf("Problem adding uniform: %s!\n", uniform->name);
+			printf("Problem adding uniform: \"%s\" or OpenGL might have optimized it out!\n", uniform->name);
 		}
 	}
 	
@@ -176,46 +176,61 @@ struct Shader
 // This is the default shader.
 struct DefaultShader : public Shader
 {
-	ShaderUniform transformUniform;
+	ShaderUniform mvp;
 	
 	inline void Init()
 	{
-		transformUniform.name = "transform";
-		AddUniform(&transformUniform);
+		mvp.name = "mvp";
+		AddUniform(&mvp);
 	}
 	
 	inline void Update(const Transform& transform, const Camera& camera, float deltaTime)
 	{
-		SetUniform(transformUniform, CalculateMVP(transform, camera));
+		SetUniform(mvp, CalculateMVP(transform, camera));
 	}
 };
 
 // TODO(Tom): Implement Phong shader (ambient, diffuse, specular)
 struct PhongShader : public Shader
 {
-	ShaderUniform transformUniform;
-	ShaderUniform dirLightColor;
-	ShaderUniform dirLightAmbient;	
+	ShaderUniform mvp;
+	ShaderUniform model;	
+	ShaderUniform ambientLightColor;
+	ShaderUniform ambientLightIntensity;
+	ShaderUniform dirLightDirection;
+	ShaderUniform dirLightDiffuseIntensity;		
 	
 	inline void Init()
 	{
-		transformUniform.name = "transform";
-		AddUniform(&transformUniform);
-		
-		dirLightColor.name = "directionalLight.Color";
-		AddUniform(&dirLightColor);
-		dirLightAmbient.name = "directionalLight.Ambient";
-		AddUniform(&dirLightAmbient);
+		mvp.name = "mvp";
+		AddUniform(&mvp);
+		model.name = "model";
+		AddUniform(&model);
+		ambientLightColor.name = "ambientLight.color";
+		AddUniform(&ambientLightColor);
+		ambientLightIntensity.name = "ambientLight.intensity";
+		AddUniform(&ambientLightIntensity);
+		dirLightDirection.name = "dirLight.direction";
+		AddUniform(&dirLightDirection);
+		dirLightDiffuseIntensity.name = "dirLight.diffuseIntensity";
+		AddUniform(&dirLightDiffuseIntensity);
 	}
 	
 	inline void Update(const Transform& transform, const Camera& camera, float deltaTime)
 	{
-		SetUniform(this->transformUniform, CalculateMVP(transform, camera));
+		SetUniform(this->mvp, CalculateMVP(transform, camera));
+		//SetUniform(this->model, CalculateMVP(transform, camera));		
+	}
+	
+	inline void UpdateLight(const AmbientLight& ambientLight)
+	{
+		SetUniform(this->ambientLightColor, ambientLight.color);
+		SetUniform(this->ambientLightIntensity, ambientLight.intensity);		
 	}
 	
 	inline void UpdateLight(const DirectionalLight& dirLight)
 	{
-		SetUniform(this->dirLightColor, dirLight.Color);
-		SetUniform(this->dirLightAmbient, dirLight.Ambient);		
+		SetUniform(this->dirLightDirection, dirLight.direction);
+		SetUniform(this->dirLightDiffuseIntensity, dirLight.diffuseIntensity);		
 	}
 };

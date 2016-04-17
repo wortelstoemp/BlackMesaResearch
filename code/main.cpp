@@ -22,6 +22,7 @@
 #include "lighting.h"
 #include "shader.h"
 #include "texture.h"
+#include "sprite.h"
 #include "mesh.h" 
 
 const int SCREEN_WIDTH = 800;
@@ -114,27 +115,21 @@ int main(int argc, char* argv[])
 			SCREEN_HEIGHT,
 			/*SDL_WINDOW_FULLSCREEN_DESKTOP | */SDL_WINDOW_OPENGL
 	);
-	
 	SDL_GLContext openglContext = SDL_GL_CreateContext(window);
 	SDL_GL_SetSwapInterval(1);
-	
 	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK)
 	{
 		printf("GLEW could not initialize!");
 		return -1;
 	}
-	
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 	
 	// Input initialization
 	Input input;
 	
-	// Mesh stuff
-	// TODO(Tom): Make SimpleSprite struct
-	SimpleSpriteMesh mesh;
-	mesh.Create();
-
+	// Graphics
+	
 	// Uncomment for wireframe mode
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -153,6 +148,7 @@ int main(int argc, char* argv[])
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
+	// Game
 	Transform cameraTransform;
 	cameraTransform.Position = { 0.0f, 0.0f, 3.0f };
 	cameraTransform.Scaling = { 1.0f, 1.0f, 1.0f };
@@ -166,13 +162,21 @@ int main(int argc, char* argv[])
 	transform.Scaling = { 1.0f, 1.0f, 1.0f };
 	transform.Orientation = QuaternionFromEuler(180.0f, 0.0f, 0.0f);
 	
+	SimpleSpriteMesh mesh;
+	mesh.Create();
+	
 	Texture texture;
-	texture.CreateFromFile("../data/textures/foo.bmp");
+	//texture.CreateFromFile("../data/textures/foo.bmp");
+	texture.CreateFromFile("../data/textures/orange.bmp");	
 	//texture.CreateFromFile("../data/textures/foo.dds");
 	
-	DirectionalLight directionalLight;
-	directionalLight.Color = { 1.0f, 1.0f, 1.0f };
-	directionalLight.Ambient = 1.0f;
+	AmbientLight ambientLight;
+	ambientLight.color = { 1.0f, 1.0f, 1.0f };
+	ambientLight.intensity = 1.0f;
+	
+	DirectionalLight dirLight;
+	dirLight.direction = { 0.0f, 0.0f, 1.0f};
+	dirLight.diffuseIntensity = 1.0f;	
 	
 	PhongShader shader;
 	shader.CreateFromFiles("../data/shaders/phong_vs.glsl", 0, 0, 0, "../data/shaders/phong_fs.glsl");
@@ -238,7 +242,8 @@ int main(int argc, char* argv[])
 		mesh.Use();
 		
 		shader.Update(transform, camera, deltaTime);
-		shader.UpdateLight(directionalLight);
+		shader.UpdateLight(ambientLight);
+		shader.UpdateLight(dirLight);		
 		mesh.Render();
 		
 		mesh.Unuse();
