@@ -7,12 +7,14 @@ layout (location = 2) in vec2 uv;
 uniform mat4 mvp;
 uniform mat4 model;
 
-out vec3 fragNormal;
-out vec2 fragUV;
+out vec3 vertexWorldPosition;
+out vec3 vertexNormal;
+out vec2 vertexUV;
 
 void main()
 {
 	gl_Position = mvp * vec4(position, 1.0f);
-	fragNormal = vec3(model * vec4(normal, 0.0f));
-	fragUV = uv;
+	vertexWorldPosition = (model * vec4(position, 1.0f)).xyz;
+	vertexNormal = (model * vec4(normal, 0.0f)).xyz;
+	vertexUV = uv;
 }

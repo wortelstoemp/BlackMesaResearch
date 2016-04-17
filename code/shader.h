@@ -153,17 +153,17 @@ struct Shader
 	
 	inline void SetUniform(const ShaderUniform& uniform, const Vec2& value)
 	{
-		glUniform2f(uniform.id, (GLfloat)value.X, (GLfloat)value.Y);
+		glUniform2f(uniform.id, (GLfloat)value.x, (GLfloat)value.y);
 	}
 	
 	inline void SetUniform(const ShaderUniform& uniform, const Vec3& value)
 	{
-		glUniform3f(uniform.id, (GLfloat)value.X, (GLfloat)value.Y, (GLfloat)value.Z);
+		glUniform3f(uniform.id, (GLfloat)value.x, (GLfloat)value.y, (GLfloat)value.z);
 	}
 	
 	inline void SetUniform(const ShaderUniform& uniform, const Vec4& value)
 	{
-		glUniform4f(uniform.id, (GLfloat)value.X, (GLfloat)value.Y, (GLfloat)value.Z, (GLfloat)value.W);
+		glUniform4f(uniform.id, (GLfloat)value.x, (GLfloat)value.y, (GLfloat)value.z, (GLfloat)value.w);
 	}
 	
 	inline void SetUniform(const ShaderUniform& uniform, const Matrix4x4& value)
@@ -194,11 +194,14 @@ struct DefaultShader : public Shader
 struct PhongShader : public Shader
 {
 	ShaderUniform mvp;
-	ShaderUniform model;	
+	ShaderUniform model;
+	ShaderUniform cameraPosition;
 	ShaderUniform ambientLightColor;
 	ShaderUniform ambientLightIntensity;
 	ShaderUniform dirLightDirection;
-	ShaderUniform dirLightDiffuseIntensity;		
+	ShaderUniform dirLightDiffuseIntensity;
+	ShaderUniform materialSpecularIntensity;
+	ShaderUniform materialSpecularPower;			
 	
 	inline void Init()
 	{
@@ -206,6 +209,8 @@ struct PhongShader : public Shader
 		AddUniform(&mvp);
 		model.name = "model";
 		AddUniform(&model);
+		cameraPosition.name = "cameraPosition";
+		AddUniform(&cameraPosition);
 		ambientLightColor.name = "ambientLight.color";
 		AddUniform(&ambientLightColor);
 		ambientLightIntensity.name = "ambientLight.intensity";
@@ -214,12 +219,23 @@ struct PhongShader : public Shader
 		AddUniform(&dirLightDirection);
 		dirLightDiffuseIntensity.name = "dirLight.diffuseIntensity";
 		AddUniform(&dirLightDiffuseIntensity);
+		materialSpecularIntensity.name = "material.specularIntensity";
+		AddUniform(&materialSpecularIntensity);
+		materialSpecularPower.name = "material.specularPower";
+		AddUniform(&materialSpecularPower);
 	}
 	
 	inline void Update(const Transform& transform, const Camera& camera, float deltaTime)
 	{
 		SetUniform(this->mvp, CalculateMVP(transform, camera));
-		SetUniform(this->model, CalculateMVP(transform, camera));		
+		SetUniform(this->model, CalculateMVP(transform, camera));
+		SetUniform(this->cameraPosition, camera.transform.position);						
+	}
+	
+	inline void UpdateMaterial(const Material& material)
+	{
+		SetUniform(this->materialSpecularIntensity, material.specularIntensity);
+		SetUniform(this->materialSpecularPower, material.specularPower);		
 	}
 	
 	inline void UpdateLight(const AmbientLight& ambientLight)

@@ -150,17 +150,17 @@ int main(int argc, char* argv[])
 	
 	// Game
 	Transform cameraTransform;
-	cameraTransform.Position = { 0.0f, 0.0f, 3.0f };
-	cameraTransform.Scaling = { 1.0f, 1.0f, 1.0f };
-	cameraTransform.Orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 180.0f);	
+	cameraTransform.position = { 0.0f, 0.0f, 3.0f };
+	cameraTransform.scaling = { 1.0f, 1.0f, 1.0f };
+	cameraTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 180.0f);	
 	
 	Camera camera;
 	camera.CreatePerspective(cameraTransform, 60.0f, (float)SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.0f);
 	
 	Transform transform;
-	transform.Position = { 0.0f, 0.0f, 0.0f };
-	transform.Scaling = { 1.0f, 1.0f, 1.0f };
-	transform.Orientation = QuaternionFromEuler(180.0f, 0.0f, 0.0f);
+	transform.position = { 0.0f, 0.0f, 0.0f };
+	transform.scaling = { 1.0f, 1.0f, 1.0f };
+	transform.orientation = QuaternionFromEuler(180.0f, 0.0f, 0.0f);
 	
 	SimpleSpriteMesh mesh;
 	mesh.Create();
@@ -169,6 +169,10 @@ int main(int argc, char* argv[])
 	//texture.CreateFromFile("../data/textures/foo.bmp");
 	texture.CreateFromFile("../data/textures/orange.bmp");	
 	//texture.CreateFromFile("../data/textures/foo.dds");
+	
+	Material material;
+	material.specularIntensity = 2.0f;
+	material.specularPower = 32.0f;
 	
 	AmbientLight ambientLight;
 	ambientLight.color = { 1.0f, 1.0f, 1.0f };
@@ -242,6 +246,7 @@ int main(int argc, char* argv[])
 		mesh.Use();
 		
 		shader.Update(transform, camera, deltaTime);
+		shader.UpdateMaterial(material);
 		shader.UpdateLight(ambientLight);
 		shader.UpdateLight(dirLight);		
 		mesh.Render();
