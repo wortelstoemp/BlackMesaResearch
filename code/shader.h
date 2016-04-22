@@ -209,7 +209,7 @@ inline void DefaultShader_Init(Shader* shader)
 
 inline void DefaultShader_Update(Shader* shader, const Transform& transform, const Camera& camera)
 {
-	GLint mvp = shader->FindShaderUniform("mvp");
+	GLint mvp = shader->uniforms[0];
 	shader->SetUniform(mvp, CalculateMVP(transform, camera));
 }
 
