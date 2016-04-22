@@ -166,8 +166,8 @@ int main(int argc, char* argv[])
 	mesh.Create();
 	
 	Texture texture;
-	//texture.CreateFromFile("../data/textures/foo.bmp");
-	texture.CreateFromFile("../data/textures/orange.bmp");	
+	texture.CreateFromFile("../data/textures/foo.bmp");
+	//texture.CreateFromFile("../data/textures/orange.bmp");	
 	//texture.CreateFromFile("../data/textures/foo.dds");
 	
 	Material material;

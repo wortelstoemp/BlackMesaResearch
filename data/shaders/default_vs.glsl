@@ -11,7 +11,7 @@ out vec2 fragUV;
 
 void main()
 {
-	gl_Position = mvp * vec4(position.x, position.y, position.z, 1.0);
+	gl_Position = mvp * vec4(position, 1.0);
 	fragColor = color;
 	fragUV = uv;
 }
