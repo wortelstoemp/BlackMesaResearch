@@ -3,18 +3,17 @@
 // Author(s): Simon, Tom
 
 // API Usage code:
-// DefaultShader shader;
-// shader.CreateFromFiles("../data/shaders/default_vs.glsl", 0, 0, 0, "../data/shaders/default_fs.glsl");
+// Shader shader;
+// shader.LoadFromFiles("../data/shaders/default_vs.glsl", 0, 0, 0, "../data/shaders/default_fs.glsl");
+// DefaultShader_Init(&shader);
 // ...
 // shader.Use();
-// shader.Update(transform, camera, deltaTime);
+// DefaultShader_Update(&shader, transform, camera);
 // ...
 // shader.Unuse();
 // ...
 // shader.Delete();
 
-
-// TODO(Tom): Trying new Shader API
 struct Shader
 {
 	GLuint shaderProgram;
@@ -135,7 +134,7 @@ struct Shader
 	inline GLint FindShaderUniform(const char* uniformName)
 	{
 		// Linear search because not much uniforms
-		// TODO(Tom): Binary search if more than x (see tests) uniforms
+		// NOTE(Tom): Binary search if more than x (see tests) uniforms
 		for(int i = 0; i < numUniforms; i++) {
 			if (!strcmp(uniformNames[i], uniformName)) {
 				return uniforms[i];
