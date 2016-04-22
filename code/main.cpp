@@ -182,8 +182,9 @@ int main(int argc, char* argv[])
 	dirLight.direction = { 0.0f, 0.0f, -1.0f};
 	dirLight.diffuseIntensity = 0.5f;	
 	
-	PhongShader shader;
-	shader.CreateFromFiles("../data/shaders/phong_vs.glsl", 0, 0, 0, "../data/shaders/phong_fs.glsl");
+	Shader shader;
+	shader.LoadFromFiles("../data/shaders/phong_vs.glsl", 0, 0, 0, "../data/shaders/phong_fs.glsl");
+	PhongShader_Init(&shader);
 	
 	float deltaTime;
 	Uint64 currentTime;
@@ -245,10 +246,10 @@ int main(int argc, char* argv[])
 		texture.Use();
 		mesh.Use();
 		
-		shader.Update(transform, camera, deltaTime);
-		shader.UpdateMaterial(material);
-		shader.UpdateLight(ambientLight);
-		shader.UpdateLight(dirLight);		
+		PhongShader_Update(&shader, transform, camera);
+		PhongShader_UpdateMaterial(&shader, material);
+		PhongShader_UpdateLight(&shader, ambientLight);
+		PhongShader_UpdateLight(&shader, dirLight);		
 		mesh.Render();
 		
 		mesh.Unuse();
