@@ -229,10 +229,10 @@ inline void PhongShader_Init(Shader* shader)
 	shader->AddUniform("cameraPosition");
 	shader->AddUniform("material.specular");
 	shader->AddUniform("material.shine");
-	shader->AddUniform("light.position");
-	shader->AddUniform("light.ambient");
-	shader->AddUniform("light.diffuse");
-	shader->AddUniform("light.specular");			
+	shader->AddUniform("dirLight.direction");
+	shader->AddUniform("dirLight.ambient");
+	shader->AddUniform("dirLight.diffuse");
+	shader->AddUniform("dirLight.specular");			
 }
 
 inline void PhongShader_Update(Shader* shader, const Transform& transform, const Camera& camera)
@@ -256,17 +256,17 @@ inline void PhongShader_UpdateMaterial(Shader* shader, const Material& material)
 	shader->SetUniform(shine, material.shine);		
 }
 
-inline void PhongShader_UpdateLight(Shader* shader, const Light& light)
+inline void PhongShader_UpdateLight(Shader* shader, const DirectionalLight& dirLight)
 {
-	GLint position = shader->uniforms[5];
-	shader->SetUniform(position, light.position);
+	GLint direction = shader->uniforms[5];
+	shader->SetUniform(direction, dirLight.direction);
 	
 	GLint ambient = shader->uniforms[6];
-	shader->SetUniform(ambient, light.ambient);
+	shader->SetUniform(ambient, dirLight.ambient);
 	
 	GLint diffuse = shader->uniforms[7];
-	shader->SetUniform(diffuse, light.diffuse);
+	shader->SetUniform(diffuse, dirLight.diffuse);
 	
 	GLint specular = shader->uniforms[8];
-	shader->SetUniform(specular, light.specular);		
+	shader->SetUniform(specular, dirLight.specular);		
 }

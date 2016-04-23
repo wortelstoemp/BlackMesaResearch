@@ -166,19 +166,19 @@ int main(int argc, char* argv[])
 	mesh.Create();
 	
 	Texture texture;
-	texture.CreateFromFile("../data/textures/foo.bmp");
-	//texture.CreateFromFile("../data/textures/orange.bmp");	
-	//texture.CreateFromFile("../data/textures/foo.dds");
+	texture.LoadFromFile("../data/textures/foo.bmp");
+	//texture.LoadFromFile("../data/textures/orange.bmp");	
+	//texture.LoadFromFile("../data/textures/foo.dds");
 	
 	Material material;
 	material.specular = { 0.5f, 0.5f, 0.5f };
 	material.shine = 64.0f;
 	
-	Light light;
-	light.position = { 0.0f, 0.0f, 100000000.0f };
-	light.ambient = { 1.0f, 1.0f, 1.0f };
-	light.diffuse = { 0.5f, 0.5f, 0.5f };
-	light.specular = { 1.0f, 1.0f, 1.0f };	
+	DirectionalLight dirLight;
+	dirLight.direction = { 0.0f, 0.0f, -1.0f };
+	dirLight.ambient = { 1.0f, 1.0f, 1.0f };
+	dirLight.diffuse = { 0.5f, 0.5f, 0.5f };
+	dirLight.specular = { 1.0f, 1.0f, 1.0f };	
 	
 	Shader shader;
 	shader.LoadFromFiles("../data/shaders/phong_vs.glsl", 0, 0, 0, "../data/shaders/phong_fs.glsl");
@@ -246,7 +246,7 @@ int main(int argc, char* argv[])
 		
 		PhongShader_Update(&shader, transform, camera);
 		PhongShader_UpdateMaterial(&shader, material);
-		PhongShader_UpdateLight(&shader, light);	
+		PhongShader_UpdateLight(&shader, dirLight);	
 		mesh.Render();
 		
 		mesh.Unuse();

@@ -11,15 +11,13 @@ struct Attenuation
 
 struct Material
 {
-// 	Vec3 ambient;
-// 	Vec3 diffuse;
 	Vec3 specular;    
 	float shine;
 };
 
-struct Light
+struct DirectionalLight
 {
-	Vec3 position;
+	Vec3 direction;
 	Vec3 ambient;
 	Vec3 diffuse;
 	Vec3 specular;
