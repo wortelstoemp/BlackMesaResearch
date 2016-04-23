@@ -14,6 +14,8 @@
 // ...
 // shader.Delete();
 
+// Look at DefaultShader_ and PhongShader_ functions to create your own shaders
+
 struct Shader
 {
 	GLuint shaderProgram;
@@ -131,6 +133,12 @@ struct Shader
 		return true;
 	}
 	
+	// For binary search when having a lot of uniforms
+	inline bool AddUniformSorted(const char* uniformName)
+	{
+		return false;
+	}
+	
 	inline GLint FindShaderUniform(const char* uniformName)
 	{
 		// Linear search because not much uniforms
@@ -219,50 +227,71 @@ inline void PhongShader_Init(Shader* shader)
 	shader->AddUniform("mvp");
 	shader->AddUniform("model");
 	shader->AddUniform("cameraPosition");
-	shader->AddUniform("ambientLight.color");
-	shader->AddUniform("ambientLight.intensity");
-	shader->AddUniform("dirLight.direction");
-	shader->AddUniform("dirLight.diffuseIntensity");
-	shader->AddUniform("material.specularIntensity");
-	shader->AddUniform("material.specularPower");
+	// shader->AddUniform("ambientLight.color");
+	// shader->AddUniform("ambientLight.intensity");
+	// shader->AddUniform("dirLight.direction");
+	// shader->AddUniform("dirLight.diffuseIntensity");
+	// shader->AddUniform("material.specularIntensity");
+	// shader->AddUniform("material.specularPower");
+	shader->AddUniform("material.ambient");
+	shader->AddUniform("material.diffuse");	
+	shader->AddUniform("material.specular");
+	shader->AddUniform("material.shine");
+	shader->AddUniform("light.position");
+	shader->AddUniform("light.ambient");
+	shader->AddUniform("light.diffuse");
+	shader->AddUniform("light.specular");			
 }
 
 inline void PhongShader_Update(Shader* shader, const Transform& transform, const Camera& camera)
 {
-	GLint mvp = shader->FindShaderUniform("mvp");
+	GLint mvp = shader->uniforms[0];
 	shader->SetUniform(mvp, CalculateMVP(transform, camera));
 	
-	GLint model = shader->FindShaderUniform("model");
+	GLint model = shader->uniforms[1];
 	// TODO(Tom): use transform.CalculateModel() instead !!!
-	shader->SetUniform(model, CalculateMVP(transform, camera));
+	shader->SetUniform(model, transform.CalculateModel());
+	//shader->SetUniform(model, CalculateMVP(transform, camera));
 	
-	GLint cameraPosition = shader->FindShaderUniform("cameraPosition");
+	GLint cameraPosition = shader->uniforms[2];
 	shader->SetUniform(cameraPosition, camera.transform.position);				
 }
 
 inline void PhongShader_UpdateMaterial(Shader* shader, const Material& material)
 {
-	GLint materialSpecularIntensity = shader->FindShaderUniform("material.specularIntensity");
-	shader->SetUniform(materialSpecularIntensity, material.specularIntensity);
+	GLint ambient = shader->uniforms[3];
+	shader->SetUniform(ambient, material.ambient);
 	
-	GLint materialSpecularPower = shader->FindShaderUniform("material.specularPower");
-	shader->SetUniform(materialSpecularPower, material.specularPower);		
+	GLint diffuse = shader->uniforms[4];
+	shader->SetUniform(diffuse, material.diffuse);
+	
+	GLint specular = shader->uniforms[5];
+	shader->SetUniform(specular, material.specular);
+	
+	GLint shine = shader->uniforms[6];
+	shader->SetUniform(shine, material.shine);		
 }
 
-inline void PhongShader_UpdateLight(Shader* shader, const AmbientLight& ambientLight)
+inline void PhongShader_UpdateLight(Shader* shader, const Light& light)
 {
-	GLint ambientLightColor = shader->FindShaderUniform("ambientLight.color");
-	shader->SetUniform(ambientLightColor, ambientLight.color);
+	GLint position = shader->uniforms[7];
+	shader->SetUniform(position, light.position);
 	
-	GLint ambientLightIntensity = shader->FindShaderUniform("ambientLight.intensity");	
-	shader->SetUniform(ambientLightIntensity, ambientLight.intensity);		
+	GLint ambient = shader->uniforms[8];
+	shader->SetUniform(ambient, light.ambient);
+	
+	GLint diffuse = shader->uniforms[9];
+	shader->SetUniform(diffuse, light.diffuse);
+	
+	GLint specular = shader->uniforms[10];
+	shader->SetUniform(specular, light.specular);		
 }
 
-inline void PhongShader_UpdateLight(Shader* shader, const DirectionalLight& dirLight)
-{
-	GLint dirLightDirection = shader->FindShaderUniform("dirLight.direction");	
-	shader->SetUniform(dirLightDirection, dirLight.direction);
+// inline void PhongShader_UpdateLight(Shader* shader, const DirectionalLight& dirLight)
+// {
+// 	GLint dirLightDirection = shader->uniforms[5];
+// 	shader->SetUniform(dirLightDirection, dirLight.direction);
 	
-	GLint dirLightDiffuseIntensity = shader->FindShaderUniform("dirLight.diffuseIntensity");	
-	shader->SetUniform(dirLightDiffuseIntensity, dirLight.diffuseIntensity);		
-}
+// 	GLint dirLightDiffuseIntensity = shader->uniforms[6];	
+// 	shader->SetUniform(dirLightDiffuseIntensity, dirLight.diffuseIntensity);		
+// }

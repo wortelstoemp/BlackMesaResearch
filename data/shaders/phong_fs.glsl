@@ -1,58 +1,47 @@
 #version 400 core
 struct Material
 {
-	// TODO: Color
-	float specularIntensity;
-	float specularPower;
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;    
+	float shine;
 };
 
-struct AmbientLight
+struct Light
 {
-	vec3 color;
-	float intensity;	
+	vec3 position;
+	vec3 ambient;
+	vec3 diffuse;
+	vec3 specular;
 };
 
-struct DirectionalLight
-{
-	vec3 direction;
-	float diffuseIntensity;
-};
-
-in vec3 vertexWorldPosition;
+in vec3 vertexWorldPosition;  
 in vec3 vertexNormal;
 in vec2 vertexUV;
-
-out vec4 outColor;
+out vec4 fragColor;
 
 uniform sampler2D diffuseTexture;
 uniform vec3 cameraPosition;
 uniform Material material;
-uniform AmbientLight ambientLight;
-uniform DirectionalLight dirLight;
+uniform Light light;
 
 void main()
 {
-	vec4 ambientColor = vec4(ambientLight.color * ambientLight.intensity, 1.0f);
-	
-	vec3 normal = normalize(vertexNormal);
-	float diffuseFactor = dot(normal, -dirLight.direction);
-	vec4 diffuseColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
-	vec4 specularColor = vec4(0.0f, 0.0f, 0.0f, 0.0f);
-	
-	if (diffuseFactor > 0.0f)
-	{
-		diffuseColor = vec4(ambientLight.color * dirLight.diffuseIntensity * diffuseFactor, 1.0f);
-		vec3 vertexToEye = normalize(cameraPosition - vertexWorldPosition);
-		vec3 lightReflect = normalize(reflect(dirLight.direction, normal));
-		
-		float specularFactor = dot(vertexToEye, lightReflect);
-		if (specularFactor > 0.0f)
-		{
-			specularFactor = pow(specularFactor, material.specularPower);
-			specularColor = vec4(ambientLight.color * material.specularIntensity * specularFactor, 1.0f);
-		}
-	}
-	
-	outColor = texture2D(diffuseTexture, vertexUV) * 
-		(ambientColor + diffuseColor + specularColor);
-}
+    // Ambient
+    vec3 ambient = light.ambient * material.ambient;
+  	
+    // Diffuse 
+    vec3 normal = normalize(vertexNormal);
+    vec3 lightDirection = normalize(light.position - vertexWorldPosition);
+    float diffuseFactor = max(dot(normal, lightDirection), 0.0);
+    vec3 diffuse = light.diffuse * (diffuseFactor * material.diffuse);
+    
+    // Specular
+    vec3 cameraDirection = normalize(cameraPosition - vertexWorldPosition);
+    vec3 reflectDirection = reflect(-lightDirection, normal);  
+    float specularFactor = pow(max(dot(cameraDirection, reflectDirection), 0.0), material.shine);
+    vec3 specular = light.specular * (specularFactor * material.specular);  
+        
+    vec3 result = ambient + diffuse + specular;
+    fragColor = texture2D(diffuseTexture, vertexUV) * vec4(result, 1.0f);
+} 
