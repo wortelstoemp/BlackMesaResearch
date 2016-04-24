@@ -11,8 +11,7 @@ char* ReadFile(const char* fileName)
 {
 	FILE* f = {0};
 	fopen_s(&f, fileName, "rb");
-	if (f)
-	{
+	if (f) {
 		fseek(f, 0, SEEK_END);
 		ulong fsize = ftell(f);
 		fseek(f, 0, SEEK_SET);
@@ -20,14 +19,12 @@ char* ReadFile(const char* fileName)
 		char* str = (char*) malloc(fsize + 1);
 		fread(str, fsize, 1, f);
 		fclose(f);
-
 		str[fsize] = 0;
+		
 		return str;
 	}
-	else
-	{
-		return 0;
-	}
+	
+	return 0;
 }
 
 void FreeFile(char* file)

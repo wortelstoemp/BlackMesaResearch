@@ -37,8 +37,7 @@ void main()
     }
     
     // No lighting on texture alpha of 0
-    if (textureDiffuseResult.w > 0.0)
-    {
+    if (textureDiffuseResult.w > 0.0) {
         // Ambient
         vec4 ambient = vec4(dirLight.ambient, 1.0) * textureDiffuseResult;
   	
@@ -55,9 +54,7 @@ void main()
         vec4 specular = vec4(dirLight.specular, 1.0) * (specularFactor * vec4(material.specular, 1.0));  
         
         fragColor = ambient + diffuse + specular;
-    } 
-    else 
-    {
+    } else {
         fragColor = vec4(0.0, 0.0, 0.0, 0.0);
     }
 } 

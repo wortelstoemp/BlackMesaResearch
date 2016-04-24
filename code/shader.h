@@ -35,8 +35,7 @@ struct Shader
 
 		int compiled;
 		glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compiled);
-		if (compiled != GL_TRUE)
-		{
+		if (compiled != GL_TRUE) {
 			GLsizei log_length = 0;
 			GLchar message[1024];
 			glGetShaderInfoLog(shaderID, 1024, &log_length, message);
