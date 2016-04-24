@@ -19,21 +19,23 @@ in vec2 vertexUV;
 
 out vec4 fragColor;
 
-uniform sampler2D textureDiffuse;
+uniform sampler2D textureDiffuse1;
+uniform sampler2D textureDiffuse2;
 uniform vec3 cameraPosition;
 uniform Material material;
 uniform DirectionalLight dirLight;
 
 void main()
 {
+    vec3 textureDiffuseResult = vec3(mix(texture(textureDiffuse1, vertexUV), texture(textureDiffuse2, vertexUV), 0.3));
     // Ambient
-    vec3 ambient = dirLight.ambient * vec3(texture2D(textureDiffuse, vertexUV));
+    vec3 ambient = dirLight.ambient * textureDiffuseResult;
   	
     // Diffuse 
     vec3 normal = normalize(vertexNormal);
     vec3 dirLightDirection = normalize(-dirLight.direction);
     float diffuseFactor = max(dot(normal, dirLightDirection), 0.0);
-    vec3 diffuse = dirLight.diffuse * diffuseFactor * vec3(texture2D(textureDiffuse, vertexUV));
+    vec3 diffuse = dirLight.diffuse * diffuseFactor * textureDiffuseResult;
     
     // Specular
     vec3 cameraDirection = normalize(cameraPosition - vertexWorldPosition);

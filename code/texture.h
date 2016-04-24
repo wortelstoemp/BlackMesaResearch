@@ -5,9 +5,21 @@
 // API Usage code:
 // Texture texture;
 // texture.LoadFromFile("../data/textures/foo.bmp");
-// texture.Bind();
+// texture.Use();
 // ...
-// texture.Unbind();
+// texture.Unuse();
+
+// Use MultiTexture in shader:
+// Texture uniforms should follow the naming convention below.
+// uniform sampler2D diffuseTexture1;
+// uniform sampler2D diffuseTexture2;
+// uniform sampler2D diffuseTexture3;
+// ...
+// uniform sampler2D specularTexture1;
+// uniform sampler2D specularTexture2;
+// uniform sampler2D specularTexture3;
+// ...
+// then use mix() function to mix those textures.
 
 struct Texture
 {
@@ -148,8 +160,8 @@ public:
 	
 	inline void Use(const Shader& shader)
 	{
-		GLuint diffuseNr = 1;
-		GLuint specularNr = 1;
+		int diffuseNr = 1;
+		int specularNr = 1;
 		
 		const int numTextures = this->textures.size();
 		for(GLuint i = 0; i < numTextures; i++) {
@@ -157,15 +169,16 @@ public:
 			const Texture::TextureType type = this->textures[i].type;
 			if (type == Texture::DIFFUSE) {
 				char number[10];
-				itoa(i, number, 10);
-				char uniformName[15] = "diffuseTexture";
+				itoa(diffuseNr++, number, 10);
+				char uniformName[15] = "textureDiffuse";
 				strncat(uniformName, number, strlen(number));
 				GLint uniform = glGetUniformLocation(shader.program, uniformName);
+				//printf("%s\n", uniformName);
 				glUniform1i(uniform, i);
 			} else if (type == Texture::SPECULAR) {
 				char number[10];
-				itoa(i, number, 10);
-				char uniformName[16] = "specularTexture";
+				itoa(specularNr++, number, 10);
+				char uniformName[16] = "textureSpecular";
 				strncat(uniformName, number, strlen(number));
 				GLint uniform = glGetUniformLocation(shader.program, uniformName);
 				glUniform1i(uniform, i);

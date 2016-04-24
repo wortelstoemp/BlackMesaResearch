@@ -168,8 +168,12 @@ int main(int argc, char* argv[])
 	Texture texture;
 	texture.LoadFromFile("../data/textures/foo.bmp");
 	texture.type = Texture::DIFFUSE;
-	//texture.LoadFromFile("../data/textures/orange.bmp");	
-	//texture.LoadFromFile("../data/textures/foo.dds");
+	// texture.LoadFromFile("../data/textures/orange.bmp");	
+	// texture.LoadFromFile("../data/textures/foo.dds");
+	
+	//MultiTexture multiTexture;
+	//multiTexture.LoadTextureFromFile("../data/textures/foo.bmp", Texture::DIFFUSE);
+	//multiTexture.LoadTextureFromFile("../data/textures/foo.dds", Texture::DIFFUSE);	
 	
 	Material material;
 	material.specular = { 0.5f, 0.5f, 0.5f };
@@ -243,6 +247,7 @@ int main(int argc, char* argv[])
 		//camera.transform.Rotate(0.0f, 5.0f * deltaTime, 0.0f);
 		shader.Use();
 		texture.Use();
+		//multiTexture.Use(shader);
 		mesh.Use();
 		
 		PhongShader_Update(&shader, transform, camera);
