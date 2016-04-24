@@ -27,21 +27,22 @@ uniform DirectionalLight dirLight;
 
 void main()
 {
-    vec3 textureDiffuseResult = vec3(mix(texture(textureDiffuse1, vertexUV), texture(textureDiffuse2, vertexUV), 0.3));
+    // TODO(Tom): Fix to no lighting on texture alpha of 0
+    vec4 textureDiffuseResult = mix(texture(textureDiffuse1, vertexUV), texture(textureDiffuse2, vertexUV), 0.3);
     // Ambient
-    vec3 ambient = dirLight.ambient * textureDiffuseResult;
+    vec4 ambient = vec4(dirLight.ambient, 1.0) * textureDiffuseResult;
   	
     // Diffuse 
     vec3 normal = normalize(vertexNormal);
     vec3 dirLightDirection = normalize(-dirLight.direction);
     float diffuseFactor = max(dot(normal, dirLightDirection), 0.0);
-    vec3 diffuse = dirLight.diffuse * diffuseFactor * textureDiffuseResult;
+    vec4 diffuse = vec4(dirLight.diffuse, 1.0) * diffuseFactor * textureDiffuseResult;
     
     // Specular
     vec3 cameraDirection = normalize(cameraPosition - vertexWorldPosition);
     vec3 reflectDirection = reflect(-dirLightDirection, normal);  
     float specularFactor = pow(max(dot(cameraDirection, reflectDirection), 0.0), material.shine);
-    vec3 specular = dirLight.specular * (specularFactor * material.specular);  
+    vec4 specular = vec4(dirLight.specular, 1.0) * (specularFactor * vec4(material.specular, 1.0));  
         
-    fragColor =  vec4(ambient + diffuse + specular, 1.0f);
+    fragColor =  ambient + diffuse + specular;
 } 

@@ -9,25 +9,20 @@ struct Vertex
 	Vec2 uv;
 };
 
-// TODO: 
 struct Mesh
 {
 private:
 	std::vector<Vertex> vertices;
 	std::vector<GLuint> indices;
-	std::vector<Texture> textures; // Pull this out (and put in MultiTexture struct or so)?
 	GLuint vao;
 	GLuint vbo;
 	GLuint ebo;
 	
 public:
-	inline void Create(std::vector<Vertex> vertices, 
-						std::vector<GLuint> indices, 
-						std::vector<Texture> textures)
+	inline void Create(std::vector<Vertex> vertices, std::vector<GLuint> indices)
 	{
 		this->vertices = vertices;
     	this->indices = indices;
-    	this->textures = textures;
 		
 		glGenVertexArrays(1, &this->vao);
 		glBindVertexArray(this->vao);

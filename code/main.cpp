@@ -166,14 +166,14 @@ int main(int argc, char* argv[])
 	mesh.Create();
 	
 	Texture texture;
-	texture.LoadFromFile("../data/textures/foo.bmp");
-	texture.type = Texture::DIFFUSE;
+	texture.LoadFromFile("../data/textures/foo.dds");
 	// texture.LoadFromFile("../data/textures/orange.bmp");	
 	// texture.LoadFromFile("../data/textures/foo.dds");
+	texture.type = Texture::DIFFUSE;
 	
-	//MultiTexture multiTexture;
-	//multiTexture.LoadTextureFromFile("../data/textures/foo.bmp", Texture::DIFFUSE);
-	//multiTexture.LoadTextureFromFile("../data/textures/foo.dds", Texture::DIFFUSE);	
+	MultiTexture multiTexture;
+	multiTexture.LoadTextureFromFile("../data/textures/foo.bmp", Texture::DIFFUSE);
+	multiTexture.LoadTextureFromFile("../data/textures/foo.dds", Texture::DIFFUSE);	
 	
 	Material material;
 	material.specular = { 0.5f, 0.5f, 0.5f };
@@ -246,8 +246,8 @@ int main(int argc, char* argv[])
 		camera.Update();
 		//camera.transform.Rotate(0.0f, 5.0f * deltaTime, 0.0f);
 		shader.Use();
-		texture.Use();
-		//multiTexture.Use(shader);
+		//texture.Use();
+		multiTexture.Use(shader);
 		mesh.Use();
 		
 		PhongShader_Update(&shader, transform, camera);
@@ -256,7 +256,7 @@ int main(int argc, char* argv[])
 		mesh.Render();
 		
 		mesh.Unuse();
-		texture.Unuse();
+		//texture.Unuse();
 		shader.Unuse();
 		
 		SDL_GL_SwapWindow(window);	
