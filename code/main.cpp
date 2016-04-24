@@ -167,6 +167,7 @@ int main(int argc, char* argv[])
 	
 	Texture texture;
 	texture.LoadFromFile("../data/textures/foo.bmp");
+	texture.type = Texture::DIFFUSE;
 	//texture.LoadFromFile("../data/textures/orange.bmp");	
 	//texture.LoadFromFile("../data/textures/foo.dds");
 	

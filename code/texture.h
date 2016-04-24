@@ -11,15 +11,21 @@
 
 struct Texture
 {
+	enum TextureType
+	{
+		DIFFUSE,
+		SPECULAR
+	};
+	
 	GLuint id;
+	TextureType type;
 
-	void LoadFromFile(const char* fileName)
+	bool LoadFromFile(const char* fileName)
 	{
 		const int length = strlen(fileName);
 		const char* extension = fileName + length - 4;
 
-		if (!strcmp(extension, ".dds"))
-		{
+		if (!strcmp(extension, ".dds")) {
 			DDSImage image;
 			image.LoadFromFile(fileName);
 			
@@ -48,7 +54,7 @@ struct Texture
 				break; 
 			default: 
 				image.Delete(); 
-				return; 
+				return false; 
 			}
 			
 			glGenTextures(1, &this->id);
@@ -61,8 +67,7 @@ struct Texture
 			
 			unsigned int level = 0;
 			unsigned int offset = 0;
-			while (level < image.mipMapCount && image.width > 0 && image.height > 0)
-			{ 
+			while (level < image.mipMapCount && image.width > 0 && image.height > 0) { 
 				unsigned int size = ((image.width+3)/4)*((image.height+3)/4)*blockSize; 
 				glCompressedTexImage2D(GL_TEXTURE_2D, level, format, image.width, image.height,  
 					0, size, image.data + offset); 
@@ -74,9 +79,11 @@ struct Texture
 			} 
 			image.Delete();
 			glBindTexture(GL_TEXTURE_2D, 0);
+			
+			return true;
 		}
-		else if (!strcmp(extension, ".bmp"))
-		{
+		
+		if (!strcmp(extension, ".bmp")) {
 			BMPImage image;
 			image.LoadFromFile(fileName);
 			glGenTextures(1, &this->id);
@@ -90,11 +97,12 @@ struct Texture
 			glGenerateMipmap(GL_TEXTURE_2D);
 			image.Delete();
 			glBindTexture(GL_TEXTURE_2D, 0);
+			
+			return true;
 		}
-		else
-		{
-			printf("Texture file format not supported!\n");
-		}
+		
+		printf("Texture file format not supported!\n");
+		return false;
 	}
 	
 	inline void Use()
@@ -108,25 +116,72 @@ struct Texture
 	}
 };
 
-struct MultiTexture
+class MultiTexture
 {
+private:
 	std::vector<Texture> textures;
-	
-	inline void Use()
+
+public:
+	inline void LoadTextureFromFile(const char* fileName, Texture::TextureType type)
 	{
-		int numTextures = this->textures.size();
-		for(GLuint i = 0; i < numTextures; i++)
-		{
+		Texture texture;
+		texture.type = type;
+		if (texture.LoadFromFile(fileName)) {
+			this->textures.push_back(texture);
+		}
+	}
+
+	inline void AddTexture(const Texture& texture)
+	{
+		this->textures.push_back(texture);
+	}
+	
+	inline void RemoveLastTexture()
+	{
+		this->textures.pop_back();
+	}
+	
+	inline void ClearTextures()
+	{
+		this->textures.clear();
+	}
+	
+	inline void Use(const Shader& shader)
+	{
+		GLuint diffuseNr = 1;
+		GLuint specularNr = 1;
+		
+		const int numTextures = this->textures.size();
+		for(GLuint i = 0; i < numTextures; i++) {
 			glActiveTexture(GL_TEXTURE0 + i);
+			const Texture::TextureType type = this->textures[i].type;
+			if (type == Texture::DIFFUSE) {
+				char number[10];
+				itoa(i, number, 10);
+				char uniformName[15] = "diffuseTexture";
+				strncat(uniformName, number, strlen(number));
+				GLint uniform = glGetUniformLocation(shader.program, uniformName);
+				glUniform1i(uniform, i);
+			} else if (type == Texture::SPECULAR) {
+				char number[10];
+				itoa(i, number, 10);
+				char uniformName[16] = "specularTexture";
+				strncat(uniformName, number, strlen(number));
+				GLint uniform = glGetUniformLocation(shader.program, uniformName);
+				glUniform1i(uniform, i);
+			} else {
+				break;
+			}
+			
             glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
         }
+		glActiveTexture(GL_TEXTURE0);
 	}
 	
 	inline void Unuse()
 	{
-		int numTextures = this->textures.size();
-		for(GLuint i = 0; i < numTextures; i++)
-		{
+		const int numTextures = this->textures.size();
+		for(GLuint i = 0; i < numTextures; i++) {
 			glActiveTexture(GL_TEXTURE0 + i);
             glBindTexture(GL_TEXTURE_2D, 0);
         }

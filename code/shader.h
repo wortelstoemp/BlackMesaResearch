@@ -18,7 +18,7 @@
 
 struct Shader
 {
-	GLuint shaderProgram;
+	GLuint program;
 	std::vector<GLint> uniforms;
 	std::vector<const char*> uniformNames;
 	int numUniforms;
@@ -54,24 +54,24 @@ struct Shader
 		char* geometrySource,
 		char* fragmentSource)
 	{
-		this->shaderProgram = glCreateProgram();
+		this->program = glCreateProgram();
 		this->numUniforms = 0;
 		
-		CompileAndAttachShader(this->shaderProgram, &vertexSource, GL_VERTEX_SHADER);
-		CompileAndAttachShader(this->shaderProgram, &tessControlSource, GL_TESS_CONTROL_SHADER);
-		CompileAndAttachShader(this->shaderProgram, &tessEvalSource, GL_TESS_EVALUATION_SHADER);
-		CompileAndAttachShader(this->shaderProgram, &geometrySource, GL_GEOMETRY_SHADER);
-		CompileAndAttachShader(this->shaderProgram, &fragmentSource, GL_FRAGMENT_SHADER);
+		CompileAndAttachShader(this->program, &vertexSource, GL_VERTEX_SHADER);
+		CompileAndAttachShader(this->program, &tessControlSource, GL_TESS_CONTROL_SHADER);
+		CompileAndAttachShader(this->program, &tessEvalSource, GL_TESS_EVALUATION_SHADER);
+		CompileAndAttachShader(this->program, &geometrySource, GL_GEOMETRY_SHADER);
+		CompileAndAttachShader(this->program, &fragmentSource, GL_FRAGMENT_SHADER);
 
-		glLinkProgram(this->shaderProgram);
+		glLinkProgram(this->program);
 
 		int linked;
-		glGetProgramiv(this->shaderProgram, GL_LINK_STATUS, &linked);
+		glGetProgramiv(this->program, GL_LINK_STATUS, &linked);
 		if (linked != GL_TRUE)
 		{
 			GLsizei log_length = 0;
 			GLchar message[1024];
-			glGetProgramInfoLog(this->shaderProgram, 1024, &log_length, message);
+			glGetProgramInfoLog(this->program, 1024, &log_length, message);
 			printf("%s\n", message);
 		}
 	}
@@ -105,12 +105,12 @@ struct Shader
 	
 	inline void Delete()
 	{
-		glDeleteProgram(shaderProgram);
+		glDeleteProgram(program);
 	}
 
 	inline void Use()
 	{
-		glUseProgram(shaderProgram);
+		glUseProgram(program);
 	}
 	
 	inline void Unuse()
@@ -120,7 +120,7 @@ struct Shader
 	
 	inline bool AddUniform(const char* uniformName)
 	{
-		GLint uniform = glGetUniformLocation(shaderProgram, (const GLchar*)uniformName);
+		GLint uniform = glGetUniformLocation(this->program, (const GLchar*)uniformName);
 		
 		if (uniform == -1) {
 			printf("Problem adding uniform: \"%s\" or OpenGL might have optimized it out!\n", uniformName);
