@@ -295,6 +295,17 @@ inline float LengthSquared(const Vec3& v)
 	return v.x * v.x + v.y * v.y + v.z * v.z;
 }
 
+inline Vec3 Normalize(Vec3* v)
+{
+	const float invLength = 1.0 / Length(*v);
+	
+	v->x *= invLength;
+	v->y *= invLength;
+	v->z *= invLength;
+	
+	return *v;
+}
+
 inline Vec3 Normalized(const Vec3& v)
 {
 	const float invLength = 1.0 / Length(v);

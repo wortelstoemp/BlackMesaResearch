@@ -13,36 +13,6 @@ struct Transform
 		position = position + (Normalized(direction) * amount);
 	}
 	
-	inline void TranslateUp(const float amount)
-	{
-		TranslateTowards(Up(orientation), amount);
-	}
-	
-	inline void TranslateDown(const float amount)
-	{
-		TranslateTowards(Down(orientation), amount);
-	}
-	
-	inline void TranslateLeft(const float amount)
-	{
-		TranslateTowards(Left(orientation), amount);
-	}
-	
-	inline void TranslateRight(const float amount)
-	{
-		TranslateTowards(Right(orientation), amount);
-	}
-	
-	inline void TranslateForward(const float amount)
-	{
-		TranslateTowards(Forward(orientation), amount);
-	}
-	
-	inline void TranslateBackward(const float amount)
-	{
-		TranslateTowards(Backward(orientation), amount);
-	}
-	
 	inline void Rotate(const Quaternion& amount)
 	{
 		orientation = amount * orientation;
@@ -128,16 +98,17 @@ union Camera
 	{
 		switch (this->cameraType)
 		{
-		case CAMERA_PERSPECTIVE:
-			this->viewProjection = Perspective(this->fovy, this->aspect, this->zNear, this->zFar) * 
-				ViewMatrix4x4(this->transform.position, this->transform.orientation);
-			break;
-		case CAMERA_ORTHO:
-			this->viewProjection = Ortho(0, this->width, 0, this->height, this->zNear, this->zFar) * 
-				ViewMatrix4x4(this->transform.position, this->transform.orientation);
-			break;
-		default:
-			break;
+			case CAMERA_PERSPECTIVE:
+			{
+				this->viewProjection = Perspective(this->fovy, this->aspect, this->zNear, this->zFar) * 
+					ViewMatrix4x4(this->transform.position, this->transform.orientation);
+			} break;
+			
+			case CAMERA_ORTHO:
+			{
+				this->viewProjection = Ortho(0, this->width, 0, this->height, this->zNear, this->zFar) * 
+					ViewMatrix4x4(this->transform.position, this->transform.orientation);
+			} break;
 		}
 	}
 };

@@ -35,7 +35,8 @@ struct Shader
 
 		int compiled;
 		glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compiled);
-		if (compiled != GL_TRUE) {
+		if (compiled != GL_TRUE) 
+		{
 			GLsizei log_length = 0;
 			GLchar message[1024];
 			glGetShaderInfoLog(shaderID, 1024, &log_length, message);
@@ -121,7 +122,8 @@ struct Shader
 	{
 		GLint uniform = glGetUniformLocation(this->program, (const GLchar*)uniformName);
 		
-		if (uniform == -1) {
+		if (uniform == -1)
+		{
 			printf("Problem adding uniform: \"%s\" or OpenGL might have optimized it out!\n", uniformName);
 			return false;
 		}
@@ -142,8 +144,10 @@ struct Shader
 	{
 		// Linear search because not much uniforms
 		// NOTE(Tom): Binary search if more than x (see tests) uniforms
-		for(int i = 0; i < numUniforms; i++) {
-			if (!strcmp(uniformNames[i], uniformName)) {
+		for(int i = 0; i < numUniforms; i++)
+		{
+			if (!strcmp(uniformNames[i], uniformName))
+			{
 				return uniforms[i];
 			}
 		}
@@ -153,58 +157,50 @@ struct Shader
 	
 	inline void SetUniform(const GLint uniform, const bool value)
 	{
-		if (uniform != -1) {
+		if (uniform != -1)
 			glUniform1i(uniform, (GLint)(value ? 1 : 0));
-		}
 	}
 	
 	inline void SetUniform(const GLint uniform, const int value)
 	{
-		if (uniform != -1) {
+		if (uniform != -1) 
 			glUniform1i(uniform, (GLint)value);
-		}
 	}
 	
 	inline void SetUniform(const GLint uniform, const unsigned int value)
 	{
-		if (uniform != -1) {
+		if (uniform != -1)
 			glUniform1ui(uniform, (GLuint)value);
-		}
 	}
 	
 	inline void SetUniform(const GLint uniform, const float value)
 	{
-		if (uniform != -1) {
+		if (uniform != -1)
 			glUniform1f(uniform, (GLfloat)value);
-		}
 	}
 	
 	inline void SetUniform(const GLint uniform, const Vec2& value)
 	{
-		if (uniform != -1) {
+		if (uniform != -1)
 			glUniform2f(uniform, (GLfloat)value.x, (GLfloat)value.y);
-		}
 	}
 	
 	inline void SetUniform(const GLint uniform, const Vec3& value)
 	{
-		if (uniform != -1) {
+		if (uniform != -1)
 			glUniform3f(uniform, (GLfloat)value.x, (GLfloat)value.y, (GLfloat)value.z);
-		}
 	}
 	
 	inline void SetUniform(const GLint uniform, const Vec4& value)
 	{
-		if (uniform != -1) {
+		if (uniform != -1)
 			glUniform4f(uniform, (GLfloat)value.x, (GLfloat)value.y, (GLfloat)value.z, (GLfloat)value.w);
-		}
 	}
 	
 	inline void SetUniform(const GLint uniform, const Matrix4x4& value)
 	{
-		if (uniform != -1) {
+		if (uniform != -1)
 			glUniformMatrix4fv(uniform, 1, GL_TRUE, (GLfloat*)value.values);
-		}
 	}
 };
 

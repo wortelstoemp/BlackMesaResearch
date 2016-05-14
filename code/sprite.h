@@ -9,7 +9,8 @@ private:
 	GLuint vbo;
 	GLuint ebo;
 	
-	GLfloat vertices[32] = {
+	GLfloat vertices[32] = 
+	{
 		// Positions		Normals				Texture Coordinates
 		1.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 1.0f,	// Top Right
 		-1.0f, 1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	0.0f, 1.0f,	// Top Left
@@ -17,7 +18,8 @@ private:
 		1.0f, -1.0f, 0.0f,	0.0f, 0.0f, 1.0f,	1.0f, 0.0f	// Bottom Right	
 	};
 	
-	GLuint indices[6] = {
+	GLuint indices[6] = 
+	{
 		0, 1, 2,	// First Triangle
 		2, 3, 0		// Second Triangle
 	};

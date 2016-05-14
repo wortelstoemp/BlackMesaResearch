@@ -11,7 +11,8 @@ char* ReadFile(const char* fileName)
 {
 	FILE* f = {0};
 	fopen_s(&f, fileName, "rb");
-	if (f) {
+	if (f)
+	{
 		fseek(f, 0, SEEK_END);
 		ulong fsize = ftell(f);
 		fseek(f, 0, SEEK_SET);

@@ -30,27 +30,25 @@ const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 const int DESIRED_FPS = 60;
 
-static Input2 input = {};
-
-bool HandleEvents()
+bool HandleEvents(Input* input)
 {
 	//TODO(Simon): Review which of these only need to be called once
 	SDL_Event event;
 	bool isRunning = true;
-	InputResetMouseScroll(&input);
+	InputResetMouseScroll(input);
 
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 
 	uint8* keyboardState = (uint8*)SDL_GetKeyboardState(NULL);
-	InputInitKeyStates(&input, keyboardState);
+	InputInitKeyStates(input, keyboardState);
 
 	int relx, rely;
 	SDL_GetRelativeMouseState(&relx, &rely);
-	InputSetRelativeMouseMotion(&input, relx, rely);
+	InputSetRelativeMouseMotion(input, relx, rely);
 
 	int x, y;
 	SDL_GetMouseState(&x, &y);
-	InputSetMousePosition(&input, x, y);
+	InputSetMousePosition(input, x, y);
 
 	while (SDL_PollEvent(&event))
 	{
@@ -63,7 +61,7 @@ bool HandleEvents()
 
 			case SDL_MOUSEWHEEL:
 			{
-				InputAddMouseScroll(&input, (SDL_MouseWheelEvent*) &event);
+				InputAddMouseScroll(input, (SDL_MouseWheelEvent*) &event);
 			} break;
 
 			case SDL_WINDOWEVENT:
@@ -120,7 +118,10 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-
+	
+	// Input
+	Input input;
+	
 	// Graphics
 
 	// Uncomment for wireframe mode
@@ -194,29 +195,43 @@ int main(int argc, char* argv[])
 		currentTime = SDL_GetPerformanceCounter();
 		deltaTime = (currentTime - previousTime) * tickSize;
 
-		isRunning = HandleEvents();
+		isRunning = HandleEvents(&input);
 
-		// TODO(Tom): First Person Shooter movement
-		// TODO(cont.): (vector projection on XZ-plane + normalization)
+		// NOTE(Tom): First Person Shooter movement
+		const float moveSpeed = 3.0f;
+		const float angularSpeed = 5.0f;
+		
 		if (input.keys[SDL_SCANCODE_W])
 		{
-			camera.transform.TranslateForward(2.0f * deltaTime);
+			Vec3 v = Forward(camera.transform.orientation);
+			v.y = transform.position.y;
+			Normalize(&v);
+			camera.transform.TranslateTowards(v, moveSpeed * deltaTime);
 		}
 		if (input.keys[SDL_SCANCODE_S])
 		{
-			camera.transform.TranslateBackward(2.0f * deltaTime);
+			Vec3 v = Backward(camera.transform.orientation);
+			v.y = transform.position.y;
+			Normalize(&v);
+			camera.transform.TranslateTowards(v, moveSpeed * deltaTime);
 		}
 		if (input.keys[SDL_SCANCODE_A])
 		{
-			camera.transform.TranslateLeft(2.0f * deltaTime);
+			Vec3 v = Left(camera.transform.orientation);
+			v.y = transform.position.y;
+			Normalize(&v);
+			camera.transform.TranslateTowards(v, moveSpeed * deltaTime);
 		}
 		if (input.keys[SDL_SCANCODE_D])
 		{
-			camera.transform.TranslateRight(2.0f * deltaTime);
+			Vec3 v = Right(camera.transform.orientation);
+			v.y = transform.position.y;
+			Normalize(&v);
+			camera.transform.TranslateTowards(v, moveSpeed * deltaTime);
 		}
-
-		camera.transform.Rotate(Vec3::PositiveYAxis(), input.mouseRelativeX * deltaTime);
-		camera.transform.Rotate(Vec3::PositiveXAxis(), input.mouseRelativeY * deltaTime);
+		
+		camera.transform.Rotate(Vec3::PositiveYAxis(), angularSpeed * input.mouseRelativeX * deltaTime);
+		camera.transform.Rotate(Right(camera.transform.orientation), angularSpeed * input.mouseRelativeY * deltaTime);
 
 		// Render
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

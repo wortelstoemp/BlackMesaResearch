@@ -24,7 +24,8 @@ struct DDSImage
 	{
 		FILE* file; 
 		fopen_s(&file, fileName, "rb"); 
-		if (!file) {
+		if (!file)
+		{
 			printf("Can't open image!\n");
 			return;
 		}
@@ -34,7 +35,8 @@ struct DDSImage
 		
 		char fileType[4]; 
 		fread(fileType, 1, 4, file); 
-		if (strncmp(fileType, "DDS ", 4)) {
+		if (strncmp(fileType, "DDS ", 4))
+		{
 			printf("Is not a correct DDS image!\n");
 			fclose(file); 
 			return;
@@ -51,7 +53,8 @@ struct DDSImage
 		const unsigned int imageSize = this->mipMapCount > 1 ? this->linearSize * 2 : this->linearSize;
 		this->data = (unsigned char*) malloc(imageSize * sizeof(unsigned char));
 		
-		if(this->data) {
+		if(this->data)
+		{
 			fread(this->data, 1, imageSize, file); 
 		}
 		fclose(file);
@@ -74,7 +77,8 @@ struct BMPImage
 	{
 		FILE* file;
 		fopen_s(&file, fileName, "rb");
-		if (!file) {
+		if (!file)
+		{
 			printf("Can't open image!\n");
 			return;
 		}
@@ -84,7 +88,8 @@ struct BMPImage
 	
 		if (fread(header, 1, headerSize, file) != headerSize ||
 			header[0] != 'B' || header[1] != 'M' ||
-			*(int*)&(header[28]) != 24 || *(int*)&(header[30]) != 0) {
+			*(int*)&(header[28]) != 24 || *(int*)&(header[30]) != 0) 
+		{
     		
 			printf("Is not a correct 24 bit BMP image!\n");
 			fclose(file);
@@ -95,12 +100,14 @@ struct BMPImage
 		this->height = *(int*)&(header[22]);
 		unsigned int imageSize = *(int*)&(header[34]);
 	
-		if (imageSize == 0) {
+		if (imageSize == 0)
+		{
 			imageSize = this->width * this->height * 3; // RGB
 		}
 	
 		this->data = (unsigned char*) malloc(sizeof(unsigned char) * imageSize);
-		if(this->data) {
+		if(this->data)
+		{
 			fread(this->data, 1, imageSize, file);
 		}
 		fclose(file);
