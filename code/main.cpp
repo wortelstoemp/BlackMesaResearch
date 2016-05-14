@@ -79,6 +79,42 @@ bool HandleEvents(Input* input)
 	return isRunning;
 }
 
+void FirstPersonMovement(Input* input, float deltaTime, Camera* camera, Transform* playerTransform)
+{
+	// NOTE(Tom): First Person Shooter movement
+	const float moveSpeed = 3.0f;
+	const float angularSpeed = 5.0f;
+
+	Vec3 v = {};
+
+	if (input->keys[SDL_SCANCODE_W])
+	{
+		v = v + Forward(camera->transform.orientation);
+	}
+	if (input->keys[SDL_SCANCODE_S])
+	{
+		v = v + Backward(camera->transform.orientation);
+	}
+	if (input->keys[SDL_SCANCODE_A])
+	{
+		v = v + Left(camera->transform.orientation);
+	}
+	if (input->keys[SDL_SCANCODE_D])
+	{
+		v = v + Right(camera->transform.orientation);
+	}
+
+	if (v.x != 0 || v.y != 0 || v.z != 0)
+	{
+		v.y = playerTransform->position.y;
+		Normalize(&v);
+		camera->transform.TranslateTowards(v, moveSpeed * deltaTime);
+	}
+
+	camera->transform.Rotate(Vec3::PositiveYAxis(), angularSpeed * input->mouseRelativeX * deltaTime);
+	camera->transform.Rotate(Right(camera->transform.orientation), angularSpeed * input->mouseRelativeY * deltaTime);
+}
+
 int main(int argc, char* argv[])
 {
 	// Window initialization
@@ -118,10 +154,10 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-	
+
 	// Input
 	Input input;
-	
+
 	// Graphics
 
 	// Uncomment for wireframe mode
@@ -151,10 +187,10 @@ int main(int argc, char* argv[])
 	Camera camera;
 	camera.CreatePerspective(cameraTransform, 60.0f, (float)SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.0f);
 
-	Transform transform;
-	transform.position = { 0.0f, 0.0f, 0.0f };
-	transform.scaling = { 1.0f, 1.0f, 1.0f };
-	transform.orientation = QuaternionFromEuler(180.0f, 0.0f, 0.0f);
+	Transform playerTransform;
+	playerTransform.position = { 0.0f, 0.0f, 0.0f };
+	playerTransform.scaling = { 1.0f, 1.0f, 1.0f };
+	playerTransform.orientation = QuaternionFromEuler(180.0f, 0.0f, 0.0f);
 
 	SimpleSpriteMesh mesh;
 	mesh.Create();
@@ -197,41 +233,7 @@ int main(int argc, char* argv[])
 
 		isRunning = HandleEvents(&input);
 
-		// NOTE(Tom): First Person Shooter movement
-		const float moveSpeed = 3.0f;
-		const float angularSpeed = 5.0f;
-		
-		if (input.keys[SDL_SCANCODE_W])
-		{
-			Vec3 v = Forward(camera.transform.orientation);
-			v.y = transform.position.y;
-			Normalize(&v);
-			camera.transform.TranslateTowards(v, moveSpeed * deltaTime);
-		}
-		if (input.keys[SDL_SCANCODE_S])
-		{
-			Vec3 v = Backward(camera.transform.orientation);
-			v.y = transform.position.y;
-			Normalize(&v);
-			camera.transform.TranslateTowards(v, moveSpeed * deltaTime);
-		}
-		if (input.keys[SDL_SCANCODE_A])
-		{
-			Vec3 v = Left(camera.transform.orientation);
-			v.y = transform.position.y;
-			Normalize(&v);
-			camera.transform.TranslateTowards(v, moveSpeed * deltaTime);
-		}
-		if (input.keys[SDL_SCANCODE_D])
-		{
-			Vec3 v = Right(camera.transform.orientation);
-			v.y = transform.position.y;
-			Normalize(&v);
-			camera.transform.TranslateTowards(v, moveSpeed * deltaTime);
-		}
-		
-		camera.transform.Rotate(Vec3::PositiveYAxis(), angularSpeed * input.mouseRelativeX * deltaTime);
-		camera.transform.Rotate(Right(camera.transform.orientation), angularSpeed * input.mouseRelativeY * deltaTime);
+		FirstPersonMovement(&input, deltaTime, &camera, &playerTransform);
 
 		// Render
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -244,7 +246,7 @@ int main(int argc, char* argv[])
 		multiTexture.Use(shader);
 		mesh.Use();
 
-		PhongShader_Update(&shader, transform, camera);
+		PhongShader_Update(&shader, playerTransform, camera);
 		PhongShader_UpdateMaterial(&shader, material);
 		PhongShader_UpdateLight(&shader, dirLight);
 		mesh.Render();
