@@ -1,7 +1,7 @@
 @echo off
 
-set DEBUGVARS=/Od /Zi /openmp
-set RELEASEVARS=/O2 /Oi /openmp
+set DEBUGVARS=/Od /Zi
+set RELEASEVARS=/O2 /Oi
 
 set code=..\code\main.cpp
 
