@@ -51,6 +51,12 @@ union Vec3
 		float y;
 		float z;
 	};
+	struct
+	{
+		float r;
+		float g;
+		float b;
+	};
 	
 	inline static Vec3 PositiveXAxis()
 	{
@@ -108,6 +114,18 @@ union Vec4
 		float y;
 		float z;
 		float w;		
+	};
+	struct
+	{
+		float r;
+		float g;
+		float b;
+		float a;		
+	};
+	struct
+	{
+		Vec3 rgb;
+		float a;
 	};
 };
 
@@ -344,8 +362,6 @@ inline Vec3 Lerp(const Vec3& v1, const Vec3& v2, const float amount)
 	return result;
 }
 
-//TODO: Rotated
-
 // Quaternion
 
 inline Quaternion operator+(const Quaternion& lhs, const Quaternion& rhs)
@@ -437,63 +453,6 @@ inline Quaternion Normalized(const Quaternion& q)
 	return result;
 }
 
-inline Quaternion Rotated(const Quaternion& q, 
-	const float ax, const float ay, const float az, const float angle)
-{
-	const float halfRad = angle * PI / 360;
-	const float halfSin = sin(halfRad);
-	const float halfCos = cos(halfRad);
-	
-	const float invLength = 1.0 / sqrt(ax * ax + ay * ay + az * az);
-	
-	const float rx = -ax * invLength * halfSin;
-	const float ry = -ay * invLength * halfSin;
-	const float rz = -az * invLength * halfSin;
-	const float rw = halfCos;
-	
-	const Quaternion result = 
-	{
-		rw * q.x + rx * q.w + ry * q.z - rz * q.y,
-		rw * q.y + ry * q.w + rz * q.x - rx * q.z,
-		rw * q.z + rz * q.w + rx * q.y - ry * q.x,
-		rw * q.w - rx * q.x - ry * q.y - rz * q.z
-	};
-	
-	return Normalized(result);
-}
-
-inline Quaternion Rotated(const Quaternion& q, 
-	const Vec3& axis, const float angle)
-{
-	return Rotated(q, axis.x, axis.y, axis.z, angle);
-}
-
-inline float Dot(const Quaternion& lhs, const Quaternion& rhs)
-{
-	return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z + lhs.w * rhs.w;
-}
-
-inline Quaternion Conjugate(const Quaternion& q)
-{
-	const Quaternion result = { -q.x, -q.y, -q.z, q.w };
-	
-	return result;
-}
-
-inline Quaternion Inverse(const Quaternion& q)
-{
-	const float invLengthSquared = 1.0 / LengthSquared(q);
-	const Quaternion result =
-	{ 
-		-q.x * invLengthSquared, 
-		-q.y * invLengthSquared, 
-		-q.z * invLengthSquared, 
-		q.w * invLengthSquared
-	};
-	
-	return result;
-}
-
 inline Quaternion QuaternionFromAxis(const float ax, const float ay, const float az, 
 	const float angle)
 {
@@ -543,7 +502,7 @@ inline Quaternion QuaternionFromEuler(const float x, const float y, const float 
 		cosXcosY * cosZ - sinXsinY * sinZ
 	};
 	
-	return result;
+	return Normalized(result);
 }
 
 inline Quaternion QuaternionFromEuler(const Vec3& v)
@@ -551,76 +510,77 @@ inline Quaternion QuaternionFromEuler(const Vec3& v)
 	return QuaternionFromEuler(v.x, v.y, v.z);
 }
 
-inline Vec3 Forward(const Quaternion& q)
+inline Quaternion Rotated(const Quaternion& q, 
+	const Vec3& axis, const float angle)
 {
-	const Vec3 result =
-	{
-		2.0f * q.x * q.z + 2.0f * q.y * q.w,
-		2.0f * q.y * q.x - 2.0f * q.x * q.w,
-		1.0f - (2.0f * q.x * q.x + 2.0f * q.y * q.y)
+	return Normalized(QuaternionFromAxis(axis, angle) * q);
+}
+
+inline float Dot(const Quaternion& lhs, const Quaternion& rhs)
+{
+	return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z + lhs.w * rhs.w;
+}
+
+inline Quaternion Conjugate(const Quaternion& q)
+{
+	const Quaternion result = { -q.x, -q.y, -q.z, q.w };
+	
+	return result;
+}
+
+inline Quaternion Inverse(const Quaternion& q)
+{
+	const float invLengthSquared = 1.0 / LengthSquared(q);
+	const Quaternion result =
+	{ 
+		-q.x * invLengthSquared, 
+		-q.y * invLengthSquared, 
+		-q.z * invLengthSquared, 
+		q.w * invLengthSquared
 	};
 	
-	return Normalized(result);
+	return result;
+}
+
+
+inline Vec3 Rotated(const Vec3& v, const Quaternion& q)
+{
+    const Vec3 u = { q.x, q.y, q.z };
+	const float s = q.w;
+
+    return Normalized(2.0f * Dot(u, v) * u
+          + (s*s - Dot(u, u)) * v
+          + 2.0f * s * Cross(u, v));
+}
+
+inline Vec3 Forward(const Quaternion& q)
+{
+	return Rotated(Vec3::PositiveZAxis(), q);
 }
 
 inline Vec3 Backward(const Quaternion& q)
 {
-	const Vec3 result =
-	{
-		-2.0f * q.x * q.z - 2.0f * q.y * q.w,
-		-2.0f * q.y * q.x + 2.0f * q.x * q.w,
-		-1.0f + (2.0f * q.x * q.x + 2.0f * q.y * q.y)
-	};
-	
-	return Normalized(result);
+	return Rotated(Vec3::NegativeZAxis(), q);
 }
 
 inline Vec3 Up(const Quaternion& q)
 {
-	const Vec3 result =
-	{
-		2.0f * q.x * q.y - 2.0f * q.z * q.w,
-		1.0f - (2.0f * q.x * q.x + 2.0f * q.z * q.z),
-		2.0f * q.y * q.z + 2.0f * q.x * q.w
-	};
-	
-	return Normalized(result);
+	return Rotated(Vec3::PositiveYAxis(), q);	
 }
 
 inline Vec3 Down(const Quaternion& q)
 {
-	const Vec3 result =
-	{
-		-2.0f * q.x * q.y + 2.0f * q.z * q.w,
-		-1.0f + (2.0f * q.x * q.x + 2.0f * q.z * q.z),
-		-2.0f * q.y * q.z - 2.0f * q.x * q.w
-	};
-	
-	return Normalized(result);
+	return Rotated(Vec3::NegativeYAxis(), q);		
 }
 
 inline Vec3 Left(const Quaternion& q)
 {
-	const Vec3 result =
-	{
-		1.0f - (2.0f * q.y * q.y + 2.0f * q.z * q.z),
-		2.0f * q.x * q.y + 2.0f * q.z * q.w,
-		2.0f * q.x * q.z - 2.0f * q.y * q.w
-	};
-	
-	return Normalized(result);
+	return Rotated(Vec3::PositiveXAxis(), q);
 }
 
 inline Vec3 Right(const Quaternion& q)
 {
-	const Vec3 result =
-	{
-		-1.0f + (2.0f * q.y * q.y + 2.0f * q.z * q.z),
-		-2.0f * q.x * q.y - 2.0f * q.z * q.w,
-		-2.0f * q.x * q.z + 2.0f * q.y * q.w
-	};
-	
-	return Normalized(result);
+	return Rotated(Vec3::NegativeXAxis(), q);	
 }
 
 // Matrix2x2

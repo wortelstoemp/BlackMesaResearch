@@ -110,7 +110,7 @@ void FirstPersonMovement(Input* input, float deltaTime, Camera* camera)
 		Normalize(&v);
 		camera->transform.TranslateTowards(v, moveSpeed * deltaTime);
 	}
-
+	
 	camera->transform.Rotate(Vec3::PositiveYAxis(), angularSpeed * input->mouseRelativeX * deltaTime);
 	camera->transform.Rotate(Right(camera->transform.orientation), angularSpeed * input->mouseRelativeY * deltaTime);
 }
@@ -190,10 +190,18 @@ int main(int argc, char* argv[])
 	Transform quadTransform;
 	quadTransform.position = { 0.0f, 0.0f, 0.0f };
 	quadTransform.scaling = { 1.0f, 1.0f, 1.0f };
-	quadTransform.orientation = QuaternionFromEuler(180.0f, 0.0f, 0.0f);
-
+	quadTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 0.0f);
+	
+	Transform cubeTransform;
+	cubeTransform.position = { 0.0f, 0.0f, 3.0f };
+	cubeTransform.scaling = { 1.0f, 1.0f, 1.0f };
+	cubeTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 180.0f);
+	
 	SimpleSpriteMesh quad;
 	quad.Create();
+	
+	CubeMesh cube;
+	cube.Create();
 
 	Texture texture;
 	texture.LoadFromFile("../data/textures/foo.dds");
@@ -211,7 +219,7 @@ int main(int argc, char* argv[])
 
 	DirectionalLight dirLight;
 	dirLight.direction = { 0.0f, 0.0f, -1.0f };
-	dirLight.ambient = { 1.0f, 1.0f, 1.0f };
+	dirLight.ambient = { 0.7f, 0.7f, 0.7f };
 	dirLight.diffuse = { 0.5f, 0.5f, 0.5f };
 	dirLight.specular = { 1.0f, 1.0f, 1.0f };
 
@@ -242,17 +250,27 @@ int main(int argc, char* argv[])
 		camera.Update();
 
 		shader.Use();
-		//texture.Use();
 		multiTexture.Use(shader);
+		
 		quad.Use();
-
 		PhongShader_Update(&shader, quadTransform, camera);
 		PhongShader_UpdateMaterial(&shader, material);
 		PhongShader_UpdateLight(&shader, dirLight);
 		quad.Render();
-
 		quad.Unuse();
-		//texture.Unuse();
+		multiTexture.Unuse();
+		
+		// texture.Use();
+		
+		// cube.Use();
+		// PhongShader_Update(&shader, quadTransform, camera);
+		// PhongShader_UpdateMaterial(&shader, material);
+		// PhongShader_UpdateLight(&shader, dirLight);
+		// quad.Render();
+		// cube.Unuse();
+		
+		// texture.Unuse();
+		
 		shader.Unuse();
 
 		SDL_GL_SwapWindow(window);
