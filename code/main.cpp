@@ -79,7 +79,7 @@ bool HandleEvents(Input* input)
 	return isRunning;
 }
 
-void FirstPersonMovement(Input* input, float deltaTime, Camera* camera, Transform* playerTransform)
+void FirstPersonMovement(Input* input, float deltaTime, Camera* camera)
 {
 	// NOTE(Tom): First Person Shooter movement
 	const float moveSpeed = 3.0f;
@@ -106,7 +106,7 @@ void FirstPersonMovement(Input* input, float deltaTime, Camera* camera, Transfor
 
 	if (v.x != 0 || v.y != 0 || v.z != 0)
 	{
-		v.y = playerTransform->position.y;
+		v.y = camera->transform.position.y;
 		Normalize(&v);
 		camera->transform.TranslateTowards(v, moveSpeed * deltaTime);
 	}
@@ -187,13 +187,13 @@ int main(int argc, char* argv[])
 	Camera camera;
 	camera.CreatePerspective(cameraTransform, 60.0f, (float)SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.0f);
 
-	Transform playerTransform;
-	playerTransform.position = { 0.0f, 0.0f, 0.0f };
-	playerTransform.scaling = { 1.0f, 1.0f, 1.0f };
-	playerTransform.orientation = QuaternionFromEuler(180.0f, 0.0f, 0.0f);
+	Transform quadTransform;
+	quadTransform.position = { 0.0f, 0.0f, 0.0f };
+	quadTransform.scaling = { 1.0f, 1.0f, 1.0f };
+	quadTransform.orientation = QuaternionFromEuler(180.0f, 0.0f, 0.0f);
 
-	SimpleSpriteMesh mesh;
-	mesh.Create();
+	SimpleSpriteMesh quad;
+	quad.Create();
 
 	Texture texture;
 	texture.LoadFromFile("../data/textures/foo.dds");
@@ -233,7 +233,7 @@ int main(int argc, char* argv[])
 
 		isRunning = HandleEvents(&input);
 
-		FirstPersonMovement(&input, deltaTime, &camera, &playerTransform);
+		FirstPersonMovement(&input, deltaTime, &camera);
 
 		// Render
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -244,14 +244,14 @@ int main(int argc, char* argv[])
 		shader.Use();
 		//texture.Use();
 		multiTexture.Use(shader);
-		mesh.Use();
+		quad.Use();
 
-		PhongShader_Update(&shader, playerTransform, camera);
+		PhongShader_Update(&shader, quadTransform, camera);
 		PhongShader_UpdateMaterial(&shader, material);
 		PhongShader_UpdateLight(&shader, dirLight);
-		mesh.Render();
+		quad.Render();
 
-		mesh.Unuse();
+		quad.Unuse();
 		//texture.Unuse();
 		shader.Unuse();
 
@@ -262,7 +262,7 @@ int main(int argc, char* argv[])
 
 	// Shutdown
 	shader.Delete();
-	mesh.Delete();
+	quad.Delete();
 	SDL_GL_DeleteContext(openglContext);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
