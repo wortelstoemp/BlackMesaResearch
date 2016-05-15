@@ -115,6 +115,34 @@ void FirstPersonMovement(Input* input, float deltaTime, Camera* camera)
 	camera->transform.Rotate(Right(camera->transform.orientation), angularSpeed * input->mouseRelativeY * deltaTime);
 }
 
+GLuint loadCubemap(char** faces)
+{
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    glActiveTexture(GL_TEXTURE0);
+
+    DDSImage image;
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+    for(GLuint i = 0; i < 6; i++)
+    {
+        image.LoadFromFile(faces[i]);
+
+        glTexImage2D(
+            GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0,
+            GL_RGB, image.width, image.height, 0, GL_RGB, GL_UNSIGNED_BYTE, image.data
+        );
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+    return textureID;
+}
+
 int main(int argc, char* argv[])
 {
 	// Window initialization
@@ -206,7 +234,6 @@ int main(int argc, char* argv[])
 	Texture texture;
 	texture.LoadFromFile("../data/textures/foo.dds");
 	// texture.LoadFromFile("../data/textures/orange.bmp");
-	// texture.LoadFromFile("../data/textures/foo.dds");
 	texture.type = Texture::DIFFUSE;
 
 	MultiTexture multiTexture;
@@ -226,6 +253,15 @@ int main(int argc, char* argv[])
 	Shader shader;
 	shader.LoadFromFiles("../data/shaders/phong_vs.glsl", 0, 0, 0, "../data/shaders/phong_fs.glsl");
 	PhongShader_Init(&shader);
+
+	char* cubemapFilenames[6];
+	cubemapFilenames[0] = "../data/textures/entropic_right.dds";
+	cubemapFilenames[1] = "../data/textures/entropic_left.dds";
+	cubemapFilenames[2] = "../data/textures/entropic_up.dds";
+	cubemapFilenames[3] = "../data/textures/entropic_down.dds";
+	cubemapFilenames[4] = "../data/textures/entropic_back.dds";
+	cubemapFilenames[5] = "../data/textures/entropic_front.dds";
+	GLuint cubemapTexture = loadCubemap(cubemapFilenames);
 
 	float deltaTime;
 	Uint64 currentTime;
