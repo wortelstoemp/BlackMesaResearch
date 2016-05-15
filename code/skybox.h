@@ -11,21 +11,12 @@ void DrawSkybox(Skybox* skybox, Shader* shader, Camera* camera)
 {
 	glDepthFunc(GL_LEQUAL);
 
-
-
-	Matrix4x4 view = ViewMatrix4x4(camera->transform.position, camera->transform.orientation);;
-	view.a14 = 0;
-	view.a24 = 0;
-	view.a34 = 0;
-	view.a41 = 0;
-	view.a42 = 0;
-	view.a43 = 0;
-	view.a44 = 0;
-
+	Matrix4x4 view = ViewMatrix4x4(camera->transform.position, camera->transform.orientation);
 	Matrix4x4 projection = Perspective(camera->fovy, camera->aspect, camera->zNear, camera->zFar);
 
 	shader->Use();
-	glUniformMatrix4fv(glGetUniformLocation(shader->program, "viewProjection"), 1, GL_FALSE, (view * projection).values);
+    glUniformMatrix4fv(glGetUniformLocation(shader->program, "view"), 1, GL_FALSE, view.values);
+	glUniformMatrix4fv(glGetUniformLocation(shader->program, "projection"), 1, GL_FALSE, projection.values);
 
 	glBindVertexArray(skybox->VAO);
 	glActiveTexture(GL_TEXTURE0);
