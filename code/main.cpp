@@ -26,9 +26,16 @@
 #include "sprite.h"
 #include "mesh.h"
 
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
+const int SCREEN_WIDTH = 1280;
+const int SCREEN_HEIGHT = 720;
 const int DESIRED_FPS = 60;
+
+struct Skybox
+{
+	GLuint textureID;
+	GLuint VAO;
+	GLuint VBO;
+};
 
 bool HandleEvents(Input* input)
 {
@@ -115,7 +122,97 @@ void FirstPersonMovement(Input* input, float deltaTime, Camera* camera)
 	camera->transform.Rotate(Right(camera->transform.orientation), angularSpeed * input->mouseRelativeY * deltaTime);
 }
 
-GLuint loadCubemap(char** faces)
+void DrawSkybox(Skybox* skybox, Shader* shader, Camera* camera)
+{
+	glDepthFunc(GL_LEQUAL);
+
+
+
+	Matrix4x4 view = ViewMatrix4x4(camera->transform.position, camera->transform.orientation);;
+	view.a14 = 0;
+	view.a24 = 0;
+	view.a34 = 0;
+	view.a41 = 0;
+	view.a42 = 0;
+	view.a43 = 0;
+	view.a44 = 0;
+
+	Matrix4x4 projection = Perspective(camera->fovy, camera->aspect, camera->zNear, camera->zFar);
+
+	shader->Use();
+	glUniformMatrix4fv(glGetUniformLocation(shader->program, "viewProjection"), 1, GL_FALSE, (view * projection).values);
+
+	glBindVertexArray(skybox->VAO);
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(glGetUniformLocation(shader->program, "skybox"), 0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->textureID);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
+
+	shader->Unuse();
+
+	glDepthFunc(GL_LESS);
+}
+
+void CreateSkybox(Skybox* skybox, GLuint skyboxTextureID)
+{
+	skybox->textureID = skyboxTextureID;
+
+    GLfloat skyboxVertices[] = {
+        -1.0f,  1.0f, -1.0f,
+        -1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+        -1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f
+    };
+
+    glGenVertexArrays(1, &skybox->VAO);
+    glGenBuffers(1, &skybox->VBO);
+    glBindVertexArray(skybox->VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, skybox->VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+    glBindVertexArray(0);
+}
+
+GLuint LoadSkyboxTexture(char** faces)
 {
 	GLuint textureID;
 	glGenTextures(1, &textureID);
@@ -258,14 +355,20 @@ int main(int argc, char* argv[])
 	shader.LoadFromFiles("../data/shaders/phong_vs.glsl", 0, 0, 0, "../data/shaders/phong_fs.glsl");
 	PhongShader_Init(&shader);
 
-	char* cubemapFilenames[6];
-	cubemapFilenames[0] = "../data/textures/entropic_right.dds";
-	cubemapFilenames[1] = "../data/textures/entropic_left.dds";
-	cubemapFilenames[2] = "../data/textures/entropic_up.dds";
-	cubemapFilenames[3] = "../data/textures/entropic_down.dds";
-	cubemapFilenames[4] = "../data/textures/entropic_back.dds";
-	cubemapFilenames[5] = "../data/textures/entropic_front.dds";
-	GLuint cubemapTexture = loadCubemap(cubemapFilenames);
+	char* skyboxFilenames[6];
+	skyboxFilenames[0] = "../data/textures/entropic_right.dds";
+	skyboxFilenames[1] = "../data/textures/entropic_left.dds";
+	skyboxFilenames[2] = "../data/textures/entropic_up.dds";
+	skyboxFilenames[3] = "../data/textures/entropic_down.dds";
+	skyboxFilenames[4] = "../data/textures/entropic_back.dds";
+	skyboxFilenames[5] = "../data/textures/entropic_front.dds";
+	GLuint skyboxTexture = LoadSkyboxTexture(skyboxFilenames);
+
+	Shader skyboxShader;
+	skyboxShader.LoadFromFiles("../data/shaders/skyboxVert.glsl", 0, 0, 0, "../data/shaders/skyboxFrag.glsl");
+
+	Skybox skybox = {};
+	CreateSkybox(&skybox, skyboxTexture);
 
 	float deltaTime;
 	Uint64 currentTime;
@@ -312,6 +415,10 @@ int main(int argc, char* argv[])
 		// texture.Unuse();
 		
 		shader.Unuse();
+
+		//NOTE(Simon): Skybox needs to be drawn last
+		DrawSkybox(&skybox, &skyboxShader, &camera);
+
 
 		SDL_GL_SwapWindow(window);
 

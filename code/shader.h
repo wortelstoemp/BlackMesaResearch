@@ -22,12 +22,12 @@ struct Shader
 	std::vector<GLint> uniforms;
 	std::vector<const char*> uniformNames;
 	int numUniforms;
-		
+
 	void CompileAndAttachShader(int programID, char** source, GLenum shaderType) const
 	{
 		if (*source == 0)
 			return;
-	
+
 		int size = strlen(*source);
 		int shaderID = glCreateShader(shaderType);
 		glShaderSource(shaderID, 1, source, &size);
@@ -35,7 +35,7 @@ struct Shader
 
 		int compiled;
 		glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compiled);
-		if (compiled != GL_TRUE) 
+		if (compiled != GL_TRUE)
 		{
 			GLsizei log_length = 0;
 			GLchar message[1024];
@@ -46,7 +46,7 @@ struct Shader
 		glAttachShader(programID, shaderID);
 		glDeleteShader(shaderID);
 	}
-	
+
 	void Load(
 		char* vertexSource,
 		char* tessControlSource,
@@ -56,7 +56,7 @@ struct Shader
 	{
 		this->program = glCreateProgram();
 		this->numUniforms = 0;
-		
+
 		CompileAndAttachShader(this->program, &vertexSource, GL_VERTEX_SHADER);
 		CompileAndAttachShader(this->program, &tessControlSource, GL_TESS_CONTROL_SHADER);
 		CompileAndAttachShader(this->program, &tessEvalSource, GL_TESS_EVALUATION_SHADER);
@@ -75,7 +75,7 @@ struct Shader
 			printf("%s\n", message);
 		}
 	}
-	
+
 	void LoadFromFiles(
 		char* vertexFile,
 		char* tessControlFile,
@@ -83,14 +83,40 @@ struct Shader
 		char* geometryFile,
 		char* fragmentFile)
 	{
-		char* vertexSource = vertexFile ? ReadFile(vertexFile) : 0;
-		char* tessControlSource = tessControlFile ? ReadFile(tessControlFile) : 0;
-		char* tessEvalSource = tessEvalFile ? ReadFile(tessEvalFile) : 0;
-		char* geometrySource = geometryFile ? ReadFile(geometryFile) : 0;
-		char* fragmentSource = fragmentFile ? ReadFile(fragmentFile) : 0;
-		
-		Load(vertexSource, tessControlSource, tessEvalSource, geometrySource, fragmentSource);		
-	
+		char* vertexSource = 0;
+		char* tessControlSource = 0;
+		char* tessEvalSource = 0;
+		char* geometrySource = 0;
+		char* fragmentSource = 0;
+
+		if (vertexFile)
+		{
+			vertexSource = ReadFile(vertexFile);
+			Assert(vertexSource);
+		}
+		if (tessControlFile)
+		{
+			tessControlSource = ReadFile(tessControlFile);
+			Assert(tessControlSource);
+		}
+		if (tessEvalFile)
+		{
+			tessEvalSource = ReadFile(tessEvalFile);
+			Assert(tessEvalSource);
+		}
+		if (geometryFile)
+		{
+			geometrySource = ReadFile(geometryFile);
+			Assert(geometrySource);
+		}
+		if (fragmentFile)
+		{
+			fragmentSource = ReadFile(fragmentFile);
+			Assert(fragmentSource);
+		}
+
+		Load(vertexSource, tessControlSource, tessEvalSource, geometrySource, fragmentSource);
+
 		if (vertexSource)
 			FreeFile(vertexSource);
 		if (tessControlSource)
@@ -102,7 +128,7 @@ struct Shader
 		if (fragmentSource)
 			FreeFile(fragmentSource);
 	}
-	
+
 	inline void Delete()
 	{
 		glDeleteProgram(program);
@@ -112,34 +138,34 @@ struct Shader
 	{
 		glUseProgram(program);
 	}
-	
+
 	inline void Unuse()
 	{
-		glUseProgram(0);		
+		glUseProgram(0);
 	}
-	
+
 	inline bool AddUniform(const char* uniformName)
 	{
 		GLint uniform = glGetUniformLocation(this->program, (const GLchar*)uniformName);
-		
+
 		if (uniform == -1)
 		{
 			printf("Problem adding uniform: \"%s\" or OpenGL might have optimized it out!\n", uniformName);
 			return false;
 		}
-		
+
 		this->uniforms.push_back(uniform);
 		this->uniformNames.push_back(uniformName);
-		this->numUniforms++;		
+		this->numUniforms++;
 		return true;
 	}
-	
+
 	// For binary search when having a lot of uniforms
 	inline bool AddUniformSorted(const char* uniformName)
 	{
 		return false;
 	}
-	
+
 	inline GLint FindShaderUniform(const char* uniformName)
 	{
 		// Linear search because not much uniforms
@@ -151,52 +177,52 @@ struct Shader
 				return uniforms[i];
 			}
 		}
-		
+
 		return -1;
 	}
-	
+
 	inline void SetUniform(const GLint uniform, const bool value)
 	{
 		if (uniform != -1)
 			glUniform1i(uniform, (GLint)(value ? 1 : 0));
 	}
-	
+
 	inline void SetUniform(const GLint uniform, const int value)
 	{
-		if (uniform != -1) 
+		if (uniform != -1)
 			glUniform1i(uniform, (GLint)value);
 	}
-	
+
 	inline void SetUniform(const GLint uniform, const unsigned int value)
 	{
 		if (uniform != -1)
 			glUniform1ui(uniform, (GLuint)value);
 	}
-	
+
 	inline void SetUniform(const GLint uniform, const float value)
 	{
 		if (uniform != -1)
 			glUniform1f(uniform, (GLfloat)value);
 	}
-	
+
 	inline void SetUniform(const GLint uniform, const Vec2& value)
 	{
 		if (uniform != -1)
 			glUniform2f(uniform, (GLfloat)value.x, (GLfloat)value.y);
 	}
-	
+
 	inline void SetUniform(const GLint uniform, const Vec3& value)
 	{
 		if (uniform != -1)
 			glUniform3f(uniform, (GLfloat)value.x, (GLfloat)value.y, (GLfloat)value.z);
 	}
-	
+
 	inline void SetUniform(const GLint uniform, const Vec4& value)
 	{
 		if (uniform != -1)
 			glUniform4f(uniform, (GLfloat)value.x, (GLfloat)value.y, (GLfloat)value.z, (GLfloat)value.w);
 	}
-	
+
 	inline void SetUniform(const GLint uniform, const Matrix4x4& value)
 	{
 		if (uniform != -1)
@@ -227,41 +253,41 @@ inline void PhongShader_Init(Shader* shader)
 	shader->AddUniform("dirLight.direction");
 	shader->AddUniform("dirLight.ambient");
 	shader->AddUniform("dirLight.diffuse");
-	shader->AddUniform("dirLight.specular");			
+	shader->AddUniform("dirLight.specular");
 }
 
 inline void PhongShader_Update(Shader* shader, const Transform& transform, const Camera& camera)
 {
 	GLint mvp = shader->uniforms[0];
 	shader->SetUniform(mvp, CalculateMVP(transform, camera));
-	
+
 	GLint model = shader->uniforms[1];
 	shader->SetUniform(model, transform.CalculateModel());
-	
+
 	GLint cameraPosition = shader->uniforms[2];
-	shader->SetUniform(cameraPosition, camera.transform.position);				
+	shader->SetUniform(cameraPosition, camera.transform.position);
 }
 
 inline void PhongShader_UpdateMaterial(Shader* shader, const Material& material)
 {
 	GLint specular = shader->uniforms[3];
 	shader->SetUniform(specular, material.specular);
-	
+
 	GLint shine = shader->uniforms[4];
-	shader->SetUniform(shine, material.shine);		
+	shader->SetUniform(shine, material.shine);
 }
 
 inline void PhongShader_UpdateLight(Shader* shader, const DirectionalLight& dirLight)
 {
 	GLint direction = shader->uniforms[5];
 	shader->SetUniform(direction, dirLight.direction);
-	
+
 	GLint ambient = shader->uniforms[6];
 	shader->SetUniform(ambient, dirLight.ambient);
-	
+
 	GLint diffuse = shader->uniforms[7];
 	shader->SetUniform(diffuse, dirLight.diffuse);
-	
+
 	GLint specular = shader->uniforms[8];
-	shader->SetUniform(specular, dirLight.specular);		
+	shader->SetUniform(specular, dirLight.specular);
 }
