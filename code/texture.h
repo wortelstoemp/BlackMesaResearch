@@ -21,6 +21,8 @@
 // ...
 // then use mix() function to mix those textures.
 
+
+
 struct Texture
 {
 	enum TextureType
@@ -28,7 +30,7 @@ struct Texture
 		DIFFUSE,
 		SPECULAR
 	};
-	
+
 	GLuint id;
 	TextureType type;
 
@@ -40,35 +42,10 @@ struct Texture
 		if (!strcmp(extension, ".dds")) {
 			DDSImage image;
 			image.LoadFromFile(fileName);
-			
-			const unsigned int FOURCC_DXT1 = 0x31545844;
-			const unsigned int FOURCC_DXT3 = 0x33545844;
-			const unsigned int FOURCC_DXT5 = 0x35545844;
-			const unsigned int COMPRESSED_RGBA_S3TC_DXT1_EXT = 0x83F1;
-			const unsigned int COMPRESSED_RGBA_S3TC_DXT3_EXT = 0x83F2;
-			const unsigned int COMPRESSED_RGBA_S3TC_DXT5_EXT = 0x83F3;
+
 			unsigned int format;
 			unsigned int blockSize;
-			
-			switch(image.fourCC) 
-			{ 
-			case FOURCC_DXT1: 
-				format = COMPRESSED_RGBA_S3TC_DXT1_EXT; 
-				blockSize = 8;
-				break; 
-			case FOURCC_DXT3: 
-				format = COMPRESSED_RGBA_S3TC_DXT3_EXT;
-				blockSize = 16;
-				break; 
-			case FOURCC_DXT5: 
-				format = COMPRESSED_RGBA_S3TC_DXT5_EXT;
-				blockSize = 16;
-				break; 
-			default: 
-				image.Delete(); 
-				return false; 
-			}
-			
+
 			glGenTextures(1, &this->id);
 			glBindTexture(GL_TEXTURE_2D, this->id);
 			glPixelStorei(GL_UNPACK_ALIGNMENT,1);
@@ -76,25 +53,25 @@ struct Texture
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			
+
 			unsigned int level = 0;
 			unsigned int offset = 0;
-			while (level < image.mipMapCount && image.width > 0 && image.height > 0) { 
-				unsigned int size = ((image.width+3)/4)*((image.height+3)/4)*blockSize; 
-				glCompressedTexImage2D(GL_TEXTURE_2D, level, format, image.width, image.height,  
-					0, size, image.data + offset); 
-	 
-				offset += size; 
-				image.width /= 2; 
+			while (level < image.mipMapCount && image.width > 0 && image.height > 0) {
+				unsigned int size = ((image.width + 3) / 4) * ((image.height + 3) / 4)	* image.blocksize;
+				glCompressedTexImage2D(GL_TEXTURE_2D, level, image.format,
+					image.width, image.height, 0, size, image.data + offset);
+
+				offset += size;
+				image.width /= 2;
 				image.height /= 2;
 				level++;
-			} 
+			}
 			image.Delete();
 			glBindTexture(GL_TEXTURE_2D, 0);
-			
+
 			return true;
 		}
-		
+
 		if (!strcmp(extension, ".bmp")) {
 			BMPImage image;
 			image.LoadFromFile(fileName);
@@ -109,19 +86,19 @@ struct Texture
 			glGenerateMipmap(GL_TEXTURE_2D);
 			image.Delete();
 			glBindTexture(GL_TEXTURE_2D, 0);
-			
+
 			return true;
 		}
-		
+
 		printf("Texture file format not supported!\n");
 		return false;
 	}
-	
+
 	inline void Use()
 	{
 		glBindTexture(GL_TEXTURE_2D, this->id);
 	}
-	
+
 	inline void Unuse()
 	{
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -147,22 +124,22 @@ public:
 	{
 		this->textures.push_back(texture);
 	}
-	
+
 	inline void RemoveLastTexture()
 	{
 		this->textures.pop_back();
 	}
-	
+
 	inline void ClearTextures()
 	{
 		this->textures.clear();
 	}
-	
+
 	inline void Use(const Shader& shader)
 	{
 		int diffuseNr = 1;
 		int specularNr = 1;
-		
+
 		const int numTextures = this->textures.size();
 		for(GLuint i = 0; i < numTextures; i++) {
 			glActiveTexture(GL_TEXTURE0 + i);
@@ -185,12 +162,12 @@ public:
 			} else {
 				break;
 			}
-			
+
             glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
         }
 		glActiveTexture(GL_TEXTURE0);
 	}
-	
+
 	inline void Unuse()
 	{
 		const int numTextures = this->textures.size();
