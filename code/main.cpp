@@ -180,7 +180,7 @@ int main(int argc, char* argv[])
 
 	// Game
 	Transform cameraTransform;
-	cameraTransform.position = { 0.0f, 0.0f, 3.0f };
+	cameraTransform.position = { 0.0f, 0.0f, 8.0f };
 	cameraTransform.scaling = { 1.0f, 1.0f, 1.0f };
 	cameraTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 180.0f);
 
@@ -193,9 +193,9 @@ int main(int argc, char* argv[])
 	quadTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 0.0f);
 	
 	Transform cubeTransform;
-	cubeTransform.position = { 0.0f, 0.0f, 3.0f };
+	cubeTransform.position = { 0.0f, 0.0f, 4.0f };
 	cubeTransform.scaling = { 1.0f, 1.0f, 1.0f };
-	cubeTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 180.0f);
+	cubeTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 0.0f);
 	
 	SimpleSpriteMesh quad;
 	quad.Create();
@@ -204,8 +204,7 @@ int main(int argc, char* argv[])
 	cube.Create();
 
 	Texture texture;
-	texture.LoadFromFile("../data/textures/foo.dds");
-	// texture.LoadFromFile("../data/textures/orange.bmp");
+	texture.LoadFromFile("../data/textures/orange.bmp");
 	// texture.LoadFromFile("../data/textures/foo.dds");
 	texture.type = Texture::DIFFUSE;
 
@@ -260,16 +259,16 @@ int main(int argc, char* argv[])
 		quad.Unuse();
 		multiTexture.Unuse();
 		
-		// texture.Use();
+		texture.Use();
 		
-		// cube.Use();
-		// PhongShader_Update(&shader, quadTransform, camera);
-		// PhongShader_UpdateMaterial(&shader, material);
-		// PhongShader_UpdateLight(&shader, dirLight);
-		// quad.Render();
-		// cube.Unuse();
+		cube.Use();
+		PhongShader_Update(&shader, cubeTransform, camera);
+		PhongShader_UpdateMaterial(&shader, material);
+		PhongShader_UpdateLight(&shader, dirLight);
+		cube.Render();
+		cube.Unuse();
 		
-		// texture.Unuse();
+		texture.Unuse();
 		
 		shader.Unuse();
 
@@ -281,6 +280,7 @@ int main(int argc, char* argv[])
 	// Shutdown
 	shader.Delete();
 	quad.Delete();
+	cube.Delete();
 	SDL_GL_DeleteContext(openglContext);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
