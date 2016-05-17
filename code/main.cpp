@@ -25,9 +25,10 @@
 #include "texture.h"
 #include "sprite.h"
 #include "mesh.h"
+#include "skybox.h"
 
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
+const int SCREEN_WIDTH = 1280;
+const int SCREEN_HEIGHT = 720;
 const int DESIRED_FPS = 60;
 
 bool HandleEvents(Input* input)
@@ -110,7 +111,7 @@ void FirstPersonMovement(Input* input, float deltaTime, Camera* camera)
 		Normalize(&v);
 		camera->transform.TranslateTowards(v, moveSpeed * deltaTime);
 	}
-	
+
 	camera->transform.Rotate(Vec3::PositiveYAxis(), angularSpeed * input->mouseRelativeX * deltaTime);
 	camera->transform.Rotate(Right(camera->transform.orientation), angularSpeed * input->mouseRelativeY * deltaTime);
 }
@@ -191,15 +192,15 @@ int main(int argc, char* argv[])
 	quadTransform.position = { 0.0f, 0.0f, 0.0f };
 	quadTransform.scaling = { 1.0f, 1.0f, 1.0f };
 	quadTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 0.0f);
-	
+
 	Transform cubeTransform;
 	cubeTransform.position = { 0.0f, 0.0f, 4.0f };
 	cubeTransform.scaling = { 1.0f, 1.0f, 1.0f };
 	cubeTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 0.0f);
-	
+
 	SimpleSpriteMesh quad;
 	quad.Create();
-	
+
 	CubeMesh cube;
 	cube.Create();
 
@@ -226,6 +227,21 @@ int main(int argc, char* argv[])
 	shader.LoadFromFiles("../data/shaders/phong_vs.glsl", 0, 0, 0, "../data/shaders/phong_fs.glsl");
 	PhongShader_Init(&shader);
 
+	Shader skyboxShader;
+	skyboxShader.LoadFromFiles("../data/shaders/skyboxVert.glsl", 0, 0, 0, "../data/shaders/skyboxFrag.glsl");
+	SkyboxShader_Init(&skyboxShader);
+	
+	Skybox skybox;
+	Skybox_LoadFromFiles(&skybox,
+		"../data/textures/entropic_right.dds",
+		"../data/textures/entropic_left.dds",
+		"../data/textures/entropic_up.dds",
+		"../data/textures/entropic_down.dds",
+		"../data/textures/entropic_back.dds",
+		"../data/textures/entropic_front.dds"
+	);
+	Skybox_Create(&skybox);
+
 	float deltaTime;
 	Uint64 currentTime;
 	Uint64 previousTime = SDL_GetPerformanceCounter();
@@ -250,7 +266,7 @@ int main(int argc, char* argv[])
 
 		shader.Use();
 		multiTexture.Use(shader);
-		
+
 		quad.Use();
 		PhongShader_Update(&shader, quadTransform, camera);
 		PhongShader_UpdateMaterial(&shader, material);
@@ -260,17 +276,18 @@ int main(int argc, char* argv[])
 		multiTexture.Unuse();
 		
 		texture.Use();
-		
 		cube.Use();
 		PhongShader_Update(&shader, cubeTransform, camera);
 		PhongShader_UpdateMaterial(&shader, material);
 		PhongShader_UpdateLight(&shader, dirLight);
 		cube.Render();
 		cube.Unuse();
-		
 		texture.Unuse();
-		
+
 		shader.Unuse();
+
+		//Skybox needs to be drawn last
+		Skybox_Render(&skybox, &skyboxShader, camera);
 
 		SDL_GL_SwapWindow(window);
 

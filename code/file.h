@@ -21,10 +21,10 @@ char* ReadFile(const char* fileName)
 		fread(str, fsize, 1, f);
 		fclose(f);
 		str[fsize] = 0;
-		
+
 		return str;
 	}
-	
+
 	return 0;
 }
 
