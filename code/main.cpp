@@ -232,16 +232,16 @@ int main(int argc, char* argv[])
 	SkyboxShader_Init(&skyboxShader);
 	Skybox skybox;
 	Skybox_LoadFromFiles(&skybox,
-		"../data/textures/entropic_right.dds",
-		"../data/textures/entropic_left.dds",
-		"../data/textures/entropic_up.dds",
-		"../data/textures/entropic_down.dds",
-		"../data/textures/entropic_back.dds",
-		"../data/textures/entropic_front.dds"
+		"../data/textures/eve_right.dds",
+		"../data/textures/eve_left.dds",
+		"../data/textures/eve_up.dds",
+		"../data/textures/eve_down.dds",
+		"../data/textures/eve_back.dds",
+		"../data/textures/eve_front.dds"
 	);
 	Skybox_Create(&skybox);
 	//GLuint skyboxTexture = LoadSkyboxTextureFromFiles(skyboxFilenames);
-	
+
 	//CreateSkybox(&skybox, skyboxTexture);
 
 	float deltaTime;
