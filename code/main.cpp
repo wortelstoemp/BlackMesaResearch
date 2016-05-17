@@ -227,21 +227,22 @@ int main(int argc, char* argv[])
 	shader.LoadFromFiles("../data/shaders/phong_vs.glsl", 0, 0, 0, "../data/shaders/phong_fs.glsl");
 	PhongShader_Init(&shader);
 
-	//TODO(Simon): This belongs in the scene description.
-	char* skyboxFilenames[6];
-	skyboxFilenames[0] = "../data/textures/entropic_right.dds";
-	skyboxFilenames[1] = "../data/textures/entropic_left.dds";
-	skyboxFilenames[2] = "../data/textures/entropic_up.dds";
-	skyboxFilenames[3] = "../data/textures/entropic_down.dds";
-	skyboxFilenames[4] = "../data/textures/entropic_back.dds";
-	skyboxFilenames[5] = "../data/textures/entropic_front.dds";
-	GLuint skyboxTexture = LoadSkyboxTexture(skyboxFilenames);
-
 	Shader skyboxShader;
 	skyboxShader.LoadFromFiles("../data/shaders/skyboxVert.glsl", 0, 0, 0, "../data/shaders/skyboxFrag.glsl");
-
-	Skybox skybox = {};
-	CreateSkybox(&skybox, skyboxTexture);
+	SkyboxShader_Init(&skyboxShader);
+	Skybox skybox;
+	Skybox_LoadFromFiles(&skybox,
+		"../data/textures/entropic_right.dds",
+		"../data/textures/entropic_left.dds",
+		"../data/textures/entropic_up.dds",
+		"../data/textures/entropic_down.dds",
+		"../data/textures/entropic_back.dds",
+		"../data/textures/entropic_front.dds"
+	);
+	Skybox_Create(&skybox);
+	//GLuint skyboxTexture = LoadSkyboxTextureFromFiles(skyboxFilenames);
+	
+	//CreateSkybox(&skybox, skyboxTexture);
 
 	float deltaTime;
 	Uint64 currentTime;
@@ -290,8 +291,7 @@ int main(int argc, char* argv[])
 		shader.Unuse();
 
 		//NOTE(Simon): Skybox needs to be drawn last
-		DrawSkybox(&skybox, &skyboxShader, &camera);
-
+		Skybox_Render(&skybox, &skyboxShader, camera);
 
 		SDL_GL_SwapWindow(window);
 
