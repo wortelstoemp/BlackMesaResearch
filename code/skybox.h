@@ -58,7 +58,7 @@ void Skybox_LoadFromFiles(Skybox* skybox, const char* right, const char* left, c
 	image.Delete();
 }
 
-void Skybox_Create(Skybox* skybox)
+inline void Skybox_Create(Skybox* skybox)
 {
     GLfloat skyboxVertices[] = {
         -1.0f,  1.0f, -1.0f,
@@ -114,7 +114,7 @@ void Skybox_Create(Skybox* skybox)
     glBindVertexArray(0);
 }
 
-void Skybox_Render(Skybox* skybox, Shader* shader, const Camera& camera)
+inline void Skybox_Render(Skybox* skybox, Shader* shader, const Camera& camera)
 {
     glDepthFunc(GL_LEQUAL);
     shader->Use();

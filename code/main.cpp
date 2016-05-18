@@ -174,6 +174,7 @@ int main(int argc, char* argv[])
 
 	// Depth testing
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
 
 	// Alpha blending
 	glEnable(GL_BLEND);
@@ -194,15 +195,16 @@ int main(int argc, char* argv[])
 	quadTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 0.0f);
 
 	Transform cubeTransform;
-	cubeTransform.position = { 0.0f, 0.0f, 4.0f };
-	cubeTransform.scaling = { 1.0f, 1.0f, 1.0f };
+	cubeTransform.position = { 0.0f, -1.0f, 4.0f };
+	cubeTransform.scaling = { 0.1f, 0.1f, 0.1f };
 	cubeTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 0.0f);
 
 	SimpleSpriteMesh quad;
 	quad.Create();
 
-	CubeMesh cube;
-	cube.Create();
+	Mesh2 cubeMesh;
+	Mesh_LoadFromFile(&cubeMesh, "../data/meshes/nanosuit.obj");
+	Mesh_Create(&cubeMesh);
 
 	Texture texture;
 	texture.LoadFromFile("../data/textures/orange.bmp");
@@ -279,19 +281,19 @@ int main(int argc, char* argv[])
 		multiTexture.Unuse();
 		
 		texture.Use();
-		cube.Use();
+		Mesh_Use(&cubeMesh);
 		PhongShader_Update(&shader, cubeTransform, camera);
 		PhongShader_UpdateMaterial(&shader, material);
 		PhongShader_UpdateLight(&shader, dirLight);
-		cube.Render();
-		cube.Unuse();
+		Mesh_Render(&cubeMesh);
+		
+		Mesh_Unuse();
 		texture.Unuse();
 
 		shader.Unuse();
 
 		//Skybox needs to be drawn last
 		Skybox_Render(&skybox, &skyboxShader, camera);
-
 		SDL_GL_SwapWindow(window);
 
 		previousTime = currentTime;
@@ -300,7 +302,7 @@ int main(int argc, char* argv[])
 	// Shutdown
 	shader.Delete();
 	quad.Delete();
-	cube.Delete();
+	// Mesh delete
 	SDL_GL_DeleteContext(openglContext);
 	SDL_DestroyWindow(window);
 	SDL_Quit();

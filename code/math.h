@@ -8,10 +8,19 @@ const float PI = 3.14159265358979323846;
 * Datatypes *
 *************/
 
-struct Vec2
+union Vec2
 {
-	float x;
-	float y;
+	struct
+	{
+		float x;
+		float y;
+	};
+	
+	struct
+	{
+		float u;
+		float v;
+	};
 	
 	inline static Vec2 PositiveXAxis()
 	{
