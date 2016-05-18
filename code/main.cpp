@@ -200,6 +200,7 @@ int main(int argc, char* argv[])
 
 	Mesh quadMesh = Mesh_CreateFromFile("../data/meshes/quad.obj");
 	Mesh cubeMesh = Mesh_CreateFromFile("../data/meshes/cube.obj");
+	Mesh robotMesh = Mesh_CreateFromFile("../data/meshes/robot.obj");
 	
 	// TODO: Make Texture & MultiTexture API's like that of Mesh
 	// NOTE: never use bmp, always use dds
@@ -284,7 +285,11 @@ int main(int argc, char* argv[])
 		PhongShader_UpdateLight(&shader, dirLight);
 		Mesh_Render(&cubeMesh);
 		
-		Mesh_Unuse();
+		Mesh_Use(&robotMesh);
+		PhongShader_Update(&shader, cubeTransform, camera);
+		PhongShader_UpdateMaterial(&shader, material);
+		PhongShader_UpdateLight(&shader, dirLight);
+		Mesh_Render(&robotMesh);
 		texture.Unuse();
 
 		shader.Unuse();
