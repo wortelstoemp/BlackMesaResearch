@@ -23,7 +23,6 @@
 #include "lighting.h"
 #include "shader.h"
 #include "texture.h"
-#include "sprite.h"
 #include "mesh.h"
 #include "skybox.h"
 
@@ -195,17 +194,15 @@ int main(int argc, char* argv[])
 	quadTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 0.0f);
 
 	Transform cubeTransform;
-	cubeTransform.position = { 0.0f, -1.0f, 4.0f };
-	cubeTransform.scaling = { 0.1f, 0.1f, 0.1f };
+	cubeTransform.position = { 0.0f, 0.0f, 4.0f };
+	cubeTransform.scaling = { 1.0f, 1.0f, 1.0f };
 	cubeTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 0.0f);
 
-	SimpleSpriteMesh quad;
-	quad.Create();
-
-	Mesh2 cubeMesh;
-	Mesh_LoadFromFile(&cubeMesh, "../data/meshes/nanosuit.obj");
-	Mesh_Create(&cubeMesh);
-
+	Mesh quadMesh = Mesh_CreateFromFile("../data/meshes/quad.obj");
+	Mesh cubeMesh = Mesh_CreateFromFile("../data/meshes/cube.obj");
+	
+	// TODO: Make Texture & MultiTexture API's like that of Mesh
+	// NOTE: never use bmp, always use dds
 	Texture texture;
 	texture.LoadFromFile("../data/textures/orange.bmp");
 	// texture.LoadFromFile("../data/textures/foo.dds");
@@ -272,12 +269,12 @@ int main(int argc, char* argv[])
 		shader.Use();
 		multiTexture.Use(shader);
 
-		quad.Use();
+		Mesh_Use(&quadMesh);
 		PhongShader_Update(&shader, quadTransform, camera);
 		PhongShader_UpdateMaterial(&shader, material);
 		PhongShader_UpdateLight(&shader, dirLight);
-		quad.Render();
-		quad.Unuse();
+		Mesh_Render(&quadMesh);
+		Mesh_Unuse();
 		multiTexture.Unuse();
 		
 		texture.Use();
@@ -301,8 +298,6 @@ int main(int argc, char* argv[])
 
 	// Shutdown
 	shader.Delete();
-	quad.Delete();
-	// Mesh delete
 	SDL_GL_DeleteContext(openglContext);
 	SDL_DestroyWindow(window);
 	SDL_Quit();

@@ -1,5 +1,6 @@
 #pragma once
 
+// TODO: Delete this file
 // Author(s): Tom
 
 struct SimpleSpriteMesh
