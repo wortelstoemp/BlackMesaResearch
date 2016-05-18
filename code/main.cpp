@@ -197,6 +197,11 @@ int main(int argc, char* argv[])
 	cubeTransform.position = { 0.0f, 0.0f, 4.0f };
 	cubeTransform.scaling = { 1.0f, 1.0f, 1.0f };
 	cubeTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 0.0f);
+	
+	Transform robotTransform;
+	robotTransform.position = { 4.0f, 0.0f, 6.0f };
+	robotTransform.scaling = { 1.0f, 1.0f, 1.0f };
+	robotTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 45.0f);
 
 	Mesh quadMesh = Mesh_CreateFromFile("../data/meshes/quad.obj");
 	Mesh cubeMesh = Mesh_CreateFromFile("../data/meshes/cube.obj");
@@ -270,23 +275,19 @@ int main(int argc, char* argv[])
 		shader.Use();
 		multiTexture.Use(shader);
 
-		Mesh_Use(&quadMesh);
 		PhongShader_Update(&shader, quadTransform, camera);
 		PhongShader_UpdateMaterial(&shader, material);
 		PhongShader_UpdateLight(&shader, dirLight);
 		Mesh_Render(&quadMesh);
-		Mesh_Unuse();
 		multiTexture.Unuse();
 		
 		texture.Use();
-		Mesh_Use(&cubeMesh);
 		PhongShader_Update(&shader, cubeTransform, camera);
 		PhongShader_UpdateMaterial(&shader, material);
 		PhongShader_UpdateLight(&shader, dirLight);
 		Mesh_Render(&cubeMesh);
 		
-		Mesh_Use(&robotMesh);
-		PhongShader_Update(&shader, cubeTransform, camera);
+		PhongShader_Update(&shader, robotTransform, camera);
 		PhongShader_UpdateMaterial(&shader, material);
 		PhongShader_UpdateLight(&shader, dirLight);
 		Mesh_Render(&robotMesh);

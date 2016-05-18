@@ -2,13 +2,6 @@
 
 // Author(s): Tom
 
-// struct Vertex
-// {
-// 	Vec3 position;
-// 	Vec3 normal;
-// 	Vec2 uv;
-// };
-
 struct Mesh
 {
 	std::vector<Vec3> positions;
@@ -54,7 +47,7 @@ bool Mesh_LoadOBJ(Mesh* mesh, const char* fileName)
 		{
 			Vec2 uv;
 			fscanf(file, "%f %f\n", &uv.u, &uv.v);
-			uv.v = -uv.v; // For DDS textures
+			uv.v = 1-uv.v; // For DDS textures
 			tmpUVs.push_back(uv);
 		}
 		else if (strcmp(line, "vn") == 0)
@@ -162,7 +155,6 @@ bool Mesh_LoadOwnFormat(Mesh* mesh, const char* fileName)
 
 Mesh Mesh_CreateFromFile(const char* fileName)
 {
-	
 	const int length = strlen(fileName);
 	const char* extension = fileName + length - 4;
 	Mesh mesh;
@@ -204,35 +196,9 @@ Mesh Mesh_CreateFromFile(const char* fileName)
 	return mesh;
 }
 
-inline void Mesh_Use(Mesh* mesh)
-{
-	glBindVertexArray(mesh->vao);
-}
-	
-inline void Mesh_Unuse()
-{
-	glBindVertexArray(0);
-}
-
 inline void Mesh_Render(Mesh* mesh)
 {
-	// glEnableVertexAttribArray(0);
-	// glBindBuffer(GL_ARRAY_BUFFER, mesh->positionVBO);	
-	// glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-
-	// glEnableVertexAttribArray(1);
-	// glBindBuffer(GL_ARRAY_BUFFER, mesh->normalVBO);
-	// glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-	
-	// glEnableVertexAttribArray(2);
-	// glBindBuffer(GL_ARRAY_BUFFER, mesh->uvVBO);	
-	// glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-
-	// glDrawArrays(GL_TRIANGLES, 0, mesh->positions.size());
-	
-	// glDisableVertexAttribArray(0);		
-	// glDisableVertexAttribArray(1);
-	// glDisableVertexAttribArray(2);
+	glBindVertexArray(mesh->vao);
 	
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, mesh->positionVBO);	
@@ -245,8 +211,6 @@ inline void Mesh_Render(Mesh* mesh)
 	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ARRAY_BUFFER, mesh->uvVBO);	
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-
-	//glDrawArrays(GL_TRIANGLES, 0, mesh->positions.size());
 	
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->ebo);
 
