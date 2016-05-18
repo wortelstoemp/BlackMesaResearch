@@ -61,7 +61,11 @@ bool Mesh_LoadOBJ(Mesh* mesh, const char* fileName)
 			unsigned int positionIndex[3];
 			unsigned int normalIndex[3];
 			unsigned int uvIndex[3];
-			const int numValues = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &positionIndex[0], &uvIndex[0], &normalIndex[0], &positionIndex[1], &uvIndex[1], &normalIndex[1], &positionIndex[2], &uvIndex[2], &normalIndex[2]);
+			const int numValues = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", 
+				&positionIndex[0], &uvIndex[0], &normalIndex[0], 
+				&positionIndex[1], &uvIndex[1], &normalIndex[1], 
+				&positionIndex[2], &uvIndex[2], &normalIndex[2]);
+			
 			if (numValues != 9)
 			{
 				printf("File not readable. Use Assimp or other OBJ options.\n");
@@ -147,6 +151,8 @@ bool Mesh_LoadOBJ(Mesh* mesh, const char* fileName)
 }
 
 // TODO: Load own format
+// Must be more friendly to parse and more native to OpenGL
+// More native = simpeler indexing, read indices straight away
 bool Mesh_LoadOwnFormat(Mesh* mesh, const char* fileName)
 {
 	printf("Own mesh file format not implemented yet!\n");

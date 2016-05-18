@@ -246,9 +246,6 @@ int main(int argc, char* argv[])
 		"../data/textures/eve_front.dds"
 	);
 	Skybox_Create(&skybox);
-	//GLuint skyboxTexture = LoadSkyboxTextureFromFiles(skyboxFilenames);
-
-	//CreateSkybox(&skybox, skyboxTexture);
 
 	float deltaTime;
 	Uint64 currentTime;
