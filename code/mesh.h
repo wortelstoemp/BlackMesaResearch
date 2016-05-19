@@ -152,9 +152,6 @@ static bool Mesh_LoadOBJ(Mesh* mesh, const char* fileName)
 	return true;
 }
 
-// TODO: Load own format
-// Must be more friendly to parse and more native to OpenGL
-// More native = simpeler indexing, read indices straight away
 static bool Mesh_LoadQVM(Mesh* mesh, const char* fileName)
 {
 	FILE* file = fopen(fileName, "r");
