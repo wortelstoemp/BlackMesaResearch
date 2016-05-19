@@ -39,7 +39,8 @@ struct Texture
 		const int length = strlen(fileName);
 		const char* extension = fileName + length - 4;
 
-		if (!strcmp(extension, ".dds")) {
+		if (strcmp(extension, ".dds") == 0)
+		{
 			DDSImage image;
 			image.LoadFromFile(fileName);
 
@@ -56,7 +57,8 @@ struct Texture
 
 			unsigned int level = 0;
 			unsigned int offset = 0;
-			while (level < image.mipMapCount && image.width > 0 && image.height > 0) {
+			while (level < image.mipMapCount && image.width > 0 && image.height > 0)
+			{
 				unsigned int size = ((image.width + 3) / 4) * ((image.height + 3) / 4)	* image.blocksize;
 				glCompressedTexImage2D(GL_TEXTURE_2D, level, image.format,
 					image.width, image.height, 0, size, image.data + offset);
@@ -72,7 +74,8 @@ struct Texture
 			return true;
 		}
 
-		if (!strcmp(extension, ".bmp")) {
+		if (strcmp(extension, ".bmp") == 0)
+		{
 			BMPImage image;
 			image.LoadFromFile(fileName);
 			glGenTextures(1, &this->id);
@@ -115,7 +118,8 @@ public:
 	{
 		Texture texture;
 		texture.type = type;
-		if (texture.LoadFromFile(fileName)) {
+		if (texture.LoadFromFile(fileName))
+		{
 			this->textures.push_back(texture);
 		}
 	}
@@ -141,10 +145,12 @@ public:
 		int specularNr = 1;
 
 		const int numTextures = this->textures.size();
-		for(GLuint i = 0; i < numTextures; i++) {
+		for(GLuint i = 0; i < numTextures; i++)
+		{
 			glActiveTexture(GL_TEXTURE0 + i);
 			const Texture::TextureType type = this->textures[i].type;
-			if (type == Texture::DIFFUSE) {
+			if (type == Texture::DIFFUSE)
+			{
 				char number[10];
 				itoa(diffuseNr++, number, 10);
 				char uniformName[15] = "textureDiffuse";
@@ -152,14 +158,18 @@ public:
 				GLint uniform = glGetUniformLocation(shader.program, uniformName);
 				//printf("%s\n", uniformName);
 				glUniform1i(uniform, i);
-			} else if (type == Texture::SPECULAR) {
+			}
+			else if (type == Texture::SPECULAR)
+			{
 				char number[10];
 				itoa(specularNr++, number, 10);
 				char uniformName[16] = "textureSpecular";
 				strncat(uniformName, number, strlen(number));
 				GLint uniform = glGetUniformLocation(shader.program, uniformName);
 				glUniform1i(uniform, i);
-			} else {
+			}
+			else
+			{
 				break;
 			}
 
@@ -171,7 +181,8 @@ public:
 	inline void Unuse()
 	{
 		const int numTextures = this->textures.size();
-		for(GLuint i = 0; i < numTextures; i++) {
+		for(GLuint i = 0; i < numTextures; i++)
+		{
 			glActiveTexture(GL_TEXTURE0 + i);
             glBindTexture(GL_TEXTURE_2D, 0);
         }

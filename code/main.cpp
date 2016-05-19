@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <math.h>
+
+// C++ Standard libraries
 #include <vector>
 
 // Libraries
@@ -23,7 +25,6 @@
 #include "lighting.h"
 #include "shader.h"
 #include "texture.h"
-#include "sprite.h"
 #include "mesh.h"
 #include "skybox.h"
 #include "game.h"
@@ -101,7 +102,6 @@ bool InitGL()
 	//glEnable(GL_CULL_FACE);
 	//glCullFace(GL_BACK);
 	//glFrontFace(GL_CCW);
-
 	return true;
 }
 
@@ -117,7 +117,54 @@ int main(int argc, char* argv[])
 	InitGame(&world);
 
 	Input input = {};
+	
+	// TODO(Tom): Simon, can you put this in InitGame()?
+	// -----------------------------------------------------
+	Transform quadTransform;
+	quadTransform.position = { 0.0f, 0.0f, 0.0f };
+	quadTransform.scaling = { 1.0f, 1.0f, 1.0f };
+	quadTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 0.0f);
 
+	Transform cubeTransform;
+	cubeTransform.position = { 0.0f, 0.0f, 4.0f };
+	cubeTransform.scaling = { 1.0f, 1.0f, 1.0f };
+	cubeTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 0.0f);
+	
+	Transform robotTransform;
+	robotTransform.position = { 4.0f, 0.0f, 6.0f };
+	robotTransform.scaling = { 1.0f, 1.0f, 1.0f };
+	robotTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 45.0f);
+
+	Mesh quadMesh = Mesh_CreateFromFile("../data/meshes/quad.qvm");
+	Mesh cubeMesh = Mesh_CreateFromFile("../data/meshes/cube.qvm");
+	Mesh robotMesh = Mesh_CreateFromFile("../data/meshes/robot.obj");
+	
+	// TODO: Make Texture & MultiTexture API's like that of Mesh
+	// NOTE: never use bmp, always use dds
+	Texture texture;
+	texture.LoadFromFile("../data/textures/orange.bmp");
+	// texture.LoadFromFile("../data/textures/foo.dds");
+	texture.type = Texture::DIFFUSE;
+
+	MultiTexture multiTexture;
+	multiTexture.LoadTextureFromFile("../data/textures/foo.bmp", Texture::DIFFUSE);
+	multiTexture.LoadTextureFromFile("../data/textures/foo.dds", Texture::DIFFUSE);
+
+	Material material;
+	material.specular = { 0.5f, 0.5f, 0.5f };
+	material.shine = 64.0f;
+	
+	DirectionalLight dirLight;
+	dirLight.direction = { 0.0f, 0.0f, -1.0f };
+	dirLight.ambient = { 0.7f, 0.7f, 0.7f };
+	dirLight.diffuse = { 0.5f, 0.5f, 0.5f };
+	dirLight.specular = { 1.0f, 1.0f, 1.0f };
+
+	Shader shader;
+	shader.LoadFromFiles("../data/shaders/phong_vs.glsl", 0, 0, 0, "../data/shaders/phong_fs.glsl");
+	PhongShader_Init(&shader);
+	// --------------------------------------------------------------
+	
 	float deltaTime;
 	Uint64 currentTime;
 	Uint64 previousTime = SDL_GetPerformanceCounter();
@@ -135,8 +182,33 @@ int main(int argc, char* argv[])
 		{
 			break;
 		}
-
 		GameUpdateAndRender(&input, deltaTime, &world);
+		
+		// TODO(Tom): Simon, can you put this in GameUpdateAndRender()?
+		// ------------------------------------------------------------
+		shader.Use();
+		multiTexture.Use(shader);
+
+		PhongShader_Update(&shader, quadTransform, world.camera);
+		PhongShader_UpdateMaterial(&shader, material);
+		PhongShader_UpdateLight(&shader, dirLight);
+		Mesh_Render(&quadMesh);
+		multiTexture.Unuse();
+		
+		texture.Use();
+		PhongShader_Update(&shader, cubeTransform, world.camera);
+		PhongShader_UpdateMaterial(&shader, material);
+		PhongShader_UpdateLight(&shader, dirLight);
+		Mesh_Render(&cubeMesh);
+		
+		PhongShader_Update(&shader, robotTransform, world.camera);
+		PhongShader_UpdateMaterial(&shader, material);
+		PhongShader_UpdateLight(&shader, dirLight);
+		Mesh_Render(&robotMesh);
+		texture.Unuse();
+
+		shader.Unuse();
+		// -----------------------------------------------------		
 
 		SDL_GL_SwapWindow(window);
 
