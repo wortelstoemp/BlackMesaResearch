@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <math.h>
+
+// C++ Standard libraries
 #include <vector>
 
 // Libraries
@@ -203,8 +205,8 @@ int main(int argc, char* argv[])
 	robotTransform.scaling = { 1.0f, 1.0f, 1.0f };
 	robotTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 45.0f);
 
-	Mesh quadMesh = Mesh_CreateFromFile("../data/meshes/quad.obj");
-	Mesh cubeMesh = Mesh_CreateFromFile("../data/meshes/cube.obj");
+	Mesh quadMesh = Mesh_CreateFromFile("../data/meshes/quad.qvm");
+	Mesh cubeMesh = Mesh_CreateFromFile("../data/meshes/cube.qvm");
 	Mesh robotMesh = Mesh_CreateFromFile("../data/meshes/robot.obj");
 	
 	// TODO: Make Texture & MultiTexture API's like that of Mesh

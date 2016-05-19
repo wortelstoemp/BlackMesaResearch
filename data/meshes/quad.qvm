@@ -3,6 +3,7 @@
 // NOTE: Always use spaces after a ',' and only triangles allowed!
 
 // Vertices: v(x, y, z)
+
 v(1.000000, 1.000000, 0.000000)
 v(-1.000000, 1.000000, 0.000000)
 v(-1.000000, -1.000000, 0.000000)
@@ -13,10 +14,8 @@ t(1.000000, 1.000000)
 t(0.000000, 1.000000)
 t(0.000000, 0.000000)
 t(1.000000, 0.000000)
-
 // Normals: n(x, y, z)
 n(0.000000, 0.000000, 1.000000)
-
 // Polygons: p(v(#, #, #), t(#, #, #), n(#))
 // We always use triangles so only 1 normal per polygon needed
 p(v(0, 1, 2), t(0, 1, 2), n(0))

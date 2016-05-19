@@ -33,7 +33,7 @@ static bool Mesh_LoadOBJ(Mesh* mesh, const char* fileName)
 	
 	while (true)
 	{
-		char line[128];
+		char line[1024];
 		if (fscanf(file, "%s", line) == EOF)
 			break;
 		
@@ -47,7 +47,7 @@ static bool Mesh_LoadOBJ(Mesh* mesh, const char* fileName)
 		{
 			Vec2 uv;
 			fscanf(file, "%f %f\n", &uv.u, &uv.v);
-			uv.v = 1-uv.v; // For DDS textures
+			uv.v = 1 - uv.v; // For DDS textures
 			tmpUVs.push_back(uv);
 		}
 		else if (strcmp(line, "vn") == 0)
@@ -69,6 +69,7 @@ static bool Mesh_LoadOBJ(Mesh* mesh, const char* fileName)
 			if (numValues != 9)
 			{
 				printf("File not readable. Use Assimp or other OBJ options.\n");
+				fclose(file);
 				return false;
 			}
 			positionIndices.push_back(positionIndex[0]);
@@ -84,10 +85,11 @@ static bool Mesh_LoadOBJ(Mesh* mesh, const char* fileName)
 		else
 		{
 			// Comment or other nonsense
-			char throwaway[1000];
-			fgets(throwaway, 1000, file);
+			char throwaway[1024];
+			fgets(throwaway, 1024, file);
 		}
 	}
+	fclose(file);
 	
 	std::vector<Vec3> positions;
 	std::vector<Vec3> normals;
@@ -155,8 +157,131 @@ static bool Mesh_LoadOBJ(Mesh* mesh, const char* fileName)
 // More native = simpeler indexing, read indices straight away
 static bool Mesh_LoadQVM(Mesh* mesh, const char* fileName)
 {
-	printf("Own mesh file format not implemented yet!\n");
-	return false;
+	FILE* file = fopen(fileName, "r");
+	if (file == NULL )
+	{
+    	printf("Can't open file '%s'!\n", fileName);
+    	return false;
+	}
+	
+	std::vector<Vec3> tmpPositions;
+	std::vector<Vec3> tmpNormals;
+	std::vector<Vec2> tmpUVs;
+	std::vector<unsigned int> positionIndices;
+	std::vector<unsigned int> normalIndices;
+	std::vector<unsigned int> uvIndices;
+	
+	char line[1024];
+  	while (fgets(line, sizeof(line), file)) 
+	{
+		if (strncmp(line, "v", 1) == 0)
+		{
+			Vec3 position;
+			sscanf(line, "v(%f,%f,%f)\n", &position.x, &position.y, &position.z);
+			tmpPositions.push_back(position);
+		}
+		else if (strncmp(line, "t", 1) == 0)
+		{
+			Vec2 uv;
+			sscanf(line, "t(%f,%f)\n", &uv.u, &uv.v);
+			uv.v = 1 - uv.v; // For DDS textures
+			tmpUVs.push_back(uv);
+		}
+		else if (strncmp(line, "n", 1) == 0)
+		{
+			Vec3 normal;
+			sscanf(line, "n(%f,%f,%f)\n", &normal.x, &normal.y, &normal.z);
+			tmpNormals.push_back(normal);				
+		}
+		else if (strncmp(line, "p", 1) == 0)
+		{
+			unsigned int positionIndex[3];
+			unsigned int uvIndex[3];
+			unsigned int normalIndex;
+			const int numValues = sscanf(line, "p(v(%d,%d,%d), t(%d,%d,%d), n(%d))\n",
+				&positionIndex[0], &positionIndex[1], &positionIndex[2],
+				&uvIndex[0], &uvIndex[1], &uvIndex[2],
+				&normalIndex);
+			
+			if (numValues != 7)
+			{
+				printf("File '%s' not readable.\n", fileName);
+				fclose(file);
+				return false;
+			}
+			
+			positionIndices.push_back(positionIndex[0]);
+			positionIndices.push_back(positionIndex[1]);
+			positionIndices.push_back(positionIndex[2]);
+			uvIndices.push_back(uvIndex[0]);
+			uvIndices.push_back(uvIndex[1]);
+			uvIndices.push_back(uvIndex[2]);
+			normalIndices.push_back(normalIndex);
+			normalIndices.push_back(normalIndex);
+			normalIndices.push_back(normalIndex);
+		}
+  	}
+	fclose(file);
+	 
+	std::vector<Vec3> positions;
+	std::vector<Vec3> normals;
+	std::vector<Vec2> uvs;
+	
+	const unsigned int numPositions = positionIndices.size();
+	for (unsigned int i = 0; i < numPositions; i++)
+	{
+		unsigned int positionIndex = positionIndices[i];
+		unsigned int normalIndex = normalIndices[i];
+		unsigned int uvIndex = uvIndices[i];
+		
+		Vec3 position = tmpPositions[positionIndex];
+		Vec3 normal = tmpNormals[normalIndex];
+		Vec2 uv = tmpUVs[uvIndex];
+		
+		positions.push_back(position);
+		uvs.push_back(uv);
+		normals.push_back(normal);
+	}
+	
+	const unsigned int size = positions.size();
+	const float precision = 0.01f;
+	for (unsigned int i = 0; i < size; i++)
+	{
+		// Search for similar vertex
+		// NOTE: Maybe use binary search / hashmap instead of linear search?
+		unsigned int index;
+		bool found = false;
+		for (unsigned int j = 0; i < mesh->positions.size(); j++)
+		{
+			if (fabs(positions[i].x - mesh->positions[j].x) < precision &&
+				fabs(positions[i].y - mesh->positions[j].y) < precision &&
+				fabs(positions[i].z - mesh->positions[j].z) < precision &&
+				fabs(uvs[i].x - mesh->uvs[j].x) < precision &&
+				fabs(uvs[i].y - mesh->uvs[j].y) < precision &&
+				fabs(normals[i].x - mesh->normals[j].x) < precision &&
+				fabs(normals[i].y - mesh->normals[j].y) < precision &&
+				fabs(normals[i].z - mesh->normals[j].z) < precision)
+			{	
+				index = j;
+				found = true;
+				break;
+			}
+		}
+		
+		if (found)
+		{
+			mesh->indices.push_back(index);
+		}
+		else
+		{
+			mesh->positions.push_back(positions[i]);
+			mesh->normals.push_back(normals[i]);
+			mesh->uvs.push_back(uvs[i]);
+			mesh->indices.push_back(mesh->positions.size() - 1);
+		}
+	}	
+	  
+	return true;
 }
 
 Mesh Mesh_CreateFromFile(const char* fileName)
