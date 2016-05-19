@@ -4,18 +4,23 @@
 
 struct Mesh
 {
+	GLuint vao;
+	GLuint positionVBO;
+	GLuint uvVBO;
+	GLuint normalVBO;
+	GLuint ebo;
+	int32 vertexIndexCount;
+};
+
+struct Meshdata
+{
 	std::vector<Vec3> positions;
 	std::vector<Vec3> normals;
 	std::vector<Vec2> uvs;
 	std::vector<unsigned int> indices;
-	GLuint vao;
-	GLuint positionVBO;
-	GLuint uvVBO;
-	GLuint normalVBO;		
-	GLuint ebo;
 };
 
-static bool Mesh_LoadOBJ(Mesh* mesh, const char* fileName)
+static bool Mesh_LoadOBJ(Mesh* mesh, Meshdata* meshdata, const char* fileName)
 {
 	FILE* file = fopen(fileName, "r");
 	if (file == NULL )
@@ -23,20 +28,20 @@ static bool Mesh_LoadOBJ(Mesh* mesh, const char* fileName)
     	printf("Can't open file '%s'!\n", fileName);
     	return false;
 	}
-	
+
 	std::vector<Vec3> tmpPositions;
 	std::vector<Vec3> tmpNormals;
 	std::vector<Vec2> tmpUVs;
 	std::vector<unsigned int> positionIndices;
 	std::vector<unsigned int> normalIndices;
 	std::vector<unsigned int> uvIndices;
-	
+
 	while (true)
 	{
 		char line[1024];
 		if (fscanf(file, "%s", line) == EOF)
 			break;
-		
+
 		if (strcmp(line, "v") == 0)
 		{
 			Vec3 position;
@@ -54,24 +59,25 @@ static bool Mesh_LoadOBJ(Mesh* mesh, const char* fileName)
 		{
 			Vec3 normal;
 			fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-			tmpNormals.push_back(normal);	
+			tmpNormals.push_back(normal);
 		}
 		else if (strcmp(line, "f") == 0)
 		{
 			unsigned int positionIndex[3];
 			unsigned int normalIndex[3];
 			unsigned int uvIndex[3];
-			const int numValues = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", 
-				&positionIndex[0], &uvIndex[0], &normalIndex[0], 
-				&positionIndex[1], &uvIndex[1], &normalIndex[1], 
+			const int numValues = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n",
+				&positionIndex[0], &uvIndex[0], &normalIndex[0],
+				&positionIndex[1], &uvIndex[1], &normalIndex[1],
 				&positionIndex[2], &uvIndex[2], &normalIndex[2]);
-			
+
 			if (numValues != 9)
 			{
 				printf("File not readable. Use Assimp or other OBJ options.\n");
 				fclose(file);
 				return false;
 			}
+
 			positionIndices.push_back(positionIndex[0]);
 			positionIndices.push_back(positionIndex[1]);
 			positionIndices.push_back(positionIndex[2]);
@@ -90,40 +96,26 @@ static bool Mesh_LoadOBJ(Mesh* mesh, const char* fileName)
 		}
 	}
 	fclose(file);
-	
-	std::vector<Vec3> positions;
-	std::vector<Vec3> normals;
-	std::vector<Vec2> uvs;
-	
+
 	const unsigned int numPositions = positionIndices.size();
 	for (unsigned int i = 0; i < numPositions; i++)
 	{
 		unsigned int positionIndex = positionIndices[i];
 		unsigned int normalIndex = normalIndices[i];
 		unsigned int uvIndex = uvIndices[i];
-		
-		Vec3 position = tmpPositions[positionIndex - 1];
-		Vec3 normal = tmpNormals[normalIndex - 1];
-		Vec2 uv = tmpUVs[uvIndex - 1];
-		
-		positions.push_back(position);
-		uvs.push_back(uv);
-		normals.push_back(normal);
+
+		meshdata->positions.push_back(tmpPositions[positionIndex - 1]);
+		meshdata->normals.push_back(tmpNormals[normalIndex - 1]);
+		meshdata->uvs.push_back(tmpUVs[uvIndex - 1]);
+		meshdata->indices.push_back(i);
 	}
-	
-	const unsigned int size = positions.size();
-	for (unsigned int i = 0; i < size; i++)
-	{
-		mesh->positions.push_back(positions[i]);
-		mesh->normals.push_back(normals[i]);
-		mesh->uvs.push_back(uvs[i]);
-		mesh->indices.push_back(mesh->positions.size() - 1);
-	}	
-	
+
+	mesh->vertexIndexCount = meshdata->positions.size();
+
 	return true;
 }
 
-static bool Mesh_LoadQVM(Mesh* mesh, const char* fileName)
+static bool Mesh_LoadQVM(Mesh* mesh, Meshdata* meshdata, const char* fileName)
 {
 	FILE* file = fopen(fileName, "r");
 	if (file == NULL )
@@ -131,16 +123,16 @@ static bool Mesh_LoadQVM(Mesh* mesh, const char* fileName)
     	printf("Can't open file '%s'!\n", fileName);
     	return false;
 	}
-	
+
 	std::vector<Vec3> tmpPositions;
 	std::vector<Vec3> tmpNormals;
 	std::vector<Vec2> tmpUVs;
 	std::vector<unsigned int> positionIndices;
 	std::vector<unsigned int> normalIndices;
 	std::vector<unsigned int> uvIndices;
-	
+
 	char line[1024];
-  	while (fgets(line, sizeof(line), file)) 
+  	while (fgets(line, sizeof(line), file))
 	{
 		if (strncmp(line, "v", 1) == 0)
 		{
@@ -159,7 +151,7 @@ static bool Mesh_LoadQVM(Mesh* mesh, const char* fileName)
 		{
 			Vec3 normal;
 			sscanf(line, "n(%f,%f,%f)\n", &normal.x, &normal.y, &normal.z);
-			tmpNormals.push_back(normal);				
+			tmpNormals.push_back(normal);
 		}
 		else if (strncmp(line, "p", 1) == 0)
 		{
@@ -170,14 +162,14 @@ static bool Mesh_LoadQVM(Mesh* mesh, const char* fileName)
 				&positionIndex[0], &positionIndex[1], &positionIndex[2],
 				&uvIndex[0], &uvIndex[1], &uvIndex[2],
 				&normalIndex);
-			
+
 			if (numValues != 7)
 			{
 				printf("File '%s' not readable.\n", fileName);
 				fclose(file);
 				return false;
 			}
-			
+
 			positionIndices.push_back(positionIndex[0]);
 			positionIndices.push_back(positionIndex[1]);
 			positionIndices.push_back(positionIndex[2]);
@@ -190,36 +182,21 @@ static bool Mesh_LoadQVM(Mesh* mesh, const char* fileName)
 		}
   	}
 	fclose(file);
-	 
-	std::vector<Vec3> positions;
-	std::vector<Vec3> normals;
-	std::vector<Vec2> uvs;
-	
+
 	const unsigned int numPositions = positionIndices.size();
 	for (unsigned int i = 0; i < numPositions; i++)
 	{
 		unsigned int positionIndex = positionIndices[i];
 		unsigned int normalIndex = normalIndices[i];
 		unsigned int uvIndex = uvIndices[i];
-		
-		Vec3 position = tmpPositions[positionIndex];
-		Vec3 normal = tmpNormals[normalIndex];
-		Vec2 uv = tmpUVs[uvIndex];
-		
-		positions.push_back(position);
-		uvs.push_back(uv);
-		normals.push_back(normal);
+
+		meshdata->positions.push_back(tmpPositions[positionIndex]);
+		meshdata->normals.push_back(tmpNormals[normalIndex]);
+		meshdata->uvs.push_back(tmpUVs[uvIndex]);
+		meshdata->indices.push_back(i);
 	}
-	
-	const unsigned int size = positions.size();
-	for (unsigned int i = 0; i < size; i++)
-	{
-		mesh->positions.push_back(positions[i]);
-		mesh->normals.push_back(normals[i]);
-		mesh->uvs.push_back(uvs[i]);
-		mesh->indices.push_back(mesh->positions.size() - 1);
-	}
-	  
+	mesh->vertexIndexCount = meshdata->positions.size();
+
 	return true;
 }
 
@@ -228,65 +205,66 @@ Mesh Mesh_CreateFromFile(const char* fileName)
 	const int length = strlen(fileName);
 	const char* extension = fileName + length - 4;
 	Mesh mesh;
+	Meshdata meshdata;
 
 	if (strcmp(extension, ".obj") == 0)
 	{
-		Mesh_LoadOBJ(&mesh, fileName);
+		Mesh_LoadOBJ(&mesh, &meshdata, fileName);
 	}
 	else if (strcmp(extension, ".qvm") == 0)
 	{
-		Mesh_LoadQVM(&mesh, fileName);
+		Mesh_LoadQVM(&mesh, &meshdata, fileName);
 	}
 	else
 	{
 		printf("Mesh file format '%s' not supported!\n", extension);
 	}
-	
+
 	glGenVertexArrays(1, &mesh.vao);
 	glBindVertexArray(mesh.vao);
-	
+
 	glGenBuffers(1, &mesh.positionVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.positionVBO);
-	glBufferData(GL_ARRAY_BUFFER, mesh.positions.size() * sizeof(Vec3), &mesh.positions[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, meshdata.positions.size() * sizeof(Vec3), &meshdata.positions[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &mesh.normalVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.normalVBO);
-	glBufferData(GL_ARRAY_BUFFER, mesh.normals.size() * sizeof(Vec3), &mesh.normals[0], GL_STATIC_DRAW);
-		
+	glBufferData(GL_ARRAY_BUFFER, meshdata.normals.size() * sizeof(Vec3), &meshdata.normals[0], GL_STATIC_DRAW);
+
 	glGenBuffers(1, &mesh.uvVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.uvVBO);
-	glBufferData(GL_ARRAY_BUFFER, mesh.uvs.size() * sizeof(Vec2), &mesh.uvs[0], GL_STATIC_DRAW);
-	
+	glBufferData(GL_ARRAY_BUFFER, meshdata.uvs.size() * sizeof(Vec2), &meshdata.uvs[0], GL_STATIC_DRAW);
+
 	glGenBuffers(1, &mesh.ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.indices.size() * sizeof(unsigned int), &mesh.indices[0] , GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, meshdata.indices.size() * sizeof(unsigned int), &meshdata.indices[0] , GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
-	
+
 	return mesh;
 }
 
 inline void Mesh_Render(Mesh* mesh)
 {
 	glBindVertexArray(mesh->vao);
-	
+
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, mesh->positionVBO);	
+	glBindBuffer(GL_ARRAY_BUFFER, mesh->positionVBO);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
 
 	glEnableVertexAttribArray(1);
 	glBindBuffer(GL_ARRAY_BUFFER, mesh->normalVBO);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-	
+
 	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, mesh->uvVBO);	
+	glBindBuffer(GL_ARRAY_BUFFER, mesh->uvVBO);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-	
+
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->ebo);
 
-	glDrawElements(GL_TRIANGLES, mesh->indices.size(), GL_UNSIGNED_INT, (void*) 0);
-	
-	glDisableVertexAttribArray(0);		
+	glDrawElements(GL_TRIANGLES, mesh->vertexIndexCount, GL_UNSIGNED_INT, (void*) 0);
+
+	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
 }
