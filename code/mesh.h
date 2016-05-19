@@ -15,7 +15,7 @@ struct Mesh
 	GLuint ebo;
 };
 
-bool Mesh_LoadOBJ(Mesh* mesh, const char* fileName)
+static bool Mesh_LoadOBJ(Mesh* mesh, const char* fileName)
 {
 	FILE* file = fopen(fileName, "r");
 	if (file == NULL )
@@ -114,7 +114,7 @@ bool Mesh_LoadOBJ(Mesh* mesh, const char* fileName)
 	for (unsigned int i = 0; i < size; i++)
 	{
 		// Search for similar vertex
-		// TODO: Maybe use binary search instead of linear search?
+		// NOTE: Maybe use binary search / hashmap instead of linear search?
 		unsigned int index;
 		bool found = false;
 		for (unsigned int j = 0; i < mesh->positions.size(); j++)
@@ -153,7 +153,7 @@ bool Mesh_LoadOBJ(Mesh* mesh, const char* fileName)
 // TODO: Load own format
 // Must be more friendly to parse and more native to OpenGL
 // More native = simpeler indexing, read indices straight away
-bool Mesh_LoadOwnFormat(Mesh* mesh, const char* fileName)
+static bool Mesh_LoadQVM(Mesh* mesh, const char* fileName)
 {
 	printf("Own mesh file format not implemented yet!\n");
 	return false;
@@ -169,9 +169,9 @@ Mesh Mesh_CreateFromFile(const char* fileName)
 	{
 		Mesh_LoadOBJ(&mesh, fileName);
 	}
-	else if (strcmp(extension, ".own") == 0)
+	else if (strcmp(extension, ".qvm") == 0)
 	{
-		Mesh_LoadOwnFormat(&mesh, fileName);
+		Mesh_LoadQVM(&mesh, fileName);
 	}
 	else
 	{
