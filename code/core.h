@@ -118,3 +118,11 @@ inline Matrix4x4 CalculateMVP(const Transform& transform, const Camera& camera)
 	return camera.viewProjection * transform.CalculateModel();
 }
 
+inline Transform CreateTransform()
+{
+	Transform result;
+	result.position = { 0.0f, 0.0f, 0.0f };
+	result.scaling = { 1.0f, 1.0f, 1.0f };
+	result.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 0.0f);
+	return result;
+}

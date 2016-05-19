@@ -21,19 +21,19 @@ struct Shader
 	GLuint program;
 	std::vector<GLint> uniforms;
 	std::vector<const char*> uniformNames;
-	int numUniforms;
+	int32 numUniforms;
 
-	void CompileAndAttachShader(int programID, char** source, GLenum shaderType) const
+	void CompileAndAttachShader(int32 programID, char** source, GLenum shaderType) const
 	{
 		if (*source == 0)
 			return;
 
-		int size = strlen(*source);
-		int shaderID = glCreateShader(shaderType);
+		int32 size = strlen(*source);
+		int32 shaderID = glCreateShader(shaderType);
 		glShaderSource(shaderID, 1, source, &size);
 		glCompileShader(shaderID);
 
-		int compiled;
+		int32 compiled;
 		glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compiled);
 		if (compiled != GL_TRUE)
 		{
@@ -65,7 +65,7 @@ struct Shader
 
 		glLinkProgram(this->program);
 
-		int linked;
+		int32 linked;
 		glGetProgramiv(this->program, GL_LINK_STATUS, &linked);
 		if (linked != GL_TRUE)
 		{
@@ -170,7 +170,7 @@ struct Shader
 	{
 		// Linear search because not much uniforms
 		// NOTE(Tom): Binary search if more than x (see tests) uniforms
-		for(int i = 0; i < numUniforms; i++)
+		for(int32 i = 0; i < numUniforms; i++)
 		{
 			if (!strcmp(uniformNames[i], uniformName))
 			{
@@ -187,13 +187,13 @@ struct Shader
 			glUniform1i(uniform, (GLint)(value ? 1 : 0));
 	}
 
-	inline void SetUniform(const GLint uniform, const int value)
+	inline void SetUniform(const GLint uniform, const int32 value)
 	{
 		if (uniform != -1)
 			glUniform1i(uniform, (GLint)value);
 	}
 
-	inline void SetUniform(const GLint uniform, const unsigned int value)
+	inline void SetUniform(const GLint uniform, const uint32 value)
 	{
 		if (uniform != -1)
 			glUniform1ui(uniform, (GLuint)value);

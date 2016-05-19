@@ -17,7 +17,7 @@ struct Meshdata
 	std::vector<Vec3> positions;
 	std::vector<Vec3> normals;
 	std::vector<Vec2> uvs;
-	std::vector<unsigned int> indices;
+	std::vector<uint32> indices;
 };
 
 static bool Mesh_LoadOBJ(Mesh* mesh, Meshdata* meshdata, const char* fileName)
@@ -32,9 +32,9 @@ static bool Mesh_LoadOBJ(Mesh* mesh, Meshdata* meshdata, const char* fileName)
 	std::vector<Vec3> tmpPositions;
 	std::vector<Vec3> tmpNormals;
 	std::vector<Vec2> tmpUVs;
-	std::vector<unsigned int> positionIndices;
-	std::vector<unsigned int> normalIndices;
-	std::vector<unsigned int> uvIndices;
+	std::vector<uint32> positionIndices;
+	std::vector<uint32> normalIndices;
+	std::vector<uint32> uvIndices;
 
 	while (true)
 	{
@@ -63,10 +63,10 @@ static bool Mesh_LoadOBJ(Mesh* mesh, Meshdata* meshdata, const char* fileName)
 		}
 		else if (strcmp(line, "f") == 0)
 		{
-			unsigned int positionIndex[3];
-			unsigned int normalIndex[3];
-			unsigned int uvIndex[3];
-			const int numValues = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n",
+			uint32 positionIndex[3];
+			uint32 normalIndex[3];
+			uint32 uvIndex[3];
+			const int32 numValues = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n",
 				&positionIndex[0], &uvIndex[0], &normalIndex[0],
 				&positionIndex[1], &uvIndex[1], &normalIndex[1],
 				&positionIndex[2], &uvIndex[2], &normalIndex[2]);
@@ -97,12 +97,12 @@ static bool Mesh_LoadOBJ(Mesh* mesh, Meshdata* meshdata, const char* fileName)
 	}
 	fclose(file);
 
-	const unsigned int numPositions = positionIndices.size();
-	for (unsigned int i = 0; i < numPositions; i++)
+	const uint32 numPositions = positionIndices.size();
+	for (uint32 i = 0; i < numPositions; i++)
 	{
-		unsigned int positionIndex = positionIndices[i];
-		unsigned int normalIndex = normalIndices[i];
-		unsigned int uvIndex = uvIndices[i];
+		uint32 positionIndex = positionIndices[i];
+		uint32 normalIndex = normalIndices[i];
+		uint32 uvIndex = uvIndices[i];
 
 		meshdata->positions.push_back(tmpPositions[positionIndex - 1]);
 		meshdata->normals.push_back(tmpNormals[normalIndex - 1]);
@@ -127,9 +127,9 @@ static bool Mesh_LoadQVM(Mesh* mesh, Meshdata* meshdata, const char* fileName)
 	std::vector<Vec3> tmpPositions;
 	std::vector<Vec3> tmpNormals;
 	std::vector<Vec2> tmpUVs;
-	std::vector<unsigned int> positionIndices;
-	std::vector<unsigned int> normalIndices;
-	std::vector<unsigned int> uvIndices;
+	std::vector<uint32> positionIndices;
+	std::vector<uint32> normalIndices;
+	std::vector<uint32> uvIndices;
 
 	char line[1024];
   	while (fgets(line, sizeof(line), file))
@@ -155,10 +155,10 @@ static bool Mesh_LoadQVM(Mesh* mesh, Meshdata* meshdata, const char* fileName)
 		}
 		else if (strncmp(line, "p", 1) == 0)
 		{
-			unsigned int positionIndex[3];
-			unsigned int uvIndex[3];
-			unsigned int normalIndex;
-			const int numValues = sscanf(line, "p(v(%d,%d,%d), t(%d,%d,%d), n(%d))\n",
+			uint32 positionIndex[3];
+			uint32 uvIndex[3];
+			uint32 normalIndex;
+			const int32 numValues = sscanf(line, "p(v(%d,%d,%d), t(%d,%d,%d), n(%d))\n",
 				&positionIndex[0], &positionIndex[1], &positionIndex[2],
 				&uvIndex[0], &uvIndex[1], &uvIndex[2],
 				&normalIndex);
@@ -183,12 +183,12 @@ static bool Mesh_LoadQVM(Mesh* mesh, Meshdata* meshdata, const char* fileName)
   	}
 	fclose(file);
 
-	const unsigned int numPositions = positionIndices.size();
-	for (unsigned int i = 0; i < numPositions; i++)
+	const uint32 numPositions = positionIndices.size();
+	for (uint32 i = 0; i < numPositions; i++)
 	{
-		unsigned int positionIndex = positionIndices[i];
-		unsigned int normalIndex = normalIndices[i];
-		unsigned int uvIndex = uvIndices[i];
+		uint32 positionIndex = positionIndices[i];
+		uint32 normalIndex = normalIndices[i];
+		uint32 uvIndex = uvIndices[i];
 
 		meshdata->positions.push_back(tmpPositions[positionIndex]);
 		meshdata->normals.push_back(tmpNormals[normalIndex]);
@@ -202,7 +202,7 @@ static bool Mesh_LoadQVM(Mesh* mesh, Meshdata* meshdata, const char* fileName)
 
 Mesh Mesh_CreateFromFile(const char* fileName)
 {
-	const int length = strlen(fileName);
+	const int32 length = strlen(fileName);
 	const char* extension = fileName + length - 4;
 	Mesh mesh;
 	Meshdata meshdata;
@@ -237,7 +237,7 @@ Mesh Mesh_CreateFromFile(const char* fileName)
 
 	glGenBuffers(1, &mesh.ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, meshdata.indices.size() * sizeof(unsigned int), &meshdata.indices[0] , GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, meshdata.indices.size() * sizeof(uint32), &meshdata.indices[0] , GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
 

@@ -2,11 +2,34 @@
 
 // Author(s): Tom
 
+struct Entity
+{
+	Transform transform;
+	Mesh mesh;
+	Texture texture;
+	Material material;
+	Shader shader;
+	DirectionalLight directionalLight;
+	std::vector<Entity> entities;
+};
+
 struct World
 {
 	Camera camera;
 	Skybox skybox;
+	DirectionalLight directionalLight;
+	std::vector<Entity> entities;
 };
+
+void AddEntityToWorld(World* world, Entity* entity)
+{
+	world->entities.push_back(*entity);
+}
+
+void AddEntityToWorld(Entity* parentEntity, Entity* entity)
+{
+	parentEntity->entities.push_back(*entity);
+}
 
 bool HandleEvents(Input* input)
 {
@@ -20,11 +43,11 @@ bool HandleEvents(Input* input)
 	uint8* keyboardState = (uint8*)SDL_GetKeyboardState(NULL);
 	InputInitKeyStates(input, keyboardState);
 
-	int relx, rely;
+	int32 relx, rely;
 	SDL_GetRelativeMouseState(&relx, &rely);
 	InputSetRelativeMouseMotion(input, relx, rely);
 
-	int x, y;
+	int32 x, y;
 	SDL_GetMouseState(&x, &y);
 	InputSetMousePosition(input, x, y);
 
@@ -116,6 +139,51 @@ void InitGame(World* world)
 		"../data/textures/eve_front.dds"
 	);
 	SkyboxCreate(&world->skybox);
+
+	Material material;
+	material.specular = { 0.5f, 0.5f, 0.5f };
+	material.shine = 64.0f;
+
+	Shader shader;
+	shader.LoadFromFiles("../data/shaders/phong_vs.glsl", 0, 0, 0, "../data/shaders/phong_fs.glsl");
+	PhongShader_Init(&shader);
+
+	Entity quad = {};
+	quad.transform = CreateTransform();
+	quad.mesh = Mesh_CreateFromFile("../data/meshes/quad.qvm");
+	quad.texture.LoadFromFile("../data/textures/orange.bmp");
+	quad.texture.type = Texture::DIFFUSE;
+	quad.material = material;
+	quad.shader = shader;
+	AddEntityToWorld(world, &quad);
+
+	Entity cube = {};
+	cube.transform = CreateTransform();
+	cube.transform.position.z = 4.0f;
+	cube.mesh = Mesh_CreateFromFile("../data/meshes/cube.qvm");
+	cube.texture.LoadFromFile("../data/textures/orange.bmp");
+	cube.texture.type = Texture::DIFFUSE;
+	cube.material = material;
+	cube.shader = shader;
+	AddEntityToWorld(world, &cube);
+
+	Entity robot = {};
+	robot.transform = CreateTransform();
+	robot.transform.position = { 4.0f, 0.0f, 6.0f };
+	robot.transform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 45.0f);
+	robot.mesh = Mesh_CreateFromFile("../data/meshes/robot.obj");
+	robot.texture.LoadFromFile("../data/textures/orange.bmp");
+	robot.texture.type = Texture::DIFFUSE;
+	robot.material = material;
+	robot.shader = shader;
+	AddEntityToWorld(world, &robot);
+
+	DirectionalLight dirLight;
+	dirLight.direction = { 0.0f, 0.0f, -1.0f };
+	dirLight.ambient = { 0.7f, 0.7f, 0.7f };
+	dirLight.diffuse = { 0.5f, 0.5f, 0.5f };
+	dirLight.specular = { 1.0f, 1.0f, 1.0f };
+	world->directionalLight = dirLight;
 }
 
 void GameUpdateAndRender(Input* input, float deltaTime, World* world)
@@ -126,6 +194,23 @@ void GameUpdateAndRender(Input* input, float deltaTime, World* world)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	world->camera.Update();
+
+	int32 numEntities = world->entities.size();
+
+	for (int32 i = 0; i < numEntities; i++)
+	{
+		Entity* currentEntity = &world->entities[i];
+		currentEntity->shader.Use();
+		currentEntity->texture.Use();
+
+		PhongShader_Update(&currentEntity->shader, currentEntity->transform, world->camera);
+		PhongShader_UpdateMaterial(&currentEntity->shader, currentEntity->material);
+		PhongShader_UpdateLight(&currentEntity->shader, world->directionalLight);
+		Mesh_Render(&currentEntity->mesh);
+
+		currentEntity->texture.Unuse();
+		currentEntity->shader.Unuse();
+	}
 
 	//NOTE(Simon): Skybox needs to be drawn last
 	SkyboxRender(&world->skybox, world->camera);

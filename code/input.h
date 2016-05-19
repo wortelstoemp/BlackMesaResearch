@@ -23,13 +23,13 @@ void InputInitKeyStates(Input* input, uint8* keys)
 }
 
 //NOTE(Simon): this does need to be called for every mouse motion event
-void InputSetRelativeMouseMotion(Input* input, int x, int y)
+void InputSetRelativeMouseMotion(Input* input, int32 x, int32 y)
 {
 	input->mouseRelativeX = x;
 	input->mouseRelativeY = y;
 }
 
-void InputSetMousePosition(Input* input, int x, int y)
+void InputSetMousePosition(Input* input, int32 x, int32 y)
 {
 	input->mouseX = x;
 	input->mouseY = y;
