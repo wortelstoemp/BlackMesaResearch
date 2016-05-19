@@ -112,41 +112,12 @@ static bool Mesh_LoadOBJ(Mesh* mesh, const char* fileName)
 	}
 	
 	const unsigned int size = positions.size();
-	const float precision = 0.01f;
 	for (unsigned int i = 0; i < size; i++)
 	{
-		// Search for similar vertex
-		// NOTE: Maybe use binary search / hashmap instead of linear search?
-		unsigned int index;
-		bool found = false;
-		for (unsigned int j = 0; i < mesh->positions.size(); j++)
-		{
-			if (fabs(positions[i].x - mesh->positions[j].x) < precision &&
-				fabs(positions[i].y - mesh->positions[j].y) < precision &&
-				fabs(positions[i].z - mesh->positions[j].z) < precision &&
-				fabs(uvs[i].x - mesh->uvs[j].x) < precision &&
-				fabs(uvs[i].y - mesh->uvs[j].y) < precision &&
-				fabs(normals[i].x - mesh->normals[j].x) < precision &&
-				fabs(normals[i].y - mesh->normals[j].y) < precision &&
-				fabs(normals[i].z - mesh->normals[j].z) < precision)
-			{	
-				index = j;
-				found = true;
-				break;
-			}
-		}
-		
-		if (found)
-		{
-			mesh->indices.push_back(index);
-		}
-		else
-		{
-			mesh->positions.push_back(positions[i]);
-			mesh->normals.push_back(normals[i]);
-			mesh->uvs.push_back(uvs[i]);
-			mesh->indices.push_back(mesh->positions.size() - 1);
-		}
+		mesh->positions.push_back(positions[i]);
+		mesh->normals.push_back(normals[i]);
+		mesh->uvs.push_back(uvs[i]);
+		mesh->indices.push_back(mesh->positions.size() - 1);
 	}	
 	
 	return true;
@@ -241,42 +212,13 @@ static bool Mesh_LoadQVM(Mesh* mesh, const char* fileName)
 	}
 	
 	const unsigned int size = positions.size();
-	const float precision = 0.01f;
 	for (unsigned int i = 0; i < size; i++)
 	{
-		// Search for similar vertex
-		// NOTE: Maybe use binary search / hashmap instead of linear search?
-		unsigned int index;
-		bool found = false;
-		for (unsigned int j = 0; i < mesh->positions.size(); j++)
-		{
-			if (fabs(positions[i].x - mesh->positions[j].x) < precision &&
-				fabs(positions[i].y - mesh->positions[j].y) < precision &&
-				fabs(positions[i].z - mesh->positions[j].z) < precision &&
-				fabs(uvs[i].x - mesh->uvs[j].x) < precision &&
-				fabs(uvs[i].y - mesh->uvs[j].y) < precision &&
-				fabs(normals[i].x - mesh->normals[j].x) < precision &&
-				fabs(normals[i].y - mesh->normals[j].y) < precision &&
-				fabs(normals[i].z - mesh->normals[j].z) < precision)
-			{	
-				index = j;
-				found = true;
-				break;
-			}
-		}
-		
-		if (found)
-		{
-			mesh->indices.push_back(index);
-		}
-		else
-		{
-			mesh->positions.push_back(positions[i]);
-			mesh->normals.push_back(normals[i]);
-			mesh->uvs.push_back(uvs[i]);
-			mesh->indices.push_back(mesh->positions.size() - 1);
-		}
-	}	
+		mesh->positions.push_back(positions[i]);
+		mesh->normals.push_back(normals[i]);
+		mesh->uvs.push_back(uvs[i]);
+		mesh->indices.push_back(mesh->positions.size() - 1);
+	}
 	  
 	return true;
 }
