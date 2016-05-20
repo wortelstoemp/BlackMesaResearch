@@ -8,4 +8,4 @@ typedef unsigned int uint;
 typedef unsigned long ulong;
 
 #define Assert(Expression) \
-	if(!(Expression)) {*(int*)0 = 0;}
+	if(!(Expression)) {*(uint32*)0 = 0;}

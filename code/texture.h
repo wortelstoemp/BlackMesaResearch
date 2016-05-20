@@ -36,7 +36,7 @@ struct Texture
 
 	bool LoadFromFile(const char* fileName)
 	{
-		const int length = strlen(fileName);
+		const int32 length = strlen(fileName);
 		const char* extension = fileName + length - 4;
 
 		if (strcmp(extension, ".dds") == 0)
@@ -44,8 +44,8 @@ struct Texture
 			DDSImage image;
 			image.LoadFromFile(fileName);
 
-			unsigned int format;
-			unsigned int blockSize;
+			uint32 format;
+			uint32 blockSize;
 
 			glGenTextures(1, &this->id);
 			glBindTexture(GL_TEXTURE_2D, this->id);
@@ -55,11 +55,11 @@ struct Texture
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-			unsigned int level = 0;
-			unsigned int offset = 0;
+			uint32 level = 0;
+			uint32 offset = 0;
 			while (level < image.mipMapCount && image.width > 0 && image.height > 0)
 			{
-				unsigned int size = ((image.width + 3) / 4) * ((image.height + 3) / 4)	* image.blocksize;
+				uint32 size = ((image.width + 3) / 4) * ((image.height + 3) / 4)	* image.blocksize;
 				glCompressedTexImage2D(GL_TEXTURE_2D, level, image.format,
 					image.width, image.height, 0, size, image.data + offset);
 
@@ -141,10 +141,10 @@ public:
 
 	inline void Use(const Shader& shader)
 	{
-		int diffuseNr = 1;
-		int specularNr = 1;
+		int32 diffuseNr = 1;
+		int32 specularNr = 1;
 
-		const int numTextures = this->textures.size();
+		const int32 numTextures = this->textures.size();
 		for(GLuint i = 0; i < numTextures; i++)
 		{
 			glActiveTexture(GL_TEXTURE0 + i);
@@ -180,7 +180,7 @@ public:
 
 	inline void Unuse()
 	{
-		const int numTextures = this->textures.size();
+		const int32 numTextures = this->textures.size();
 		for(GLuint i = 0; i < numTextures; i++)
 		{
 			glActiveTexture(GL_TEXTURE0 + i);

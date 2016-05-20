@@ -23,7 +23,7 @@ void SkyboxLoadTextureFromFiles(Skybox* skybox, const char* right, const char* l
 	{
 		image.LoadFromFile(faces[i]);
 
-		unsigned int size = ((image.width + 3) / 4) * ((image.height + 3) / 4) * image.blocksize;
+		uint32 size = ((image.width + 3) / 4) * ((image.height + 3) / 4) * image.blocksize;
 
 		glCompressedTexImage2D(
 			GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, image.format,

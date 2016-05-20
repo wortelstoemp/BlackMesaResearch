@@ -12,12 +12,12 @@
 // Only use compressed images (DXT1 = BC1), (DXT3 = BC2), (DXT5 = BC3).
 // For sprites compress to DXT5 for alpha (gradient) channel.
 
-const unsigned int FOURCC_DXT1 = 0x31545844;
-const unsigned int FOURCC_DXT3 = 0x33545844;
-const unsigned int FOURCC_DXT5 = 0x35545844;
-const unsigned int COMPRESSED_RGBA_S3TC_DXT1_EXT = 0x83F1;
-const unsigned int COMPRESSED_RGBA_S3TC_DXT3_EXT = 0x83F2;
-const unsigned int COMPRESSED_RGBA_S3TC_DXT5_EXT = 0x83F3;
+const uint32 FOURCC_DXT1 = 0x31545844;
+const uint32 FOURCC_DXT3 = 0x33545844;
+const uint32 FOURCC_DXT5 = 0x35545844;
+const uint32 COMPRESSED_RGBA_S3TC_DXT1_EXT = 0x83F1;
+const uint32 COMPRESSED_RGBA_S3TC_DXT3_EXT = 0x83F2;
+const uint32 COMPRESSED_RGBA_S3TC_DXT5_EXT = 0x83F3;
 
 struct DDSImage
 {
@@ -40,8 +40,8 @@ struct DDSImage
 			return;
 		}
 
-		const int headerSize = 124;
-		unsigned char header[headerSize];
+		const int32 headerSize = 124;
+		uchar header[headerSize];
 
 		char fileType[4];
 		fread(fileType, 1, 4, file);
@@ -54,13 +54,13 @@ struct DDSImage
 
 		fread(&header, headerSize, 1, file);
 
-		this->height = *(unsigned int*)&(header[8]);
-		this->width	= *(unsigned int*)&(header[12]);
-		this->linearSize = *(unsigned int*)&(header[16]);
-		this->mipMapCount = *(unsigned int*)&(header[24]);
-		this->fourCC = *(unsigned int*)&(header[80]);
+		this->height = *(uint32*)&(header[8]);
+		this->width	= *(uint32*)&(header[12]);
+		this->linearSize = *(uint32*)&(header[16]);
+		this->mipMapCount = *(uint32*)&(header[24]);
+		this->fourCC = *(uint32*)&(header[80]);
 
-		const unsigned int imageSize = this->mipMapCount > 1 ? this->linearSize * 2 : this->linearSize;
+		const uint32 imageSize = this->mipMapCount > 1 ? this->linearSize * 2 : this->linearSize;
 		this->data = (unsigned char*) malloc(imageSize * sizeof(unsigned char));
 
 		switch(this->fourCC)
@@ -96,8 +96,8 @@ struct DDSImage
 struct BMPImage
 {
 	unsigned char* data;
-	unsigned int width;
-	unsigned int height;
+	uint32 width;
+	uint32 height;
 
 	void LoadFromFile(const char* fileName)
 	{
@@ -109,12 +109,12 @@ struct BMPImage
 			return;
 		}
 
-		const int headerSize = 54;
+		const int32 headerSize = 54;
 		unsigned char header[headerSize];
 
 		if (fread(header, 1, headerSize, file) != headerSize ||
 			header[0] != 'B' || header[1] != 'M' ||
-			*(int*)&(header[28]) != 24 || *(int*)&(header[30]) != 0)
+			*(int32*)&(header[28]) != 24 || *(int32*)&(header[30]) != 0)
 		{
 
 			printf("Is not a correct 24 bit BMP image!\n");
@@ -122,9 +122,9 @@ struct BMPImage
     		return;
 		}
 
-		this->width = *(int*)&(header[18]);
-		this->height = *(int*)&(header[22]);
-		unsigned int imageSize = *(int*)&(header[34]);
+		this->width = *(int32*)&(header[18]);
+		this->height = *(int32*)&(header[22]);
+		uint32 imageSize = *(int32*)&(header[34]);
 
 		if (imageSize == 0)
 		{
