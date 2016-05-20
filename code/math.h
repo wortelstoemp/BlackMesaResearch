@@ -10,12 +10,12 @@ const float PI = 3.14159265358979323846;
 
 union Vec2
 {
+	float values[2];
 	struct
 	{
 		float x;
 		float y;
 	};
-	
 	struct
 	{
 		float u;
@@ -49,6 +49,7 @@ union Vec2
 
 union Vec3
 {
+	float values[3];	
 	struct
 	{
 		Vec2 xy;
@@ -106,6 +107,7 @@ union Vec3
 
 union Vec4
 {
+	float values[4];
 	struct
 	{
 		Vec2 xy;
@@ -191,12 +193,16 @@ union Matrix4x4
 	};
 };
 
-struct Quaternion
+union Quaternion
 {
-	float x;
-	float y;
-	float z;
-	float w;
+	float values[4];	
+	struct
+	{
+		float x;
+		float y;
+		float z;
+		float w;
+	};
 };
 
 /**************************

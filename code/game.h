@@ -171,7 +171,7 @@ void InitGame(World* world)
 	robot.transform = CreateTransform();
 	robot.transform.position = { 4.0f, 0.0f, 6.0f };
 	robot.transform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 45.0f);
-	robot.mesh = Mesh_CreateFromFile("../data/meshes/robot.obj");
+	robot.mesh = Mesh_CreateFromFile("../data/meshes/monkey.obj");
 	robot.texture.LoadFromFile("../data/textures/orange.bmp");
 	robot.texture.type = Texture::DIFFUSE;
 	robot.material = material;
