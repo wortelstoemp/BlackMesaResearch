@@ -1,6 +1,6 @@
 #pragma once
 
-// Author(s): Tom
+// Author(s): Simon, Tom
 
 struct Entity
 {
@@ -37,11 +37,16 @@ bool HandleEvents(Input* input)
 	SDL_Event event;
 	bool isRunning = true;
 	InputResetMouseScroll(input);
-
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 
 	uint8* keyboardState = (uint8*)SDL_GetKeyboardState(NULL);
 	InputInitKeyStates(input, keyboardState);
+	
+	/*
+	if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+    SDL_Log("Mouse Button 1 (left) is pressed.");
+	*/
+	
 
 	int32 relx, rely;
 	SDL_GetRelativeMouseState(&relx, &rely);
@@ -59,7 +64,15 @@ bool HandleEvents(Input* input)
 			{
 				isRunning = false;
 			} break;
-
+			
+			// case SDL_MOUSEBUTTONUP:
+			// {
+			// 	if (event.button.button == SDL_BUTTON_LEFT)
+			// 	{
+					
+			// 	}
+			// } break;
+			
 			case SDL_MOUSEWHEEL:
 			{
 				InputAddMouseScroll(input, (SDL_MouseWheelEvent*) &event);
@@ -78,6 +91,14 @@ bool HandleEvents(Input* input)
 	}
 
 	return isRunning;
+}
+
+Ray CalculatePickingRay(const Camera& camera)
+{
+	Ray result;
+	result.origin = camera.transform.position;
+	result.direction = Forward(camera.transform.orientation);
+	return result;
 }
 
 void FirstPersonMovement(Input* input, float deltaTime, Camera* camera)

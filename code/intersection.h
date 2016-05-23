@@ -1,5 +1,7 @@
 #pragma once
 
+// Authors: Tom
+
 struct IntersectionData
 {
 	float distance;	// to pick nearest OBB
@@ -29,8 +31,7 @@ IntersectionData IntersectRayOBB(const Ray& ray, const OBB& obb)
 {
 	float tMin = 0.0f;
 	float tMax = FLT_MAX;
-	Vec3 obbPositionWorldspace = { obb.transform.position.x, obb.transform.position.y, obb.position.z };
-	Vec3 delta = obbPositionWorldspace - ray.origin;
+	Vec3 delta = obb.transform.position - ray.origin;
 	Vec3 axis[3] = {
 		Left(obb.transform.orientation),	// x-axis
 		Up(obb.transform.orientation),		// y-axis

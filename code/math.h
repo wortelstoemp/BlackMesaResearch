@@ -563,39 +563,39 @@ inline Vec3 Rotated(const Vec3& v, const Quaternion& q)
     const Vec3 u = { q.x, q.y, q.z };
 	const float s = q.w;
 
-    return Normalized(2.0f * Dot(u, v) * u
+    return 2.0f * Dot(u, v) * u
           + (s*s - Dot(u, u)) * v
-          + 2.0f * s * Cross(u, v));
+          + 2.0f * s * Cross(u, v);
 }
 
 inline Vec3 Forward(const Quaternion& q)
 {
-	return Rotated(Vec3::PositiveZAxis(), q);
+	return Normalized(Rotated(Vec3::PositiveZAxis(), q));
 }
 
 inline Vec3 Backward(const Quaternion& q)
 {
-	return Rotated(Vec3::NegativeZAxis(), q);
+	return Normalized(Rotated(Vec3::NegativeZAxis(), q));
 }
 
 inline Vec3 Up(const Quaternion& q)
 {
-	return Rotated(Vec3::PositiveYAxis(), q);	
+	return Normalized(Rotated(Vec3::PositiveYAxis(), q));	
 }
 
 inline Vec3 Down(const Quaternion& q)
 {
-	return Rotated(Vec3::NegativeYAxis(), q);		
+	return Normalized(Rotated(Vec3::NegativeYAxis(), q));		
 }
 
 inline Vec3 Left(const Quaternion& q)
 {
-	return Rotated(Vec3::PositiveXAxis(), q);
+	return Normalized(Rotated(Vec3::PositiveXAxis(), q));
 }
 
 inline Vec3 Right(const Quaternion& q)
 {
-	return Rotated(Vec3::NegativeXAxis(), q);	
+	return Normalized(Rotated(Vec3::NegativeXAxis(), q));	
 }
 
 // Matrix2x2
