@@ -4,8 +4,10 @@
 
 struct Entity
 {
+	const char* name;
 	Transform transform;
 	Mesh mesh;
+	OBB boundingBox;
 	Texture texture;
 	Material material;
 	Shader shader;
@@ -42,11 +44,11 @@ bool HandleEvents(Input* input)
 	uint8* keyboardState = (uint8*)SDL_GetKeyboardState(NULL);
 	InputInitKeyStates(input, keyboardState);
 	
-	/*
-	if (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
-    SDL_Log("Mouse Button 1 (left) is pressed.");
-	*/
-	
+	for (int i = 0; i < INPUT_NUM_MOUSEBUTTONS; i++)
+	{
+		input->mouseButtonsDown[i] = 0;
+		input->mouseButtonsUp[i] = 0;	
+	}
 
 	int32 relx, rely;
 	SDL_GetRelativeMouseState(&relx, &rely);
@@ -65,13 +67,19 @@ bool HandleEvents(Input* input)
 				isRunning = false;
 			} break;
 			
-			// case SDL_MOUSEBUTTONUP:
-			// {
-			// 	if (event.button.button == SDL_BUTTON_LEFT)
-			// 	{
-					
-			// 	}
-			// } break;
+			case SDL_MOUSEBUTTONDOWN:
+			{
+				int button = event.button.button;
+				input->mouseButtons[button] = 1;
+				input->mouseButtonsDown[button] = 1;				
+			} break;
+			
+			case SDL_MOUSEBUTTONUP:
+			{
+				int button = event.button.button;
+				input->mouseButtons[button] = 0;
+				input->mouseButtonsUp[button] = 1;	
+			} break;
 			
 			case SDL_MOUSEWHEEL:
 			{
@@ -170,6 +178,7 @@ void InitGame(World* world)
 	PhongShader_Init(&shader);
 
 	Entity quad = {};
+	quad.name = "quad";
 	quad.transform = CreateTransform();
 	quad.mesh = Mesh_CreateFromFile("../data/meshes/quad.qvm");
 	quad.texture.LoadFromFile("../data/textures/orange.bmp");
@@ -179,6 +188,7 @@ void InitGame(World* world)
 	AddEntityToWorld(world, &quad);
 
 	Entity cube = {};
+	cube.name = "cube";
 	cube.transform = CreateTransform();
 	cube.transform.position.z = 4.0f;
 	cube.mesh = Mesh_CreateFromFile("../data/meshes/cube.qvm");
@@ -189,6 +199,7 @@ void InitGame(World* world)
 	AddEntityToWorld(world, &cube);
 
 	Entity robot = {};
+	robot.name = "robot";
 	robot.transform = CreateTransform();
 	robot.transform.position = { 4.0f, 0.0f, 6.0f };
 	robot.transform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 45.0f);
@@ -213,11 +224,37 @@ void GameUpdateAndRender(Input* input, float deltaTime, World* world)
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	
 	world->camera.Update();
-
+	
+	if (input->mouseButtonsUp[INPUT_MOUSE_BUTTON_LEFT])
+	{
+		printf("Left clicked!\n");
+	}
+	
+	if (input->mouseButtonsUp[INPUT_MOUSE_BUTTON_RIGHT])
+	{
+		printf("Right clicked!\n");
+	}
+	
+	if (input->mouseButtonsUp[INPUT_MOUSE_BUTTON_MIDDLE])
+	{
+		printf("Middle clicked!\n");
+	}
+	
+	if (input->mouseButtonsUp[INPUT_MOUSE_WHEEL_UP])
+	{
+		printf("Wheel up!\n");
+	}
+	
+	if (input->mouseButtonsUp[INPUT_MOUSE_WHEEL_DOWN])
+	{
+		printf("Wheel down!\n");
+	}
+	
+	Ray pickingRay = CalculatePickingRay(world->camera);
+	
 	int32 numEntities = world->entities.size();
-
 	for (int32 i = 0; i < numEntities; i++)
 	{
 		Entity* currentEntity = &world->entities[i];

@@ -2,11 +2,26 @@
 
 // Author(s): Tom, Simon
 
+enum MouseButton
+{
+	INPUT_MOUSE_BUTTON_UNKNOWN = 0,
+	INPUT_MOUSE_BUTTON_LEFT = 1,
+	INPUT_MOUSE_BUTTON_MIDDLE = 2,
+	INPUT_MOUSE_BUTTON_RIGHT = 3,
+	INPUT_MOUSE_WHEEL_UP = 4,
+	INPUT_MOUSE_WHEEL_DOWN = 5,
+	
+	INPUT_NUM_MOUSEBUTTONS = 6
+};
+
 struct Input
 {
 	//NOTE(Simon): SDL already provides this array. Index it with the scancodes. Not safe for non QWERTY
 	//TODO(Simon): Fix for non qwerty?
 	uint8* keys;
+	uint8 mouseButtons[INPUT_NUM_MOUSEBUTTONS];
+	uint8 mouseButtonsDown[INPUT_NUM_MOUSEBUTTONS];
+	uint8 mouseButtonsUp[INPUT_NUM_MOUSEBUTTONS];	
 	int32 mouseRelativeX;
 	int32 mouseRelativeY;
 	int32 mouseX;
