@@ -1,6 +1,5 @@
 #pragma once
 
-// Author(s): Tom
 
 struct Entity
 {
@@ -11,6 +10,7 @@ struct Entity
 	Shader shader;
 	DirectionalLight directionalLight;
 	std::vector<Entity> entities;
+	void (*Behaviour) (Entity*, Input*);
 };
 
 struct World
@@ -80,13 +80,18 @@ bool HandleEvents(Input* input)
 	return isRunning;
 }
 
-void FirstPersonMovement(Input* input, float deltaTime, Camera* camera)
+void FirstPersonMovement(Input* input, Camera* camera)
 {
 	// NOTE(Tom): First Person Shooter movement
-	const float moveSpeed = 3.0f;
-	const float angularSpeed = 5.0f;
+	float moveSpeed = 3.0f;
+	float angularSpeed = 5.0f;
 
 	Vec3 v = {};
+
+	if(input->keys[SDL_SCANCODE_LSHIFT])
+	{
+		moveSpeed *= 10.0f;
+	}
 
 	if (input->keys[SDL_SCANCODE_W])
 	{
@@ -109,18 +114,24 @@ void FirstPersonMovement(Input* input, float deltaTime, Camera* camera)
 	{
 		v.y = camera->transform.position.y;
 		Normalize(&v);
-		camera->transform.TranslateTowards(v, moveSpeed * deltaTime);
+		camera->transform.TranslateTowards(v, moveSpeed * input->deltaTime);
 	}
 
-	camera->transform.Rotate(Vec3::PositiveYAxis(), angularSpeed * input->mouseRelativeX * deltaTime);
-	camera->transform.Rotate(Right(camera->transform.orientation), angularSpeed * input->mouseRelativeY * deltaTime);
+	camera->transform.Rotate(Vec3::Up(), angularSpeed * input->mouseRelativeX * input->deltaTime);
+	camera->transform.Rotate(Right(camera->transform.orientation), angularSpeed * input->mouseRelativeY * input->deltaTime);
+}
+
+void EarthBehaviour(Entity* earth, Input* input)
+{
+	earth->transform.Rotate(Vec3::Up(), 0.05f);
+	earth->transform.position.x = 1000 * cos(input->totalTime / 100.0f);
+	earth->transform.position.z = 1000 * sin(input->totalTime / 100.0f);
 }
 
 void InitGame(World* world)
 {
-	Transform cameraTransform;
+	Transform cameraTransform = CreateTransform();
 	cameraTransform.position = { 0.0f, 0.0f, 8.0f };
-	cameraTransform.scaling = { 1.0f, 1.0f, 1.0f };
 	cameraTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 180.0f);
 
 	int32 viewport[4];
@@ -128,7 +139,7 @@ void InitGame(World* world)
 	float width = viewport[2];
 	float height = viewport[3];
 
-	world->camera.CreatePerspective(cameraTransform, 60.0f, width / height, 0.1f, 100.0f);
+	world->camera.CreatePerspective(cameraTransform, 60.0f, width / height, 0.1f, 10000.0f);
 
 	SkyboxLoadTextureFromFiles(&world->skybox,
 		"../data/textures/eve_right.dds",
@@ -178,24 +189,45 @@ void InitGame(World* world)
 	robot.shader = shader;
 	AddEntityToWorld(world, &robot);
 
+	Entity earth = {};
+	earth.transform = CreateTransform();
+	earth.transform.scale = {100, 100, 100};
+	earth.transform.position.x = 200;
+	earth.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
+	earth.texture.LoadFromFile("../data/textures/4096_earth.dds");
+	earth.texture.type = Texture::DIFFUSE;
+	earth.material = material;
+	earth.shader = shader;
+	earth.Behaviour = &EarthBehaviour;
+	AddEntityToWorld(world, &earth);
+
 	DirectionalLight dirLight;
 	dirLight.direction = { 0.0f, 0.0f, -1.0f };
 	dirLight.ambient = { 0.7f, 0.7f, 0.7f };
 	dirLight.diffuse = { 0.5f, 0.5f, 0.5f };
-	dirLight.specular = { 1.0f, 1.0f, 1.0f };
+	dirLight.specular = { 0.70f, 0.58f, 0.38f };
 	world->directionalLight = dirLight;
 }
 
-void GameUpdateAndRender(Input* input, float deltaTime, World* world)
+void GameUpdateAndRender(Input* input, World* world)
 {
-	FirstPersonMovement(input, deltaTime, &world->camera);
+	FirstPersonMovement(input, &world->camera);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	world->camera.Update();
-
 	int32 numEntities = world->entities.size();
+
+	for (int32 i = 0; i < numEntities; i++)
+	{
+		Entity* currentEntity = &world->entities[i];
+		if(currentEntity->Behaviour)
+		{
+			currentEntity->Behaviour(currentEntity, input);
+		}
+	}
+
+	world->camera.Update();
 
 	for (int32 i = 0; i < numEntities; i++)
 	{

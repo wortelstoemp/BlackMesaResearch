@@ -49,7 +49,7 @@ bool InitGL()
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BUFFER_SIZE, 32);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
@@ -119,7 +119,8 @@ int32 main(int32 argc, char* argv[])
 	while (isRunning)
 	{
 		currentTime = SDL_GetPerformanceCounter();
-		deltaTime = (currentTime - previousTime) * tickSize;
+		input.deltaTime = (currentTime - previousTime) * tickSize;
+		input.totalTime += input.deltaTime;
 
 		isRunning = HandleEvents(&input);
 
@@ -127,7 +128,7 @@ int32 main(int32 argc, char* argv[])
 		{
 			break;
 		}
-		GameUpdateAndRender(&input, deltaTime, &world);
+		GameUpdateAndRender(&input, &world);
 
 		SDL_GL_SwapWindow(window);
 

@@ -5,7 +5,7 @@
 struct Transform
 {
 	Vec3 position;
-	Vec3 scaling;
+	Vec3 scale;
 	Quaternion orientation;
 
 	inline void TranslateTowards(const Vec3& direction, const float amount)
@@ -27,7 +27,7 @@ struct Transform
 	{
 		const Matrix4x4 translation = Translate(position);
 		const Matrix4x4 rotation = CreateMatrix4x4(orientation);
-		const Matrix4x4 scale = Scale(this->scaling);
+		const Matrix4x4 scale = Scale(this->scale);
 
 		return translation * rotation * scale;
 	}
@@ -122,7 +122,7 @@ inline Transform CreateTransform()
 {
 	Transform result;
 	result.position = { 0.0f, 0.0f, 0.0f };
-	result.scaling = { 1.0f, 1.0f, 1.0f };
+	result.scale = { 1.0f, 1.0f, 1.0f };
 	result.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 0.0f);
 	return result;
 }
