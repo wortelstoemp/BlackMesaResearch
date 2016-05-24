@@ -147,10 +147,8 @@ void FirstPersonMovement(Input* input, float deltaTime, Camera* camera)
 
 void PickEntity(Input* input, float deltaTime, World* world)
 {
-	if (input->mouseButtonsUp[INPUT_MOUSE_BUTTON_LEFT])
+	if (input->mouseButtons[INPUT_MOUSE_BUTTON_LEFT])
 	{
-		printf("Left clicked!\n");
-		
 		int32 numEntities = world->entities.size();		
 		Ray pickingRay = CalculatePickingRayFromCamera(world->camera);
 		Entity* nearestEntity = NULL;
@@ -174,8 +172,10 @@ void PickEntity(Input* input, float deltaTime, World* world)
 		
 		if (nearestEntity)
 		{
-			printf("%s\n", nearestEntity->name);
-			// TODO(Tom): Drag entity
+			Vec3 direction = Forward(world->camera.transform.orientation);
+			direction.y = world->camera.transform.position.y;
+			const float speed = 3.0f;
+			nearestEntity->transform.TranslateTowards(direction, speed * deltaTime);
 		}
 	}
 }
