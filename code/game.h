@@ -6,8 +6,8 @@ struct Entity
 {
 	const char* name;
 	Transform transform;
+	AABB boundingBox;
 	Mesh mesh;
-	OBB boundingBox;
 	Texture texture;
 	Material material;
 	Shader shader;
@@ -101,7 +101,7 @@ bool HandleEvents(Input* input)
 	return isRunning;
 }
 
-Ray CalculatePickingRay(const Camera& camera)
+Ray CalculatePickingRayFromCamera(const Camera& camera)
 {
 	Ray result;
 	result.origin = camera.transform.position;
@@ -145,6 +145,41 @@ void FirstPersonMovement(Input* input, float deltaTime, Camera* camera)
 	camera->transform.Rotate(Right(camera->transform.orientation), angularSpeed * input->mouseRelativeY * deltaTime);
 }
 
+void PickEntity(Input* input, float deltaTime, World* world)
+{
+	if (input->mouseButtonsUp[INPUT_MOUSE_BUTTON_LEFT])
+	{
+		printf("Left clicked!\n");
+		
+		int32 numEntities = world->entities.size();		
+		Ray pickingRay = CalculatePickingRayFromCamera(world->camera);
+		Entity* nearestEntity = NULL;
+		float nearestDistance = FLT_MAX;
+		
+		for (int32 i = 0; i < numEntities; i++)
+		{
+			Entity* currentEntity = &world->entities[i];
+			IntersectionData intersectionData =
+				IntersectRayOBB(pickingRay, currentEntity->boundingBox, currentEntity->transform);
+			
+			if (intersectionData.intersects)
+			{
+				if (intersectionData.distance < nearestDistance)
+				{
+					nearestDistance = intersectionData.distance;
+					nearestEntity = currentEntity;
+				}	
+			}
+		}
+		
+		if (nearestEntity)
+		{
+			printf("%s\n", nearestEntity->name);
+			// TODO(Tom): Drag entity
+		}
+	}
+}
+
 void InitGame(World* world)
 {
 	Transform cameraTransform;
@@ -176,10 +211,15 @@ void InitGame(World* world)
 	Shader shader;
 	shader.LoadFromFiles("../data/shaders/phong_vs.glsl", 0, 0, 0, "../data/shaders/phong_fs.glsl");
 	PhongShader_Init(&shader);
-
+	
+	AABB defaultBoundingBox;
+	defaultBoundingBox.min = { -1.0f, -1.0f, -1.0f };
+	defaultBoundingBox.max = { 1.0f, 1.0f, 1.0f };
+	
 	Entity quad = {};
 	quad.name = "quad";
 	quad.transform = CreateTransform();
+	quad.boundingBox = defaultBoundingBox;
 	quad.mesh = Mesh_CreateFromFile("../data/meshes/quad.qvm");
 	quad.texture.LoadFromFile("../data/textures/orange.bmp");
 	quad.texture.type = Texture::DIFFUSE;
@@ -191,6 +231,7 @@ void InitGame(World* world)
 	cube.name = "cube";
 	cube.transform = CreateTransform();
 	cube.transform.position.z = 4.0f;
+	cube.boundingBox = defaultBoundingBox;	
 	cube.mesh = Mesh_CreateFromFile("../data/meshes/cube.qvm");
 	cube.texture.LoadFromFile("../data/textures/orange.bmp");
 	cube.texture.type = Texture::DIFFUSE;
@@ -203,6 +244,7 @@ void InitGame(World* world)
 	robot.transform = CreateTransform();
 	robot.transform.position = { 4.0f, 0.0f, 6.0f };
 	robot.transform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 45.0f);
+	robot.boundingBox = defaultBoundingBox;	
 	robot.mesh = Mesh_CreateFromFile("../data/meshes/monkey.obj");
 	robot.texture.LoadFromFile("../data/textures/orange.bmp");
 	robot.texture.type = Texture::DIFFUSE;
@@ -227,34 +269,10 @@ void GameUpdateAndRender(Input* input, float deltaTime, World* world)
 	
 	world->camera.Update();
 	
-	if (input->mouseButtonsUp[INPUT_MOUSE_BUTTON_LEFT])
-	{
-		printf("Left clicked!\n");
-	}
-	
-	if (input->mouseButtonsUp[INPUT_MOUSE_BUTTON_RIGHT])
-	{
-		printf("Right clicked!\n");
-	}
-	
-	if (input->mouseButtonsUp[INPUT_MOUSE_BUTTON_MIDDLE])
-	{
-		printf("Middle clicked!\n");
-	}
-	
-	if (input->mouseButtonsUp[INPUT_MOUSE_WHEEL_UP])
-	{
-		printf("Wheel up!\n");
-	}
-	
-	if (input->mouseButtonsUp[INPUT_MOUSE_WHEEL_DOWN])
-	{
-		printf("Wheel down!\n");
-	}
-	
-	Ray pickingRay = CalculatePickingRay(world->camera);
-	
 	int32 numEntities = world->entities.size();
+	
+	PickEntity(input, deltaTime, world);
+	
 	for (int32 i = 0; i < numEntities; i++)
 	{
 		Entity* currentEntity = &world->entities[i];

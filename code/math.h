@@ -229,6 +229,17 @@ inline Vec2 operator-(const Vec2& v)
 	return result;
 }
 
+inline Vec2 operator*(const Vec2& lhs, const Vec2& rhs)
+{
+	const Vec2 result =
+	{ 
+		lhs.x * rhs.x,
+		lhs.y * rhs.y,
+	};
+	
+	return result;
+}
+
 inline Vec2 operator*(const Matrix2x2& lhs, const Vec2& rhs)
 {
 	const Vec2 result =
@@ -260,6 +271,18 @@ inline Vec3 operator-(const Vec3& v)
 	return result;
 }
 
+inline Vec3 operator*(const Vec3& lhs, const Vec3& rhs)
+{
+	const Vec3 result =
+	{ 
+		lhs.x * rhs.x,
+		lhs.y * rhs.y,
+		lhs.z * rhs.z
+	};
+	
+	return result;
+}
+
 inline Vec3 operator*(const Matrix3x3& lhs, const Vec3& rhs)
 {
 	const Vec3 result =
@@ -272,7 +295,7 @@ inline Vec3 operator*(const Matrix3x3& lhs, const Vec3& rhs)
 	return result;
 }
 
-inline Vec3 operator*(const Matrix4x4 lhs, const Vec3& rhs)
+inline Vec3 operator*(const Matrix4x4& lhs, const Vec3& rhs)
 {
 	const Vec3 result =
 	{ 

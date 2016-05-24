@@ -20,23 +20,20 @@ struct AABB
 	Vec3 max;
 };
 
-struct OBB
-{
-	Transform transform;
-	AABB aabb;	
-};
-
 // Based on Ray-AABB from Real-Time Collision Detection by Christer Ericson
-IntersectionData IntersectRayOBB(const Ray& ray, const OBB& obb)
+IntersectionData IntersectRayOBB(const Ray& ray, const AABB& aabb, const Transform& transform)
 {
 	float tMin = 0.0f;
 	float tMax = FLT_MAX;
-	Vec3 delta = obb.transform.position - ray.origin;
+	Vec3 delta = transform.position - ray.origin;
 	Vec3 axis[3] = {
-		Left(obb.transform.orientation),	// x-axis
-		Up(obb.transform.orientation),		// y-axis
-		Forward(obb.transform.orientation)	// z-axis
+		Left(transform.orientation),	// x-axis
+		Up(transform.orientation),		// y-axis
+		Forward(transform.orientation)	// z-axis
 	};
+	AABB box;
+	box.min = aabb.min * transform.scaling;
+	box.max = aabb.max * transform.scaling;	
 	IntersectionData result = { 0.0f, false };
 	
 	// For every axis of OBB: test if there is intersection 
@@ -48,8 +45,8 @@ IntersectionData IntersectRayOBB(const Ray& ray, const OBB& obb)
 		
 		if (fabs(f) > 0.000001f)
 		{
-			float t1 = (e + obb.aabb.min.values[i]) / f;
-			float t2 = (e + obb.aabb.max.values[i]) / f;
+			float t1 = (e + aabb.min.values[i]) / f;
+			float t2 = (e + aabb.max.values[i]) / f;
 	
 			if (t1 > t2)
 			{
@@ -67,7 +64,7 @@ IntersectionData IntersectRayOBB(const Ray& ray, const OBB& obb)
 		}
 		else
 		{
-			if (obb.aabb.min.values[i] - e > 0.0f || obb.aabb.max.values[i] - e < 0.0f)
+			if (aabb.min.values[i] - e > 0.0f || aabb.max.values[i] - e < 0.0f)
 				return result;
 		}
 	}
