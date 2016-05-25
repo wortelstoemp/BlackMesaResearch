@@ -12,6 +12,8 @@ struct Input
 	int32 mouseX;
 	int32 mouseY;
 	int32 mouseScroll;
+	float deltaTime;
+	double totalTime;
 };
 
 //NOTE(Simon): Only this is required to handle all keyevents ever. The *keys* array is managed by SDL and is guaranteed to have a lifetime equal to the app.

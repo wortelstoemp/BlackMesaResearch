@@ -15,32 +15,32 @@ union Vec2
 		float x;
 		float y;
 	};
-	
+
 	struct
 	{
 		float u;
 		float v;
 	};
-	
-	inline static Vec2 PositiveXAxis()
+
+	inline static Vec2 Right()
 	{
 		const Vec2 result = { 1.0f, 0.0f };
 		return result;
 	}
 
-	inline static Vec2 NegativeXAxis()
+	inline static Vec2 Left()
 	{
 		const Vec2 result = { -1.0f, 0.0f };
 		return result;
 	}
-	
-	inline static Vec2 PositiveYAxis()
+
+	inline static Vec2 Up()
 	{
 		const Vec2 result = { 0.0f, 1.0f };
 		return result;
 	}
 
-	inline static Vec2 NegativeYAxis()
+	inline static Vec2 Down()
 	{
 		const Vec2 result = { 0.0f, -1.0f };
 		return result;
@@ -53,7 +53,7 @@ union Vec3
 	{
 		Vec2 xy;
 		float z;
-	};	
+	};
 	struct
 	{
 		float x;
@@ -66,38 +66,38 @@ union Vec3
 		float g;
 		float b;
 	};
-	
-	inline static Vec3 PositiveXAxis()
+
+	inline static Vec3 Right()
 	{
 		const Vec3 result = { 1.0f, 0.0f, 0.0f };
 		return result;
 	}
 
-	inline static Vec3 NegativeXAxis()
+	inline static Vec3 Left()
 	{
 		const Vec3 result = { -1.0f, 0.0f, 0.0f };
 		return result;
 	}
-	
-	inline static Vec3 PositiveYAxis()
+
+	inline static Vec3 Up()
 	{
 		const Vec3 result = { 0.0f, 1.0f, 0.0f };
 		return result;
 	}
 
-	inline static Vec3 NegativeYAxis()
+	inline static Vec3 Down()
 	{
 		const Vec3 result = { 0.0f, -1.0f, 0.0f };
 		return result;
 	}
-	
-	inline static Vec3 PositiveZAxis()
+
+	inline static Vec3 Back()
 	{
 		const Vec3 result = { 0.0f, 0.0f, 1.0f };
 		return result;
 	}
 
-	inline static Vec3 NegativeZAxis()
+	inline static Vec3 Forward()
 	{
 		const Vec3 result = { 0.0f, 0.0f, -1.0f };
 		return result;
@@ -116,20 +116,20 @@ union Vec4
 	{
 		Vec3 xyz;
 		float w;
-	};	
+	};
 	struct
 	{
 		float x;
 		float y;
 		float z;
-		float w;		
+		float w;
 	};
 	struct
 	{
 		float r;
 		float g;
 		float b;
-		float a;		
+		float a;
 	};
 	struct
 	{
@@ -140,7 +140,7 @@ union Vec4
 
 union Matrix2x2
 {
-	float values[4];	
+	float values[4];
 	struct
 	{
 		float a11;
@@ -152,7 +152,7 @@ union Matrix2x2
 
 union Matrix3x3
 {
-	float values[9];	
+	float values[9];
 	struct
 	{
 		float a11;
@@ -187,7 +187,7 @@ union Matrix4x4
 		float a41;
 		float a42;
 		float a43;
-		float a44;	
+		float a44;
 	};
 };
 
@@ -230,7 +230,7 @@ inline Vec2 operator*(const Matrix2x2& lhs, const Vec2& rhs)
 		lhs.a11 * rhs.x + lhs.a12 * rhs.y,
 		lhs.a21 * rhs.x + lhs.a22 * rhs.y
 	};
-	
+
 	return result;
 }
 
@@ -257,24 +257,24 @@ inline Vec3 operator-(const Vec3& v)
 inline Vec3 operator*(const Matrix3x3& lhs, const Vec3& rhs)
 {
 	const Vec3 result =
-	{ 
+	{
 		lhs.a11 * rhs.x + lhs.a12 * rhs.y + lhs.a13 * rhs.z,
 		lhs.a21 * rhs.x + lhs.a22 * rhs.y + lhs.a23 * rhs.z,
 		lhs.a31 * rhs.x + lhs.a32 * rhs.y + lhs.a33 * rhs.z
 	};
-	
+
 	return result;
 }
 
 inline Vec3 operator*(const Matrix4x4 lhs, const Vec3& rhs)
 {
 	const Vec3 result =
-	{ 
+	{
 		lhs.a11 * rhs.x + lhs.a12 * rhs.y + lhs.a13 * rhs.z + lhs.a14,
 		lhs.a21 * rhs.x + lhs.a22 * rhs.y + lhs.a23 * rhs.z + lhs.a24,
 		lhs.a31 * rhs.x + lhs.a32 * rhs.y + lhs.a33 * rhs.z + lhs.a34
 	};
-	
+
 	return result;
 }
 
@@ -303,12 +303,12 @@ inline float Dot(const Vec3& lhs, const Vec3& rhs)
 inline Vec3 Cross(const Vec3& lhs, const Vec3& rhs)
 {
 	const Vec3 result =
-	{ 
+	{
 		(lhs.y * rhs.z) - (lhs.z * rhs.y),
 		(lhs.z * rhs.x) - (lhs.x * rhs.z),
 		(lhs.x * rhs.y) - (lhs.y * rhs.x)
 	};
-	
+
 	return result;
 }
 
@@ -325,25 +325,25 @@ inline float LengthSquared(const Vec3& v)
 inline Vec3 Normalize(Vec3* v)
 {
 	const float invLength = 1.0 / Length(*v);
-	
+
 	v->x *= invLength;
 	v->y *= invLength;
 	v->z *= invLength;
-	
+
 	return *v;
 }
 
 inline Vec3 Normalized(const Vec3& v)
 {
 	const float invLength = 1.0 / Length(v);
-	
+
 	const Vec3 result =
-	{ 
+	{
 		v.x * invLength,
 		v.y * invLength,
 		v.z * invLength,
 	};
-	
+
 	return result;
 }
 
@@ -360,14 +360,14 @@ inline float DistanceSquared(const Vec3& v1, const Vec3& v2)
 inline Vec3 Lerp(const Vec3& v1, const Vec3& v2, const float amount)
 {
 	const float diff = 1.0f - amount;
-	
+
 	const Vec3 result =
-	{ 
+	{
 		diff * v1.x + amount * v2.x,
 		diff * v1.y + amount * v2.y,
 		diff * v1.z + amount * v2.z
 	};
-		
+
 	return result;
 }
 
@@ -376,65 +376,65 @@ inline Vec3 Lerp(const Vec3& v1, const Vec3& v2, const float amount)
 inline Quaternion operator+(const Quaternion& lhs, const Quaternion& rhs)
 {
 	const Quaternion result =
-	{ 
-		lhs.x + rhs.x, 
-		lhs.y + rhs.y, 
-		lhs.z + rhs.z, 
+	{
+		lhs.x + rhs.x,
+		lhs.y + rhs.y,
+		lhs.z + rhs.z,
 		lhs.w + rhs.w
 	};
-	
+
 	return result;
 }
 
 inline Quaternion operator-(const Quaternion& lhs, const Quaternion& rhs)
 {
 	const Quaternion result =
-	{ 
-		lhs.x - rhs.x, 
-		lhs.y - rhs.y, 
-		lhs.z - rhs.z, 
+	{
+		lhs.x - rhs.x,
+		lhs.y - rhs.y,
+		lhs.z - rhs.z,
 		lhs.w - rhs.w
 	};
-	
+
 	return result;
 }
 
 inline Quaternion operator*(const Quaternion& lhs, const Quaternion& rhs)
 {
 	const Quaternion result =
-	{ 
+	{
 		lhs.w * rhs.x + lhs.x * rhs.w + lhs.y * rhs.z - lhs.z * rhs.y,
 		lhs.w * rhs.y + lhs.y * rhs.w + lhs.z * rhs.x - lhs.x * rhs.z,
 		lhs.w * rhs.z + lhs.z * rhs.w + lhs.x * rhs.y - lhs.y * rhs.x,
 		lhs.w * rhs.w - lhs.x * rhs.x - lhs.y * rhs.y - lhs.z * rhs.z
 	};
-	
+
 	return result;
 }
 
 inline Quaternion operator*(const Quaternion& lhs, const float rhs)
 {
 	const Quaternion result =
-	{ 
+	{
 		lhs.x * rhs,
-		lhs.y * rhs, 
-		lhs.z * rhs, 
+		lhs.y * rhs,
+		lhs.z * rhs,
 		lhs.w * rhs
 	};
-	
+
 	return result;
 }
 
 inline Quaternion operator*(const float lhs, const Quaternion& rhs)
 {
 	const Quaternion result =
-	{ 
+	{
 		rhs.x * lhs,
-		rhs.y * lhs, 
-		rhs.z * lhs, 
+		rhs.y * lhs,
+		rhs.z * lhs,
 		rhs.w * lhs
 	};
-	
+
 	return result;
 }
 
@@ -451,31 +451,31 @@ inline float LengthSquared(const Quaternion& q)
 inline Quaternion Normalized(const Quaternion& q)
 {
 	const float invLength = 1.0 / Length(q);
-	const Quaternion result = 
+	const Quaternion result =
 	{
-		q.x * invLength, 
-		q.y * invLength, 
-		q.z * invLength, 
+		q.x * invLength,
+		q.y * invLength,
+		q.z * invLength,
 		q.w * invLength
 	};
-	
+
 	return result;
 }
 
-inline Quaternion QuaternionFromAxis(const float ax, const float ay, const float az, 
+inline Quaternion QuaternionFromAxis(const float ax, const float ay, const float az,
 	const float angle)
 {
 	const float halfRad = angle * PI / 360;
 	const float halfSin = sin(halfRad);
 	const float halfCos = cos(halfRad);
-	const Quaternion result = 
+	const Quaternion result =
 	{
-		-ax * halfSin, 
-		-ay * halfSin, 
-		-az * halfSin, 
+		-ax * halfSin,
+		-ay * halfSin,
+		-az * halfSin,
 		halfCos
 	};
-	
+
 	return Normalized(result);
 }
 
@@ -489,28 +489,28 @@ inline Quaternion QuaternionFromEuler(const float x, const float y, const float 
 	const float rx = x * PI / 360;
 	const float ry = y * PI / 360;
 	const float rz = z * PI / 360;
-	
+
 	const float sinX = -sin(rx);
 	const float sinY = -sin(ry);
 	const float sinZ = -sin(rz);
-	
+
 	const float cosX = cos(rx);
 	const float cosY = cos(ry);
 	const float cosZ = cos(rz);
-	
+
 	const float sinXsinY = sinX * sinY;
 	const float sinXcosY = sinX * cosY;
 	const float cosXcosY = cosX * cosY;
 	const float cosXsinY = cosX * sinY;
-	
+
 	const Quaternion result =
-	{ 
-		cosXsinY * sinZ + sinXcosY * cosZ, 
-		cosXsinY * cosZ + sinXcosY * sinZ, 
-		cosXcosY * sinZ - sinXsinY * cosZ, 
+	{
+		cosXsinY * sinZ + sinXcosY * cosZ,
+		cosXsinY * cosZ + sinXcosY * sinZ,
+		cosXcosY * sinZ - sinXsinY * cosZ,
 		cosXcosY * cosZ - sinXsinY * sinZ
 	};
-	
+
 	return Normalized(result);
 }
 
@@ -519,7 +519,7 @@ inline Quaternion QuaternionFromEuler(const Vec3& v)
 	return QuaternionFromEuler(v.x, v.y, v.z);
 }
 
-inline Quaternion Rotated(const Quaternion& q, 
+inline Quaternion Rotated(const Quaternion& q,
 	const Vec3& axis, const float angle)
 {
 	return Normalized(QuaternionFromAxis(axis, angle) * q);
@@ -533,7 +533,7 @@ inline float Dot(const Quaternion& lhs, const Quaternion& rhs)
 inline Quaternion Conjugate(const Quaternion& q)
 {
 	const Quaternion result = { -q.x, -q.y, -q.z, q.w };
-	
+
 	return result;
 }
 
@@ -541,13 +541,13 @@ inline Quaternion Inverse(const Quaternion& q)
 {
 	const float invLengthSquared = 1.0 / LengthSquared(q);
 	const Quaternion result =
-	{ 
-		-q.x * invLengthSquared, 
-		-q.y * invLengthSquared, 
-		-q.z * invLengthSquared, 
+	{
+		-q.x * invLengthSquared,
+		-q.y * invLengthSquared,
+		-q.z * invLengthSquared,
 		q.w * invLengthSquared
 	};
-	
+
 	return result;
 }
 
@@ -564,32 +564,32 @@ inline Vec3 Rotated(const Vec3& v, const Quaternion& q)
 
 inline Vec3 Forward(const Quaternion& q)
 {
-	return Rotated(Vec3::PositiveZAxis(), q);
+	return Rotated(Vec3::Back(), q);
 }
 
 inline Vec3 Backward(const Quaternion& q)
 {
-	return Rotated(Vec3::NegativeZAxis(), q);
+	return Rotated(Vec3::Forward(), q);
 }
 
 inline Vec3 Up(const Quaternion& q)
 {
-	return Rotated(Vec3::PositiveYAxis(), q);	
+	return Rotated(Vec3::Up(), q);
 }
 
 inline Vec3 Down(const Quaternion& q)
 {
-	return Rotated(Vec3::NegativeYAxis(), q);		
+	return Rotated(Vec3::Down(), q);
 }
 
 inline Vec3 Left(const Quaternion& q)
 {
-	return Rotated(Vec3::PositiveXAxis(), q);
+	return Rotated(Vec3::Right(), q);
 }
 
 inline Vec3 Right(const Quaternion& q)
 {
-	return Rotated(Vec3::NegativeXAxis(), q);	
+	return Rotated(Vec3::Left(), q);
 }
 
 // Matrix2x2
@@ -657,26 +657,26 @@ inline Matrix4x4 operator*(const Matrix4x4& lhs, const Matrix4x4& rhs)
 inline Matrix4x4 CreateMatrix4x4()
 {
 	const Matrix4x4 result =
-	{ 
+	{
 		1, 0, 0, 0,
 		0, 1, 0, 0,
 		0, 0, 1, 0,
-		0, 0, 0, 1  
+		0, 0, 0, 1
 	};
-	
+
 	return result;
 }
 
 inline Matrix4x4 CreateMatrix4x4(const float d)
 {
 	const Matrix4x4 result =
-	{ 
+	{
 		d, 0, 0, 0,
 		0, d, 0, 0,
 		0, 0, d, 0,
-		0, 0, 0, d  
+		0, 0, 0, d
 	};
-	
+
 	return result;
 }
 
@@ -691,126 +691,126 @@ inline Matrix4x4 CreateMatrix4x4(const Quaternion& q)
 	const float yw2 = 2.0f * q.y * q.w;
 	const float zz2 = 2.0f * q.z * q.z;
 	const float zw2 = 2.0f * q.z * q.w;
-	
+
 	const Matrix4x4 result =
-	{ 
+	{
 		1.0f - (yy2 + zz2), xy2 + zw2, xz2 - yw2, 0.0f,
 		xy2 - zw2, 1.0f - (xx2 + zz2), yz2 + xw2, 0.0f,
 		xz2 + yw2, yz2 - xw2, 1.0f - (xx2 + yy2), 0.0f,
 		0.0f, 0.0f, 0.0f, 1.0f
 	};
-	
+
 	return result;
 }
 
 inline Matrix4x4 Transpose(const Matrix4x4& m)
 {
 	const Matrix4x4 result =
-	{ 
+	{
 		m.a11, m.a21, m.a31, m.a41,
 		m.a12, m.a22, m.a32, m.a42,
 		m.a13, m.a23, m.a33, m.a43,
-		m.a14, m.a24, m.a34, m.a44  
+		m.a14, m.a24, m.a34, m.a44
 	};
-	
+
 	return result;
 }
 
 inline Matrix4x4 Translate(const Matrix4x4& m, const Vec3& v)
 {
 	const Matrix4x4 translate =
-	{ 
+	{
 		1, 0, 0, v.x,
 		0, 1, 0, v.y,
 		0, 0, 1, v.z,
-		0, 0, 0, 1  
+		0, 0, 0, 1
 	};
-	
+
 	return translate * m;
 }
 
 inline Matrix4x4 Translate(const Vec3& v)
 {
 	const Matrix4x4 result =
-	{ 
+	{
 		1, 0, 0, v.x,
 		0, 1, 0, v.y,
 		0, 0, 1, v.z,
-		0, 0, 0, 1  
+		0, 0, 0, 1
 	};
-	
+
 	return result;
 }
 
 inline Matrix4x4 Scale(const Matrix4x4& m, const Vec3& v)
 {
 	const Matrix4x4 scale =
-	{ 
+	{
 		v.x, 0, 0, 0,
 		0, v.y, 0, 0,
 		0, 0, v.z, 0,
-		0, 0, 0, 1  
+		0, 0, 0, 1
 	};
-	
+
 	return scale * m;
 }
 
 inline Matrix4x4 Scale(const Vec3& v)
 {
 	const Matrix4x4 result =
-	{ 
+	{
 		v.x, 0, 0, 0,
 		0, v.y, 0, 0,
 		0, 0, v.z, 0,
-		0, 0, 0, 1  
+		0, 0, 0, 1
 	};
-	
+
 	return result;
 }
 
 inline Matrix4x4 Mirror(const Matrix4x4& m)
 {
 	const Matrix4x4 scale =
-	{ 
+	{
 		-1, 0, 0, 0,
 		0, -1, 0, 0,
 		0, 0, -1, 0,
-		0, 0, 0, 1  
+		0, 0, 0, 1
 	};
-	
+
 	return scale * m;
 }
 
 inline Matrix4x4 Mirror()
 {
 	const Matrix4x4 result =
-	{ 
+	{
 		-1, 0, 0, 0,
 		0, -1, 0, 0,
 		0, 0, -1, 0,
-		0, 0, 0, 1  
+		0, 0, 0, 1
 	};
-	
+
 	return result;
 }
 
 inline Matrix4x4 Ortho(const float left, const float right,
-	const float bottom, const float top, 
+	const float bottom, const float top,
 	const float zNear, const float zFar)
 {
 	const float width = right - left;
 	const float height = top - bottom;
 	const float depth = zFar - zNear;
-	
+
 	const Matrix4x4 result =
-	{ 
+	{
 		2.0f/width, 0, 0, -(right + left) / width,
 		0, 2.0f/height, 0, -(top + bottom) / height,
 		0, 0, -2.0f/depth, -(zFar + zNear) / depth,
-		0, 0, 0, 0  
+		0, 0, 0, 0
 	};
-	
-	return result;		
+
+	return result;
 }
 
 inline Matrix4x4 Perspective(const float fovy, const float aspect,
@@ -820,15 +820,15 @@ inline Matrix4x4 Perspective(const float fovy, const float aspect,
 	const float yScale = 1.0f / tan(angle);
 	const float xScale = yScale / aspect;
 	const float depth = zFar - zNear;
-	
+
 	const Matrix4x4 result =
-	{ 
+	{
 		xScale, 0, 0, 0,
 		0, yScale, 0, 0,
 		0, 0, (zNear + zFar) / depth, -2.0f * zNear * zFar / depth,
-		0, 0, 1, 0  
+		0, 0, 1, 0
 	};
-	
+
 	return result;
 }
 
@@ -837,15 +837,15 @@ inline Matrix4x4 LookAt(const Vec3& eye, const Vec3& look, const Vec3& up)
 	const Vec3 l = Normalized(look);
 	const Vec3 r = Cross(look, up);
 	const Vec3 u = Normalized(Cross(r, l));
-	
+
 	const Matrix4x4 result =
-	{ 
+	{
 		r.x, u.x, -l.x, -r.x * eye.x - u.x * eye.y + l.x * eye.z,
 		r.y, u.y, -l.y, -r.y * eye.x - u.y * eye.y + l.y * eye.z,
 		r.z, u.z, -l.z, -r.z * eye.x - u.z * eye.y + l.z * eye.z,
-		0, 0, 0, 1, 
+		0, 0, 0, 1,
 	};
-	
+
 	return result;
 }
 
@@ -854,14 +854,14 @@ inline Matrix4x4 ViewMatrix4x4(const Vec3& position, const Quaternion& orientati
 	const Vec3 r = Right(orientation);
 	const Vec3 u = Up(orientation);
 	const Vec3 f = Forward(orientation);
-	
+
 	const Matrix4x4 result =
-	{ 
+	{
 		r.x, r.y, r.z, -r.x * position.x - r.y * position.y - r.z * position.z,
 		u.x, u.y, u.z, -u.x * position.x - u.y * position.y - u.z * position.z,
 		f.x, f.y, f.z, -f.x * position.x - f.y * position.y - f.z * position.z,
-		0, 0, 0, 1  
+		0, 0, 0, 1
 	};
-	
+
 	return result;
 }

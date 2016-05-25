@@ -88,7 +88,10 @@ struct DDSImage
 
 	inline void Delete()
 	{
-		free(this->data);
+		if (this->data)
+		{
+			free(this->data);
+		}
 	}
 };
 

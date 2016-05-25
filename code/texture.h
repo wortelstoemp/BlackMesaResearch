@@ -41,7 +41,7 @@ struct Texture
 
 		if (strcmp(extension, ".dds") == 0)
 		{
-			DDSImage image;
+			DDSImage image = {};
 			image.LoadFromFile(fileName);
 
 			uint32 format;
@@ -57,7 +57,7 @@ struct Texture
 
 			uint32 level = 0;
 			uint32 offset = 0;
-			while (level < image.mipMapCount && image.width > 0 && image.height > 0)
+			while (level < image.mipMapCount + 1 && image.width > 0 && image.height > 0)
 			{
 				uint32 size = ((image.width + 3) / 4) * ((image.height + 3) / 4)	* image.blocksize;
 				glCompressedTexImage2D(GL_TEXTURE_2D, level, image.format,
