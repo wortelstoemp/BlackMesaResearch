@@ -10,6 +10,7 @@
 
 // C++ Standard libraries
 #include <vector>
+#include <algorithm>
 
 // Libraries
 #include <glew.h>

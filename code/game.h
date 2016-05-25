@@ -16,12 +16,18 @@ struct Entity
 	void (*Behaviour) (Entity*, Input*);
 };
 
+struct RenderQueue
+{
+	std::vector<Entity*> entities;
+};
+
 struct World
 {
 	Camera camera;
 	Skybox skybox;
 	DirectionalLight directionalLight;
 	std::vector<Entity> entities;
+	RenderQueue renderQueue;
 };
 
 void AddEntityToWorld(World* world, Entity* entity)
@@ -44,11 +50,11 @@ bool HandleEvents(Input* input)
 
 	uint8* keyboardState = (uint8*)SDL_GetKeyboardState(NULL);
 	InputInitKeyStates(input, keyboardState);
-	
+
 	for (int i = 0; i < INPUT_NUM_MOUSEBUTTONS; i++)
 	{
 		input->mouseButtonsDown[i] = 0;
-		input->mouseButtonsUp[i] = 0;	
+		input->mouseButtonsUp[i] = 0;
 	}
 
 	int32 relx, rely;
@@ -67,21 +73,21 @@ bool HandleEvents(Input* input)
 			{
 				isRunning = false;
 			} break;
-			
+
 			case SDL_MOUSEBUTTONDOWN:
 			{
 				int button = event.button.button;
 				input->mouseButtons[button] = 1;
-				input->mouseButtonsDown[button] = 1;				
+				input->mouseButtonsDown[button] = 1;
 			} break;
-			
+
 			case SDL_MOUSEBUTTONUP:
 			{
 				int button = event.button.button;
 				input->mouseButtons[button] = 0;
-				input->mouseButtonsUp[button] = 1;	
+				input->mouseButtonsUp[button] = 1;
 			} break;
-			
+
 			case SDL_MOUSEWHEEL:
 			{
 				InputAddMouseScroll(input, (SDL_MouseWheelEvent*) &event);
@@ -166,7 +172,6 @@ void PlanetRotation(Entity* planet, Input* input, float centerDistance, float ro
 	planet->transform.position.z = (centerDistance / 3e6) * sin(input->totalTime / revolutionTime * 10);
 }
 
-
 void SunBehaviour(Entity* sun, Input* input)
 {
 	//NOTE(Simon): Weird values to prevent division by zero in PlanetRotation.
@@ -217,27 +222,27 @@ void PickEntity(Input* input, World* world)
 {
 	if (input->mouseButtons[INPUT_MOUSE_BUTTON_LEFT])
 	{
-		int32 numEntities = world->entities.size();		
+		int32 numEntities = world->entities.size();
 		Ray pickingRay = CalculatePickingRayFromCamera(world->camera);
 		Entity* nearestEntity = NULL;
 		float nearestDistance = FLT_MAX;
-		
+
 		for (int32 i = 0; i < numEntities; i++)
 		{
 			Entity* currentEntity = &world->entities[i];
 			IntersectionData intersectionData =
 				IntersectRayOBB(pickingRay, currentEntity->boundingBox, currentEntity->transform);
-			
+
 			if (intersectionData.intersects)
 			{
 				if (intersectionData.distance < nearestDistance)
 				{
 					nearestDistance = intersectionData.distance;
 					nearestEntity = currentEntity;
-				}	
+				}
 			}
 		}
-		
+
 		if (nearestEntity)
 		{
 			Vec3 direction = Forward(world->camera.transform.orientation);
@@ -245,6 +250,62 @@ void PickEntity(Input* input, World* world)
 			nearestEntity->transform.TranslateTowards(direction, speed * input->deltaTime);
 		}
 	}
+}
+
+void AddToRenderQueue(RenderQueue* queue, Entity* entity)
+{
+	queue->entities.push_back(entity);
+}
+
+bool RenderQueueSort(Entity* a, Entity* b)
+{
+	//Sort by shader for batching;
+	return a->shader.program < b->shader.program;
+}
+
+void DrawRenderQueue(RenderQueue* queue, World* world)
+{
+	std::sort(queue->entities.begin(), queue->entities.end(), RenderQueueSort);
+
+	GLuint currentShader = -1;
+	int32 numEntities = queue->entities.size();
+
+	for (int32 i = 0; i < numEntities; i++)
+	{
+		Entity* entity = queue->entities[i];
+
+		if (currentShader != entity->shader.program)
+		{
+			UseShader(entity->shader.program);
+			currentShader = entity->shader.program;
+		}
+
+		entity->texture.Use();
+
+		switch(entity->shader.type)
+		{
+			case ShaderType_Phong:
+			{
+				PhongShader_Update(&entity->shader, entity->transform, world->camera);
+				PhongShader_UpdateMaterial(&entity->shader, entity->material);
+				PhongShader_UpdateLight(&entity->shader, world->directionalLight);
+			} break;
+			case ShaderType_Default:
+			{
+				DefaultShader_Update(&entity->shader, entity->transform, world->camera);
+			} break;
+			default:
+			{
+				Assert(0);
+				printf("You forgot to set the ShaderType enum");
+			}
+		}
+		Mesh_Render(&entity->mesh);
+
+		entity->texture.Unuse();
+	}
+
+	UnuseShader();
 }
 
 void InitGame(World* world)
@@ -294,7 +355,7 @@ void InitGame(World* world)
 
 	Entity sun = {};
 		sun.transform = CreateTransform();
-		sun.transform.scale = {log10f(1393000), log10f(1393000), log10f(1393000)};	
+		sun.transform.scale = {log10f(1393000), log10f(1393000), log10f(1393000)};
 		sun.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
 		sun.texture.LoadFromFile("../data/textures/sun.dds");
 		sun.texture.type = Texture::DIFFUSE;
@@ -404,11 +465,11 @@ void GameUpdateAndRender(Input* input, World* world)
 	// Update
 	FirstPersonMovement(input, &world->camera);
 	world->camera.Update();
-	
+
 	int32 numEntities = world->entities.size();
-	
+
 	PickEntity(input, world);
-	
+
 	for (int32 i = 0; i < numEntities; i++)
 	{
 		Entity* currentEntity = &world->entities[i];
@@ -417,25 +478,17 @@ void GameUpdateAndRender(Input* input, World* world)
 			currentEntity->Behaviour(currentEntity, input);
 		}
 	}
-	
+
 	// Render
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
+
 	for (int32 i = 0; i < numEntities; i++)
 	{
-		Entity* currentEntity = &world->entities[i];
-		currentEntity->shader.Use();
-		currentEntity->texture.Use();
-
-		PhongShader_Update(&currentEntity->shader, currentEntity->transform, world->camera);
-		PhongShader_UpdateMaterial(&currentEntity->shader, currentEntity->material);
-		PhongShader_UpdateLight(&currentEntity->shader, world->directionalLight);
-		Mesh_Render(&currentEntity->mesh);
-
-		currentEntity->texture.Unuse();
-		currentEntity->shader.Unuse();
+		AddToRenderQueue(&world->renderQueue, &world->entities[i]);
 	}
+
+	DrawRenderQueue(&world->renderQueue, world);
 
 	//NOTE(Simon): Skybox needs to be drawn last
 	SkyboxRender(&world->skybox, world->camera);

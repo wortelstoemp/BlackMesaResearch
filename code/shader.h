@@ -16,12 +16,20 @@
 
 // Look at DefaultShader_ and PhongShader_ functions to create your own shaders
 
+enum ShaderType
+{
+	ShaderType_Invalid,
+	ShaderType_Phong,
+	ShaderType_Default
+};
+
 struct Shader
 {
 	GLuint program;
 	std::vector<GLint> uniforms;
 	std::vector<const char*> uniformNames;
 	int32 numUniforms;
+	ShaderType type;
 
 	void CompileAndAttachShader(int32 programID, char** source, GLenum shaderType) const
 	{
@@ -134,16 +142,6 @@ struct Shader
 		glDeleteProgram(program);
 	}
 
-	inline void Use()
-	{
-		glUseProgram(program);
-	}
-
-	inline void Unuse()
-	{
-		glUseProgram(0);
-	}
-
 	inline bool AddUniform(const char* uniformName)
 	{
 		GLint uniform = glGetUniformLocation(this->program, (const GLchar*)uniformName);
@@ -230,9 +228,21 @@ struct Shader
 	}
 };
 
+
+inline void UseShader(GLuint id)
+{
+	glUseProgram(id);
+}
+
+inline void UnuseShader()
+{
+	glUseProgram(0);
+}
+
 // Default shader
 inline void DefaultShader_Init(Shader* shader)
 {
+	shader->type = ShaderType_Default;
 	shader->AddUniform("mvp");
 }
 
@@ -245,6 +255,7 @@ inline void DefaultShader_Update(Shader* shader, const Transform& transform, con
 // Phong shader
 inline void PhongShader_Init(Shader* shader)
 {
+	shader->type = ShaderType_Phong;
 	shader->AddUniform("mvp");
 	shader->AddUniform("model");
 	shader->AddUniform("cameraPosition");

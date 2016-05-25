@@ -105,7 +105,7 @@ void SkyboxCreate(Skybox* skybox)
 void SkyboxRender(Skybox* skybox, const Camera& camera)
 {
 	glDepthFunc(GL_LEQUAL);
-	skybox->shader.Use();
+	UseShader(skybox->shader.program);
 
 
 	skybox->shader.SetUniform(skybox->shader.uniforms[0], ViewMatrix4x4(camera.transform.position, camera.transform.orientation));
@@ -118,6 +118,6 @@ void SkyboxRender(Skybox* skybox, const Camera& camera)
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 
-	skybox->shader.Unuse();
+	UnuseShader();
 	glDepthFunc(GL_LESS);
 }
