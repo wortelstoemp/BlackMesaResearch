@@ -1,7 +1,7 @@
 #version 400 core
 struct Material
 {
-	vec3 specular;
+	vec3 specular;    
 	float shine;
 };
 
@@ -29,7 +29,7 @@ struct Spotlight
 	vec3 specular;
 };
 
-in vec3 fragPos;
+in vec3 vertexWorldPosition;  
 in vec3 vertexNormal;
 in vec2 vertexUV;
 
@@ -42,26 +42,9 @@ uniform Material material;
 uniform DirectionalLight dirLight;
 uniform Spotlight spotlight;
 
-vec4 CalcDirLight(DirectionalLight light, vec4 diff, vec3 normal, vec3 viewDir)
-{
-	vec3 dirLightDirection = normalize(-dirLight.direction);
-
-	float diffuseFactor = max(dot(normal, dirLightDirection), 0.0);
-
-	vec3 reflectDirection = reflect(-dirLightDirection, normal);
-	float specularFactor = pow(max(dot(viewDir, reflectDirection), 0.0), material.shine);
-
-	vec4 ambient = vec4(dirLight.ambient, 1.0) * diff;
-	vec4 diffuse = vec4(dirLight.diffuse, 1.0) * diffuseFactor * diff;
-	vec4 specular = vec4(dirLight.specular, 1.0) * (specularFactor * vec4(material.specular, 1.0));
-
-	return (ambient + diffuse + specular);
-}
-
-vec4 CalcSpotLight(Spotlight light, vec4 texCoord, vec3 normal, vec3 fragPos, vec3 viewDir)
+vec4 CalcSpotlight(Spotlight light, vec4 texCoord, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
 	vec3 lightDir = normalize(light.position - fragPos);
-
 	// Diffuse shading
 	float diff = max(dot(normal, lightDir), 0.0);
 
@@ -92,26 +75,39 @@ vec4 CalcSpotLight(Spotlight light, vec4 texCoord, vec3 normal, vec3 fragPos, ve
 
 void main()
 {
-	// Blending textures
-	vec4 diffuseColor2 = texture(textureDiffuse2, vertexUV);
-	vec4 textureDiffuseResult;
-
-	if (diffuseColor2.w > 0.0) {
-		textureDiffuseResult = mix(texture(textureDiffuse1, vertexUV), texture(textureDiffuse2, vertexUV), 1.0);
-	} else {
-		textureDiffuseResult = texture(textureDiffuse1, vertexUV);
-	}
-
-	// No lighting on texture alpha of 0
-	if (textureDiffuseResult.w > 0.0) {
-		vec3 normal = normalize(vertexNormal);
-		vec3 viewDir = normalize(cameraPosition - fragPos);
-
-		vec4 result = CalcDirLight(dirLight, textureDiffuseResult, normal, viewDir);
-		result += CalcSpotLight(spotlight, textureDiffuseResult, normal, fragPos, viewDir);
-
-		fragColor = result;
-	} else {
-		fragColor = vec4(0.0, 0.0, 0.0, 0.0);
-	}
-}
+    // Blending textures
+    vec4 diffuseColor2 = texture(textureDiffuse2, vertexUV);
+    vec4 textureDiffuseResult;
+    if (diffuseColor2.w > 0.0) {
+        textureDiffuseResult = mix(texture(textureDiffuse1, vertexUV), texture(textureDiffuse2, vertexUV), 1.0);
+    } else {
+        textureDiffuseResult = texture(textureDiffuse1, vertexUV);
+    }
+    
+    // No lighting on texture alpha of 0
+    if (textureDiffuseResult.w > 0.0) {
+        // Ambient
+        vec4 ambient = vec4(dirLight.ambient, 1.0) * textureDiffuseResult;
+  	
+        // Diffuse 
+        vec3 normal = normalize(vertexNormal);
+        vec3 dirLightDirection = normalize(-dirLight.direction);
+        float diffuseFactor = max(dot(normal, dirLightDirection), 0.0);
+        vec4 diffuse = vec4(dirLight.diffuse, 1.0) * diffuseFactor * textureDiffuseResult;
+    
+        // Specular
+        vec3 cameraDirection = normalize(cameraPosition - vertexWorldPosition);
+        vec3 reflectDirection = reflect(-dirLightDirection, normal);  
+        float specularFactor = pow(max(dot(cameraDirection, reflectDirection), 0.0), material.shine);
+        vec4 specular = vec4(dirLight.specular, 1.0) * (specularFactor * vec4(material.specular, 1.0));  
+        
+        fragColor = ambient + diffuse + specular;
+		
+		// Spotlight
+		vec3 viewDir = normalize(cameraPosition - vertexWorldPosition);
+		fragColor += CalcSpotlight(spotlight, textureDiffuseResult, normal, vertexWorldPosition, viewDir);
+		
+    } else {
+        fragColor = vec4(0.0, 0.0, 0.0, 0.0);
+    }
+} 

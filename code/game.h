@@ -457,9 +457,9 @@ void InitGame(World* world)
 
 	DirectionalLight dirLight = {};
 		dirLight.direction = { 0.0f, 0.0f, -1.0f };
-		//dirLight.ambient = { 0.7f, 0.7f, 0.7f };
-		//dirLight.diffuse = { 0.5f, 0.5f, 0.5f };
-		//dirLight.specular = { 0.70f, 0.58f, 0.38f };
+		dirLight.ambient = { 0.5f, 0.5f, 0.5f };
+		dirLight.diffuse = { 0.5f, 0.5f, 0.5f };
+		dirLight.specular = { 0.70f, 0.58f, 0.38f };
 	world->directionalLight = dirLight;
 
 	Spotlight spotlight = {};
