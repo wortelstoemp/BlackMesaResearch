@@ -306,6 +306,8 @@ void DrawRenderQueue(RenderQueue* queue, World* world)
 	}
 
 	UnuseShader();
+
+	queue->entities.clear();
 }
 
 void InitGame(World* world)
