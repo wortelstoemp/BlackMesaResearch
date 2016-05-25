@@ -4,14 +4,14 @@
 
 struct Material
 {
-	Vec3 specular;    
+	Vec3 specular;
 	float shine;
 };
 
 struct DirectionalLight
 {
 	Vec3 direction;
-	
+
 	Vec3 ambient;
 	Vec3 diffuse;
 	Vec3 specular;
@@ -33,13 +33,18 @@ struct PointLight
 	Vec3 specular;
 };
 
-struct SpotLight
+struct Spotlight
 {
-	Attenuation attenuation;
 	Vec3 position;
+	Vec3 direction;
+	float cutOff;
+	float outerCutOff;
+
+	float constant;
+	float linear;
+	float quadratic;
+
 	Vec3 ambient;
 	Vec3 diffuse;
 	Vec3 specular;
-	Vec3 direction;
-	float cutOff;	
 };
