@@ -188,8 +188,20 @@ void FirstPersonMovement(Input* input, World* world)
 
 	cockpit->transform.orientation = Conjugate(camera->transform.orientation);
 	cockpit->transform.position = cockpit->transform.position;
-
 }
+
+void GlobalHotkeys(Input* input, World* world)
+{
+	if(input->keys[SDL_SCANCODE_P])
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+	if(input->keys[SDL_SCANCODE_O])
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+}
+
 
 void PlanetRotation(Entity* planet, Input* input, float centerDistance, float rotationTime, float revolutionTime)
 {
@@ -539,6 +551,7 @@ void GameUpdateAndRender(Input* input, World* world)
 {
 	// Update
 	FirstPersonMovement(input, world);
+	GlobalHotkeys(input, world);
 	world->camera.Update();
 
 	world->spotlight.position = world->camera.transform.position;

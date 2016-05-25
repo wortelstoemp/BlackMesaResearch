@@ -86,12 +86,6 @@ bool InitGL()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// Uncomment for wireframe mode
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-	// Set state back to filled polygons
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
 	// Back Face Culling
 	//glEnable(GL_CULL_FACE);
 	//glCullFace(GL_BACK);
