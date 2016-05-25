@@ -2,6 +2,9 @@
 
 // Author(s): Simon, Tom
 
+//TODO(Simon): Hacked in at the last minute
+bool freeCamera;
+
 struct Entity
 {
 	uint64 name;
@@ -186,8 +189,11 @@ void FirstPersonMovement(Input* input, World* world)
 	camera->transform.Rotate(Vec3::Up(), angularSpeed * input->mouseRelativeX * input->deltaTime);
 	camera->transform.Rotate(Right(camera->transform.orientation), angularSpeed * input->mouseRelativeY * input->deltaTime);
 
-	cockpit->transform.orientation = Conjugate(camera->transform.orientation);
-	cockpit->transform.position = cockpit->transform.position;
+	if (!freeCamera)
+	{
+		cockpit->transform.orientation = Conjugate(camera->transform.orientation);
+		cockpit->transform.position = cockpit->transform.position;
+	}
 }
 
 void GlobalHotkeys(Input* input, World* world)
@@ -199,6 +205,14 @@ void GlobalHotkeys(Input* input, World* world)
 	if(input->keys[SDL_SCANCODE_O])
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+	if(input->keys[SDL_SCANCODE_SPACE])
+	{
+		freeCamera = true;
+	}
+	if(input->keys[SDL_SCANCODE_SPACE] && input->keys[SDL_SCANCODE_LSHIFT])
+	{
+		freeCamera = false;
 	}
 }
 
