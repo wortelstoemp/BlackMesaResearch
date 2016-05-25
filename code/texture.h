@@ -41,7 +41,7 @@ struct Texture
 
 		if (strcmp(extension, ".dds") == 0)
 		{
-			DDSImage image;
+			DDSImage image = {};
 			image.LoadFromFile(fileName);
 
 			uint32 format;

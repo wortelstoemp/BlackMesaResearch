@@ -109,10 +109,17 @@ void FirstPersonMovement(Input* input, Camera* camera)
 	{
 		v = v + Right(camera->transform.orientation);
 	}
+	if(input->keys[SDL_SCANCODE_LCTRL])
+	{
+		v = v + Vec3::Up();
+	}
+	if(input->keys[SDL_SCANCODE_LALT])
+	{
+		v = v + Vec3::Down();
+	}
 
 	if (v.x != 0 || v.y != 0 || v.z != 0)
 	{
-		v.y = camera->transform.position.y;
 		Normalize(&v);
 		camera->transform.TranslateTowards(v, moveSpeed * input->deltaTime);
 	}
@@ -121,11 +128,59 @@ void FirstPersonMovement(Input* input, Camera* camera)
 	camera->transform.Rotate(Right(camera->transform.orientation), angularSpeed * input->mouseRelativeY * input->deltaTime);
 }
 
+void PlanetRotation(Entity* planet, Input* input, float centerDistance, float rotationTime, float revolutionTime)
+{
+	planet->transform.Rotate(Vec3::Up(), 1 / (rotationTime * input->deltaTime));
+
+	planet->transform.position.x = (centerDistance / 3e6) * cos(input->totalTime / revolutionTime * 10);
+	planet->transform.position.z = (centerDistance / 3e6) * sin(input->totalTime / revolutionTime * 10);
+}
+
+
+void SunBehaviour(Entity* sun, Input* input)
+{
+	//NOTE(Simon): Weird values to prevent division by zero in PlanetRotation.
+	PlanetRotation(sun, input, 0, 489.4f, 1e6);
+}
+
+void MercuryBehaviour(Entity* mercury, Input* input)
+{
+	PlanetRotation(mercury, input, 69.8e6, 1080, 8.797f);
+}
+
+void VenusBehaviour(Entity* venus, Input* input)
+{
+	PlanetRotation(venus, input, 108.9e6, -4860, 22.47f);
+}
+
 void EarthBehaviour(Entity* earth, Input* input)
 {
-	earth->transform.Rotate(Vec3::Up(), 0.05f);
-	earth->transform.position.x = 1000 * cos(input->totalTime / 100.0f);
-	earth->transform.position.z = 1000 * sin(input->totalTime / 100.0f);
+	PlanetRotation(earth, input, 152.1e6, 20, 36.526f);
+}
+
+void MarsBehaviour(Entity* mars, Input* input)
+{
+	PlanetRotation(mars, input, 249.2e6, 20, 68.698f);
+}
+
+void JupiterBehaviour(Entity* jupiter, Input* input)
+{
+	PlanetRotation(jupiter, input, 816.6e6, 8.25f, 433.198f);
+}
+
+void SaturnBehaviour(Entity* saturn, Input* input)
+{
+	PlanetRotation(saturn, input, 1514.5e6, 8.75f, 1076.056f);
+}
+
+void UranusBehaviour(Entity* uranus, Input* input)
+{
+	PlanetRotation(uranus, input, 3003.6e6, 14.4f, 3068.55f);
+}
+
+void NeptuneBehaviour(Entity* neptune, Input* input)
+{
+	PlanetRotation(neptune, input, 4545.7e6, 13.424f, 6019.12f);
 }
 
 void InitGame(World* world)
@@ -139,7 +194,7 @@ void InitGame(World* world)
 	float width = viewport[2];
 	float height = viewport[3];
 
-	world->camera.CreatePerspective(cameraTransform, 60.0f, width / height, 0.1f, 10000.0f);
+	world->camera.CreatePerspective(cameraTransform, 60.0f, width / height, 0.25f, 10000.0f);
 
 	SkyboxLoadTextureFromFiles(&world->skybox,
 		"../data/textures/eve_right.dds",
@@ -159,53 +214,122 @@ void InitGame(World* world)
 	shader.LoadFromFiles("../data/shaders/phong_vs.glsl", 0, 0, 0, "../data/shaders/phong_fs.glsl");
 	PhongShader_Init(&shader);
 
-	Entity quad = {};
-	quad.transform = CreateTransform();
-	quad.mesh = Mesh_CreateFromFile("../data/meshes/quad.qvm");
-	quad.texture.LoadFromFile("../data/textures/orange.bmp");
-	quad.texture.type = Texture::DIFFUSE;
-	quad.material = material;
-	quad.shader = shader;
-	AddEntityToWorld(world, &quad);
+	Entity fighter = {};
+		fighter.transform = CreateTransform();
+		fighter.transform.position = { 10.0f, -4.0f, 6.0f };
+		fighter.transform.scale = {0.025f, 0.025f, 0.025f};
+		fighter.transform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 45.0f);
+		fighter.mesh = Mesh_CreateFromFile("../data/meshes/fighter.obj");
+		fighter.texture.LoadFromFile("../data/textures/fighter.dds");
+		fighter.texture.type = Texture::DIFFUSE;
+		fighter.material = material;
+		fighter.shader = shader;
+	AddEntityToWorld(world, &fighter);
 
-	Entity cube = {};
-	cube.transform = CreateTransform();
-	cube.transform.position.z = 4.0f;
-	cube.mesh = Mesh_CreateFromFile("../data/meshes/cube.qvm");
-	cube.texture.LoadFromFile("../data/textures/orange.bmp");
-	cube.texture.type = Texture::DIFFUSE;
-	cube.material = material;
-	cube.shader = shader;
-	AddEntityToWorld(world, &cube);
+	Entity sun = {};
+		sun.transform = CreateTransform();
+		sun.transform.scale = {log10f(1393000), log10f(1393000), log10f(1393000)};
+		sun.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
+		sun.texture.LoadFromFile("../data/textures/sun.dds");
+		sun.texture.type = Texture::DIFFUSE;
+		sun.material = material;
+		sun.shader = shader;
+		sun.Behaviour = &SunBehaviour;
+	AddEntityToWorld(world, &sun);
 
-	Entity robot = {};
-	robot.transform = CreateTransform();
-	robot.transform.position = { 4.0f, 0.0f, 6.0f };
-	robot.transform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 45.0f);
-	robot.mesh = Mesh_CreateFromFile("../data/meshes/robot.obj");
-	robot.texture.LoadFromFile("../data/textures/orange.bmp");
-	robot.texture.type = Texture::DIFFUSE;
-	robot.material = material;
-	robot.shader = shader;
-	AddEntityToWorld(world, &robot);
+	Entity mercury = {};
+		mercury.transform = CreateTransform();
+		mercury.transform.scale = {log10f(4880), log10f(4880), log10f(4880)};
+		mercury.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
+		mercury.texture.LoadFromFile("../data/textures/mercury.dds");
+		mercury.texture.type = Texture::DIFFUSE;
+		mercury.material = material;
+		mercury.shader = shader;
+		mercury.Behaviour = &MercuryBehaviour;
+	AddEntityToWorld(world, &mercury);
+
+	Entity venus = {};
+		venus.transform = CreateTransform();
+		venus.transform.scale = {log10f(12104), log10f(12104), log10f(12104)};
+		venus.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
+		venus.texture.LoadFromFile("../data/textures/venus.dds");
+		venus.texture.type = Texture::DIFFUSE;
+		venus.material = material;
+		venus.shader = shader;
+		venus.Behaviour = &VenusBehaviour;
+	AddEntityToWorld(world, &venus);
 
 	Entity earth = {};
-	earth.transform = CreateTransform();
-	earth.transform.scale = {100, 100, 100};
-	earth.transform.position.x = 200;
-	earth.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
-	earth.texture.LoadFromFile("../data/textures/4096_earth.dds");
-	earth.texture.type = Texture::DIFFUSE;
-	earth.material = material;
-	earth.shader = shader;
-	earth.Behaviour = &EarthBehaviour;
+		earth.transform = CreateTransform();
+		earth.transform.scale = {log10f(12742), log10f(12742), log10f(12742)};
+		earth.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
+		earth.texture.LoadFromFile("../data/textures/earth.dds");
+		earth.texture.type = Texture::DIFFUSE;
+		earth.material = material;
+		earth.shader = shader;
+		earth.Behaviour = &EarthBehaviour;
 	AddEntityToWorld(world, &earth);
 
+	Entity mars = {};
+		mars.transform = CreateTransform();
+		mars.transform.scale = {log10f(6780), log10f(6780), log10f(6780)};
+		mars.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
+		mars.texture.LoadFromFile("../data/textures/mars.dds");
+		mars.texture.type = Texture::DIFFUSE;
+		mars.material = material;
+		mars.shader = shader;
+		mars.Behaviour = &MarsBehaviour;
+	AddEntityToWorld(world, &mars);
+
+	Entity jupiter = {};
+		jupiter.transform = CreateTransform();
+		jupiter.transform.scale = {log10f(139822), log10f(139822), log10f(139822)};
+		jupiter.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
+		jupiter.texture.LoadFromFile("../data/textures/jupiter.dds");
+		jupiter.texture.type = Texture::DIFFUSE;
+		jupiter.material = material;
+		jupiter.shader = shader;
+		jupiter.Behaviour = &JupiterBehaviour;
+	AddEntityToWorld(world, &jupiter);
+
+	Entity saturn = {};
+		saturn.transform = CreateTransform();
+		saturn.transform.scale = {log10f(116464), log10f(116464), log10f(116464)};
+		saturn.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
+		saturn.texture.LoadFromFile("../data/textures/saturn.dds");
+		saturn.texture.type = Texture::DIFFUSE;
+		saturn.material = material;
+		saturn.shader = shader;
+		saturn.Behaviour = &SaturnBehaviour;
+	AddEntityToWorld(world, &saturn);
+
+	Entity uranus = {};
+		uranus.transform = CreateTransform();
+		uranus.transform.scale = {log10f(50724), log10f(50724), log10f(50724)};
+		uranus.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
+		uranus.texture.LoadFromFile("../data/textures/uranus.dds");
+		uranus.texture.type = Texture::DIFFUSE;
+		uranus.material = material;
+		uranus.shader = shader;
+		uranus.Behaviour = &UranusBehaviour;
+	AddEntityToWorld(world, &uranus);
+
+	Entity neptune = {};
+		neptune.transform = CreateTransform();
+		neptune.transform.scale = {log10f(49248), log10f(49248), log10f(49248)};
+		neptune.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
+		neptune.texture.LoadFromFile("../data/textures/neptune.dds");
+		neptune.texture.type = Texture::DIFFUSE;
+		neptune.material = material;
+		neptune.shader = shader;
+		neptune.Behaviour = &NeptuneBehaviour;
+	AddEntityToWorld(world, &neptune);
+
 	DirectionalLight dirLight;
-	dirLight.direction = { 0.0f, 0.0f, -1.0f };
-	dirLight.ambient = { 0.7f, 0.7f, 0.7f };
-	dirLight.diffuse = { 0.5f, 0.5f, 0.5f };
-	dirLight.specular = { 0.70f, 0.58f, 0.38f };
+		dirLight.direction = { 0.0f, 0.0f, -1.0f };
+		dirLight.ambient = { 0.7f, 0.7f, 0.7f };
+		dirLight.diffuse = { 0.5f, 0.5f, 0.5f };
+		dirLight.specular = { 0.70f, 0.58f, 0.38f };
 	world->directionalLight = dirLight;
 }
 
