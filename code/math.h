@@ -49,7 +49,7 @@ union Vec2
 
 union Vec3
 {
-	float values[3];	
+	float values[3];
 	struct
 	{
 		Vec2 xy;
@@ -195,7 +195,7 @@ union Matrix4x4
 
 union Quaternion
 {
-	float values[4];	
+	float values[4];
 	struct
 	{
 		float x;
@@ -208,6 +208,13 @@ union Quaternion
 /**************************
 * Operations & Functions *
 **************************/
+
+// Float
+
+float Rad(float degrees)
+{
+	return degrees* PI / 180;
+}
 
 // Vec2
 
@@ -232,11 +239,11 @@ inline Vec2 operator-(const Vec2& v)
 inline Vec2 operator*(const Vec2& lhs, const Vec2& rhs)
 {
 	const Vec2 result =
-	{ 
+	{
 		lhs.x * rhs.x,
 		lhs.y * rhs.y,
 	};
-	
+
 	return result;
 }
 
@@ -274,12 +281,12 @@ inline Vec3 operator-(const Vec3& v)
 inline Vec3 operator*(const Vec3& lhs, const Vec3& rhs)
 {
 	const Vec3 result =
-	{ 
+	{
 		lhs.x * rhs.x,
 		lhs.y * rhs.y,
 		lhs.z * rhs.z
 	};
-	
+
 	return result;
 }
 

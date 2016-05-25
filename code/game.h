@@ -26,6 +26,7 @@ struct World
 	Camera camera;
 	Skybox skybox;
 	DirectionalLight directionalLight;
+	Spotlight spotlight;
 	std::vector<Entity> entities;
 	RenderQueue renderQueue;
 };
@@ -290,7 +291,7 @@ void DrawRenderQueue(RenderQueue* queue, World* world)
 			{
 				PhongShader_Update(&entity->shader, entity->transform, world->camera);
 				PhongShader_UpdateMaterial(&entity->shader, entity->material);
-				PhongShader_UpdateLight(&entity->shader, world->directionalLight);
+				PhongShader_UpdateLight(&entity->shader, world->directionalLight, world->spotlight);
 			} break;
 			case ShaderType_Default:
 			{
@@ -483,12 +484,24 @@ void InitGame(World* world)
 		neptune.Behaviour = &NeptuneBehaviour;
 	AddEntityToWorld(world, &neptune);
 
-	DirectionalLight dirLight;
+	DirectionalLight dirLight = {};
 		dirLight.direction = { 0.0f, 0.0f, -1.0f };
-		dirLight.ambient = { 0.7f, 0.7f, 0.7f };
+		dirLight.ambient = { 0.5f, 0.5f, 0.5f };
 		dirLight.diffuse = { 0.5f, 0.5f, 0.5f };
 		dirLight.specular = { 0.70f, 0.58f, 0.38f };
 	world->directionalLight = dirLight;
+
+	Spotlight spotlight = {};
+		spotlight.direction = Vec3::Forward();
+		spotlight.cutOff = cos(Rad(12.5));
+		spotlight.outerCutOff = cos(Rad(17.5));
+		spotlight.constant = 1.0f;
+		spotlight.linear = 0.01f;
+		spotlight.quadratic = 0.0032f;
+		spotlight.ambient = {0.1f, 0.1f, 0.1f};
+		spotlight.diffuse = {0.8f, 0.8f, 0.8f};
+		spotlight.specular = {1.0f, 1.0f, 1.0f};
+	world->spotlight = spotlight;
 }
 
 void GameUpdateAndRender(Input* input, World* world)
@@ -496,6 +509,9 @@ void GameUpdateAndRender(Input* input, World* world)
 	// Update
 	world->camera.Update();
 	FirstPersonMovement(input, world);
+
+	world->spotlight.position = world->camera.transform.position;
+	world->spotlight.direction = Forward(world->camera.transform.orientation);
 
 	int32 numEntities = world->entities.size();
 

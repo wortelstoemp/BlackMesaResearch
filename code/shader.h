@@ -265,6 +265,16 @@ inline void PhongShader_Init(Shader* shader)
 	shader->AddUniform("dirLight.ambient");
 	shader->AddUniform("dirLight.diffuse");
 	shader->AddUniform("dirLight.specular");
+	shader->AddUniform("spotlight.position");
+	shader->AddUniform("spotlight.direction");
+	shader->AddUniform("spotlight.cutOff");
+	shader->AddUniform("spotlight.outerCutOff");
+	shader->AddUniform("spotlight.constant");
+	shader->AddUniform("spotlight.linear");
+	shader->AddUniform("spotlight.quadratic");
+	shader->AddUniform("spotlight.ambient");
+	shader->AddUniform("spotlight.diffuse");
+	shader->AddUniform("spotlight.specular");
 }
 
 inline void PhongShader_Update(Shader* shader, const Transform& transform, const Camera& camera)
@@ -288,17 +298,48 @@ inline void PhongShader_UpdateMaterial(Shader* shader, const Material& material)
 	shader->SetUniform(shine, material.shine);
 }
 
-inline void PhongShader_UpdateLight(Shader* shader, const DirectionalLight& dirLight)
+inline void PhongShader_UpdateLight(Shader* shader, const DirectionalLight& dirLight, const Spotlight& spotlight)
 {
-	GLint direction = shader->uniforms[5];
-	shader->SetUniform(direction, dirLight.direction);
+	GLint dirDirection = shader->uniforms[5];
+	shader->SetUniform(dirDirection, dirLight.direction);
 
-	GLint ambient = shader->uniforms[6];
-	shader->SetUniform(ambient, dirLight.ambient);
+	GLint dirAmbient = shader->uniforms[6];
+	shader->SetUniform(dirAmbient, dirLight.ambient);
 
-	GLint diffuse = shader->uniforms[7];
-	shader->SetUniform(diffuse, dirLight.diffuse);
+	GLint dirDiffuse = shader->uniforms[7];
+	shader->SetUniform(dirDiffuse, dirLight.diffuse);
 
-	GLint specular = shader->uniforms[8];
-	shader->SetUniform(specular, dirLight.specular);
+	GLint dirSpecular = shader->uniforms[8];
+	shader->SetUniform(dirSpecular, dirLight.specular);
+
+	GLint spotPosition = shader->uniforms[9];
+	shader->SetUniform(spotPosition, spotlight.position);
+
+	GLint spotDirection = shader->uniforms[10];
+	shader->SetUniform(spotDirection, spotlight.direction);
+
+	GLint spotCutOff = shader->uniforms[11];
+	shader->SetUniform(spotCutOff, spotlight.cutOff);
+
+	GLint spotOuterCutOff = shader->uniforms[12];
+	shader->SetUniform(spotOuterCutOff, spotlight.outerCutOff);
+
+	GLint spotConstant = shader->uniforms[13];
+	shader->SetUniform(spotConstant, spotlight.constant);
+
+	GLint spotLinear = shader->uniforms[14];
+	shader->SetUniform(spotLinear, spotlight.linear);
+
+	GLint spotQuadratic = shader->uniforms[15];
+	shader->SetUniform(spotQuadratic, spotlight.quadratic);
+
+	GLint spotAmbient = shader->uniforms[16];
+	shader->SetUniform(spotAmbient, spotlight.ambient);
+
+	GLint spotDiffuse = shader->uniforms[17];
+	shader->SetUniform(spotDiffuse, spotlight.diffuse);
+
+	GLint spotSpecular = shader->uniforms[18];
+	shader->SetUniform(spotSpecular, spotlight.specular);
+
 }
