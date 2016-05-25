@@ -31,9 +31,9 @@ IntersectionData IntersectRayOBB(const Ray& ray, const AABB& aabb, const Transfo
 		Up(transform.orientation),		// y-axis
 		Forward(transform.orientation)	// z-axis
 	};
-	AABB box;
-	box.min = aabb.min; //* transform.scale;
-	box.max = aabb.max; //* transform.scale;	
+	//AABB box;
+	//box.min = aabb.min; //* transform.scale;
+	//box.max = aabb.max; //* transform.scale;	
 	IntersectionData result = { 0.0f, false };
 	
 	// For every axis of OBB: test if there is intersection 
@@ -45,8 +45,8 @@ IntersectionData IntersectRayOBB(const Ray& ray, const AABB& aabb, const Transfo
 		
 		if (fabs(f) > 0.000001f)
 		{
-			float t1 = (e + box.min.values[i]) / f;
-			float t2 = (e + box.max.values[i]) / f;
+			float t1 = (e + aabb.min.values[i]) / f;
+			float t2 = (e + aabb.max.values[i]) / f;
 	
 			if (t1 > t2)
 			{
@@ -64,7 +64,7 @@ IntersectionData IntersectRayOBB(const Ray& ray, const AABB& aabb, const Transfo
 		}
 		else
 		{
-			if (box.min.values[i] - e > 0.0f || box.max.values[i] - e < 0.0f)
+			if (aabb.min.values[i] - e > 0.0f || aabb.max.values[i] - e < 0.0f)
 				return result;
 		}
 	}
