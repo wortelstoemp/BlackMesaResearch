@@ -4,7 +4,7 @@
 
 struct Entity
 {
-	const char* name;
+	uint64 name;
 	Transform transform;
 	AABB boundingBox;
 	Mesh mesh;
@@ -39,6 +39,21 @@ void AddEntityToWorld(World* world, Entity* entity)
 void AddEntityToWorld(Entity* parentEntity, Entity* entity)
 {
 	parentEntity->entities.push_back(*entity);
+}
+
+Entity* GetEntityByName(World* world, char* name)
+{
+	uint64 hash = Hash(name);
+	int32 numEntities = world->entities.size();
+	for (int i = 0; i < numEntities; i++)
+	{
+		if (world->entities[i].name == hash)
+		{
+			return &world->entities[i];
+		}
+	}
+
+	return 0;
 }
 
 bool HandleEvents(Input* input)
@@ -122,7 +137,7 @@ void FirstPersonMovement(Input* input, World* world)
 	// NOTE(Tom): First Person Shooter movement
 	float moveSpeed = 15.0f;
 	float angularSpeed = 5.0f;
-	
+
 	Camera* camera = &world->camera;
 
 	Vec3 v = {};
@@ -160,11 +175,20 @@ void FirstPersonMovement(Input* input, World* world)
 	if (v.x != 0 || v.y != 0 || v.z != 0)
 	{
 		Normalize(&v);
-		camera->transform.TranslateTowards(v, moveSpeed * input->deltaTime);		
+		camera->transform.TranslateTowards(v, moveSpeed * input->deltaTime);
 	}
 
+	Entity* cockpit = GetEntityByName(world, "cockpit");
+	Vec3 cockpitOffset = {1.112664f, 4.151459f, 1.131007f};
+
+	cockpit->transform.position = camera->transform.position;
+
 	camera->transform.Rotate(Vec3::Up(), angularSpeed * input->mouseRelativeX * input->deltaTime);
-	camera->transform.Rotate(Right(camera->transform.orientation), angularSpeed * input->mouseRelativeY * input->deltaTime);	
+	camera->transform.Rotate(Right(camera->transform.orientation), angularSpeed * input->mouseRelativeY * input->deltaTime);
+
+	cockpit->transform.orientation = Conjugate(camera->transform.orientation);
+	cockpit->transform.position = cockpit->transform.position;
+
 }
 
 void PlanetRotation(Entity* planet, Input* input, float centerDistance, float rotationTime, float revolutionTime)
@@ -233,12 +257,18 @@ void PickEntity(Input* input, World* world)
 		for (int32 i = 0; i < numEntities; i++)
 		{
 			Entity* currentEntity = &world->entities[i];
-			IntersectionData intersectionData =
-				IntersectRayOBB(pickingRay, currentEntity->boundingBox, currentEntity->transform);
 
-			if (intersectionData.intersects)
+			//ignore if no boundingBox
+			if (currentEntity->boundingBox.min.x != 0 ||
+				currentEntity->boundingBox.min.y != 0 ||
+				currentEntity->boundingBox.min.z != 0 ||
+				currentEntity->boundingBox.max.x != 0 ||
+				currentEntity->boundingBox.max.y != 0 ||
+				currentEntity->boundingBox.max.z != 0)
 			{
-				if (intersectionData.distance < nearestDistance)
+				IntersectionData intersectionData =	IntersectRayOBB(pickingRay, currentEntity->boundingBox, currentEntity->transform);
+
+				if (intersectionData.intersects && intersectionData.distance < nearestDistance)
 				{
 					nearestDistance = intersectionData.distance;
 					nearestEntity = currentEntity;
@@ -343,13 +373,14 @@ void InitGame(World* world)
 	Shader shader;
 	shader.LoadFromFiles("../data/shaders/phong_vs.glsl", 0, 0, 0, "../data/shaders/phong_fs.glsl");
 	PhongShader_Init(&shader);
-	
+
 	Texture fighterTexture;
 	fighterTexture.LoadFromFile("../data/textures/fighter.dds");
-	Mesh fighterMesh = Mesh_CreateFromFile("../data/meshes/fighter.obj");
-	
+	//NOTE(Simon): Offset by that vector for easy positioning in cockpit
+	Mesh fighterMesh = Mesh_CreateFromFile("../data/meshes/fighter.obj", {0, -3.85f * 1 / 0.025f, -1.6f * 1 / 0.025f});
+
 	Entity cockpit = {};
-		cockpit.name = "cockpit";
+		cockpit.name = Hash("cockpit");
 		cockpit.transform = CreateTransform();
 		cockpit.transform.position = { 10.0f, 10.0f, 6.0f };
 		cockpit.transform.scale = {0.025f, 0.025f, 0.025f};
@@ -360,9 +391,9 @@ void InitGame(World* world)
 		cockpit.material = material;
 		cockpit.shader = shader;
 	AddEntityToWorld(world, &cockpit);
-	
+
 	Entity fighter = {};
-		fighter.name = "fighter";	
+		fighter.name = Hash("fighter");
 		fighter.transform = CreateTransform();
 		fighter.transform.position = { 10.0f, -4.0f, 6.0f };
 		fighter.transform.scale = {0.025f, 0.025f, 0.025f};
@@ -375,9 +406,9 @@ void InitGame(World* world)
 		fighter.material = material;
 		fighter.shader = shader;
 	AddEntityToWorld(world, &fighter);
-	
+
 	Entity sun = {};
-		sun.name = "sun";
+		sun.name = Hash("sun");
 		sun.transform = CreateTransform();
 		sun.transform.scale = {log10f(1393000), log10f(1393000), log10f(1393000)};
 		sun.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
@@ -389,7 +420,7 @@ void InitGame(World* world)
 	AddEntityToWorld(world, &sun);
 
 	Entity mercury = {};
-		mercury.name = "mercury";		
+		mercury.name = Hash("mercury");
 		mercury.transform = CreateTransform();
 		mercury.transform.scale = {log10f(4880), log10f(4880), log10f(4880)};
 		mercury.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
@@ -401,7 +432,7 @@ void InitGame(World* world)
 	AddEntityToWorld(world, &mercury);
 
 	Entity venus = {};
-		venus.name = "venus";		
+		venus.name = Hash("venus");
 		venus.transform = CreateTransform();
 		venus.transform.scale = {log10f(12104), log10f(12104), log10f(12104)};
 		venus.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
@@ -413,7 +444,7 @@ void InitGame(World* world)
 	AddEntityToWorld(world, &venus);
 
 	Entity earth = {};
-		earth.name = "earth";		
+		earth.name = Hash("earth");
 		earth.transform = CreateTransform();
 		earth.transform.scale = {log10f(12742), log10f(12742), log10f(12742)};
 		earth.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
@@ -425,7 +456,7 @@ void InitGame(World* world)
 	AddEntityToWorld(world, &earth);
 
 	Entity mars = {};
-		mars.name = "mars";	
+		mars.name = Hash("mars");
 		mars.transform = CreateTransform();
 		mars.transform.scale = {log10f(6780), log10f(6780), log10f(6780)};
 		mars.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
@@ -437,7 +468,7 @@ void InitGame(World* world)
 	AddEntityToWorld(world, &mars);
 
 	Entity jupiter = {};
-		jupiter.name = "jupiter";	
+		jupiter.name = Hash("jupiter");
 		jupiter.transform = CreateTransform();
 		jupiter.transform.scale = {log10f(139822), log10f(139822), log10f(139822)};
 		jupiter.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
@@ -449,7 +480,7 @@ void InitGame(World* world)
 	AddEntityToWorld(world, &jupiter);
 
 	Entity saturn = {};
-		saturn.name = "saturn";
+		saturn.name = Hash("saturn");
 		saturn.transform = CreateTransform();
 		saturn.transform.scale = {log10f(116464), log10f(116464), log10f(116464)};
 		saturn.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
@@ -461,7 +492,7 @@ void InitGame(World* world)
 	AddEntityToWorld(world, &saturn);
 
 	Entity uranus = {};
-		uranus.name = "uranus";	
+		uranus.name = Hash("uranus");
 		uranus.transform = CreateTransform();
 		uranus.transform.scale = {log10f(50724), log10f(50724), log10f(50724)};
 		uranus.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
@@ -473,7 +504,7 @@ void InitGame(World* world)
 	AddEntityToWorld(world, &uranus);
 
 	Entity neptune = {};
-		neptune.name = "neptune";
+		neptune.name = Hash("neptune");
 		neptune.transform = CreateTransform();
 		neptune.transform.scale = {log10f(49248), log10f(49248), log10f(49248)};
 		neptune.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
@@ -507,8 +538,8 @@ void InitGame(World* world)
 void GameUpdateAndRender(Input* input, World* world)
 {
 	// Update
-	world->camera.Update();
 	FirstPersonMovement(input, world);
+	world->camera.Update();
 
 	world->spotlight.position = world->camera.transform.position;
 	world->spotlight.direction = Forward(world->camera.transform.orientation);

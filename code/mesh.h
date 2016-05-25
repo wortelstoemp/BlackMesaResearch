@@ -200,7 +200,7 @@ static bool Mesh_LoadQVM(Mesh* mesh, Meshdata* meshdata, const char* fileName)
 	return true;
 }
 
-Mesh Mesh_CreateFromFile(const char* fileName)
+Mesh Mesh_CreateFromFile(const char* fileName, Vec3 offset)
 {
 	const int32 length = strlen(fileName);
 	const char* extension = fileName + length - 4;
@@ -218,6 +218,15 @@ Mesh Mesh_CreateFromFile(const char* fileName)
 	else
 	{
 		printf("Mesh file format '%s' not supported!\n", extension);
+	}
+
+	if (offset.x != 0 || offset.y != 0 || offset.z != 0)
+	{
+		int32 vertCount = meshdata.positions.size();
+		for (int32 i = 0; i < vertCount; i++)
+		{
+			meshdata.positions[i] = meshdata.positions[i] + offset;
+		}
 	}
 
 	glGenVertexArrays(1, &mesh.vao);
@@ -242,6 +251,11 @@ Mesh Mesh_CreateFromFile(const char* fileName)
 	glBindVertexArray(0);
 
 	return mesh;
+}
+
+Mesh Mesh_CreateFromFile(const char* fileName)
+{
+	return Mesh_CreateFromFile(fileName, {0, 0, 0});
 }
 
 inline void Mesh_Render(Mesh* mesh)

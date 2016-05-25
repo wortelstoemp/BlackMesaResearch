@@ -209,6 +209,22 @@ union Quaternion
 * Operations & Functions *
 **************************/
 
+// hashing
+
+//djb2
+uint64 Hash(char* text)
+{
+	uint64 hash = 5381;
+	int c;
+
+	while (c = *text++)
+	{
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+	}
+
+	return hash;
+}
+
 // Float
 
 float Rad(float degrees)
