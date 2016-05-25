@@ -1,9 +1,12 @@
 #pragma once
 
+// Author(s): Simon, Tom
 
 struct Entity
 {
+	const char* name;
 	Transform transform;
+	AABB boundingBox;
 	Mesh mesh;
 	Texture texture;
 	Material material;
@@ -37,11 +40,16 @@ bool HandleEvents(Input* input)
 	SDL_Event event;
 	bool isRunning = true;
 	InputResetMouseScroll(input);
-
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 
 	uint8* keyboardState = (uint8*)SDL_GetKeyboardState(NULL);
 	InputInitKeyStates(input, keyboardState);
+	
+	for (int i = 0; i < INPUT_NUM_MOUSEBUTTONS; i++)
+	{
+		input->mouseButtonsDown[i] = 0;
+		input->mouseButtonsUp[i] = 0;	
+	}
 
 	int32 relx, rely;
 	SDL_GetRelativeMouseState(&relx, &rely);
@@ -59,7 +67,21 @@ bool HandleEvents(Input* input)
 			{
 				isRunning = false;
 			} break;
-
+			
+			case SDL_MOUSEBUTTONDOWN:
+			{
+				int button = event.button.button;
+				input->mouseButtons[button] = 1;
+				input->mouseButtonsDown[button] = 1;				
+			} break;
+			
+			case SDL_MOUSEBUTTONUP:
+			{
+				int button = event.button.button;
+				input->mouseButtons[button] = 0;
+				input->mouseButtonsUp[button] = 1;	
+			} break;
+			
 			case SDL_MOUSEWHEEL:
 			{
 				InputAddMouseScroll(input, (SDL_MouseWheelEvent*) &event);
@@ -80,10 +102,18 @@ bool HandleEvents(Input* input)
 	return isRunning;
 }
 
+Ray CalculatePickingRayFromCamera(const Camera& camera)
+{
+	Ray result;
+	result.origin = camera.transform.position;
+	result.direction = Forward(camera.transform.orientation);
+	return result;
+}
+
 void FirstPersonMovement(Input* input, Camera* camera)
 {
 	// NOTE(Tom): First Person Shooter movement
-	float moveSpeed = 3.0f;
+	float moveSpeed = 15.0f;
 	float angularSpeed = 5.0f;
 
 	Vec3 v = {};
@@ -183,6 +213,40 @@ void NeptuneBehaviour(Entity* neptune, Input* input)
 	PlanetRotation(neptune, input, 4545.7e6, 13.424f, 6019.12f);
 }
 
+void PickEntity(Input* input, World* world)
+{
+	if (input->mouseButtons[INPUT_MOUSE_BUTTON_LEFT])
+	{
+		int32 numEntities = world->entities.size();		
+		Ray pickingRay = CalculatePickingRayFromCamera(world->camera);
+		Entity* nearestEntity = NULL;
+		float nearestDistance = FLT_MAX;
+		
+		for (int32 i = 0; i < numEntities; i++)
+		{
+			Entity* currentEntity = &world->entities[i];
+			IntersectionData intersectionData =
+				IntersectRayOBB(pickingRay, currentEntity->boundingBox, currentEntity->transform);
+			
+			if (intersectionData.intersects)
+			{
+				if (intersectionData.distance < nearestDistance)
+				{
+					nearestDistance = intersectionData.distance;
+					nearestEntity = currentEntity;
+				}	
+			}
+		}
+		
+		if (nearestEntity)
+		{
+			Vec3 direction = Forward(world->camera.transform.orientation);
+			const float speed = 15.0f;
+			nearestEntity->transform.TranslateTowards(direction, speed * input->deltaTime);
+		}
+	}
+}
+
 void InitGame(World* world)
 {
 	Transform cameraTransform = CreateTransform();
@@ -218,6 +282,8 @@ void InitGame(World* world)
 		fighter.transform = CreateTransform();
 		fighter.transform.position = { 10.0f, -4.0f, 6.0f };
 		fighter.transform.scale = {0.025f, 0.025f, 0.025f};
+		fighter.boundingBox.min = { -5.0f, -5.0f, -5.0f };
+		fighter.boundingBox.max = { 5.0f, 5.0f, 5.0f };
 		fighter.transform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 45.0f);
 		fighter.mesh = Mesh_CreateFromFile("../data/meshes/fighter.obj");
 		fighter.texture.LoadFromFile("../data/textures/fighter.dds");
@@ -228,7 +294,7 @@ void InitGame(World* world)
 
 	Entity sun = {};
 		sun.transform = CreateTransform();
-		sun.transform.scale = {log10f(1393000), log10f(1393000), log10f(1393000)};
+		sun.transform.scale = {log10f(1393000), log10f(1393000), log10f(1393000)};	
 		sun.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
 		sun.texture.LoadFromFile("../data/textures/sun.dds");
 		sun.texture.type = Texture::DIFFUSE;
@@ -335,13 +401,14 @@ void InitGame(World* world)
 
 void GameUpdateAndRender(Input* input, World* world)
 {
+	// Update
 	FirstPersonMovement(input, &world->camera);
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	world->camera.Update();
+	
 	int32 numEntities = world->entities.size();
-
+	
+	PickEntity(input, world);
+	
 	for (int32 i = 0; i < numEntities; i++)
 	{
 		Entity* currentEntity = &world->entities[i];
@@ -350,9 +417,11 @@ void GameUpdateAndRender(Input* input, World* world)
 			currentEntity->Behaviour(currentEntity, input);
 		}
 	}
-
-	world->camera.Update();
-
+	
+	// Render
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	
 	for (int32 i = 0; i < numEntities; i++)
 	{
 		Entity* currentEntity = &world->entities[i];

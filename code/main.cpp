@@ -19,6 +19,7 @@
 #include "typedefs.h"
 #include "math.h"
 #include "core.h"
+#include "intersection.h"
 #include "input.h"
 #include "file.h"
 #include "image.h"
