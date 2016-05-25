@@ -119,7 +119,7 @@ Ray CalculatePickingRayFromCamera(const Camera& camera)
 void FirstPersonMovement(Input* input, Camera* camera)
 {
 	// NOTE(Tom): First Person Shooter movement
-	float moveSpeed = 15.0f;
+	float moveSpeed = 1.0f;
 	float angularSpeed = 5.0f;
 
 	Vec3 v = {};
@@ -162,6 +162,9 @@ void FirstPersonMovement(Input* input, Camera* camera)
 
 	camera->transform.Rotate(Vec3::Up(), angularSpeed * input->mouseRelativeX * input->deltaTime);
 	camera->transform.Rotate(Right(camera->transform.orientation), angularSpeed * input->mouseRelativeY * input->deltaTime);
+	
+	printf("Position: (%f, %f, %f)\n", camera->transform.position.x, camera->transform.position.y, camera->transform.position.z);
+	//printf("Quaternion: (%f, %f, %f, %f)\n");	
 }
 
 void PlanetRotation(Entity* planet, Input* input, float centerDistance, float rotationTime, float revolutionTime)
@@ -313,8 +316,8 @@ void DrawRenderQueue(RenderQueue* queue, World* world)
 void InitGame(World* world)
 {
 	Transform cameraTransform = CreateTransform();
-	cameraTransform.position = { 0.0f, 0.0f, 8.0f };
-	cameraTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 180.0f);
+	cameraTransform.position = { 11.112664f, 14.151459f, 7.131007f };
+	cameraTransform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, -45.0f);
 
 	int32 viewport[4];
 	glGetIntegerv(GL_VIEWPORT, viewport);
@@ -340,21 +343,37 @@ void InitGame(World* world)
 	Shader shader;
 	shader.LoadFromFiles("../data/shaders/phong_vs.glsl", 0, 0, 0, "../data/shaders/phong_fs.glsl");
 	PhongShader_Init(&shader);
-
+	
+	Texture fighterTexture;
+	fighterTexture.LoadFromFile("../data/textures/fighter.dds");
+	Mesh fighterMesh = Mesh_CreateFromFile("../data/meshes/fighter.obj");
+	
+	Entity cockpit = {};
+		cockpit.transform = CreateTransform();
+		cockpit.transform.position = { 10.0f, 10.0f, 6.0f };
+		cockpit.transform.scale = {0.025f, 0.025f, 0.025f};
+		cockpit.transform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 45.0f);
+		cockpit.mesh = fighterMesh;
+		cockpit.texture = fighterTexture;
+		cockpit.texture.type = Texture::DIFFUSE;
+		cockpit.material = material;
+		cockpit.shader = shader;
+	AddEntityToWorld(world, &cockpit);
+	
 	Entity fighter = {};
 		fighter.transform = CreateTransform();
 		fighter.transform.position = { 10.0f, -4.0f, 6.0f };
 		fighter.transform.scale = {0.025f, 0.025f, 0.025f};
+		fighter.transform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 45.0f);
 		fighter.boundingBox.min = { -5.0f, -5.0f, -5.0f };
 		fighter.boundingBox.max = { 5.0f, 5.0f, 5.0f };
-		fighter.transform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 45.0f);
-		fighter.mesh = Mesh_CreateFromFile("../data/meshes/fighter.obj");
-		fighter.texture.LoadFromFile("../data/textures/fighter.dds");
+		fighter.mesh = fighterMesh;
+		fighter.texture = fighterTexture;
 		fighter.texture.type = Texture::DIFFUSE;
 		fighter.material = material;
 		fighter.shader = shader;
 	AddEntityToWorld(world, &fighter);
-
+	
 	Entity sun = {};
 		sun.transform = CreateTransform();
 		sun.transform.scale = {log10f(1393000), log10f(1393000), log10f(1393000)};
