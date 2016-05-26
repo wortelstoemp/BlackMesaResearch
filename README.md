@@ -7,7 +7,7 @@ BlackMesa renderer by Simon Verbeke and Tom Quareme.
 Currently there is only a build script for cl.exe on Windows.
 
 - Make sure visual studio is installed.
-- Navigate to ../make
+- Navigate to ..\make
 - Execute shell.bat to load all environment variables for Visual Studio and cl.exe into your current shell.
 - Execute build.bat to build
 - Execute run.bat to run
