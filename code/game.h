@@ -206,13 +206,9 @@ void GlobalHotkeys(Input* input, World* world)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
-	if(input->keys[SDL_SCANCODE_SPACE])
+	if(input->mouseButtonsUp[INPUT_MOUSE_BUTTON_RIGHT])
 	{
-		freeCamera = true;
-	}
-	if(input->keys[SDL_SCANCODE_SPACE] && input->keys[SDL_SCANCODE_LSHIFT])
-	{
-		freeCamera = false;
+		freeCamera = !freeCamera;
 	}
 	if (input->mouseButtonsUp[INPUT_MOUSE_BUTTON_MIDDLE])
 	{
