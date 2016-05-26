@@ -1,16 +1,16 @@
-# BlackMesaResearch
+# BlackMesa
 
-Research project for BlackMesa renderer.
-(Bin folder uses files from data folder)
+BlackMesa renderer by Simon Verbeke and Tom Quareme.
 
-## Build and run
-This project uses **Visual Studio Community 2015** for debugging and its
-compiler and linker by using **cl.exe**. Editor is free choice.
-Commands:
-	cd make
-	shell
-	build
-	run
+## Build
+
+Currently there is only a build script for cl.exe on Windows.
+
+- Make sure visual studio is installed.
+- Navigate to ../make
+- Execute shell.bat to load all environment variables for Visual Studio and cl.exe into your current shell.
+- Execute build.bat to build
+- Execute run.bat to run
 
 ## Controls
 
