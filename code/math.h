@@ -103,6 +103,12 @@ union Vec3
 		const Vec3 result = { 0.0f, 0.0f, -1.0f };
 		return result;
 	}
+
+	inline static Vec3 Zero()
+	{
+		const Vec3 result = { 0.0f, 0.0f, 0.0f };
+		return result;
+	}
 };
 
 union Vec4

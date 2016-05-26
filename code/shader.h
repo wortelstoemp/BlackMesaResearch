@@ -334,12 +334,32 @@ inline void PhongShader_UpdateLight(Shader* shader, const DirectionalLight& dirL
 	shader->SetUniform(spotQuadratic, spotlight.quadratic);
 
 	GLint spotAmbient = shader->uniforms[16];
-	shader->SetUniform(spotAmbient, spotlight.ambient);
+	if (spotlight.isOn)
+	{
+		shader->SetUniform(spotAmbient, spotlight.ambient);
+	}
+	else
+	{
+		shader->SetUniform(spotAmbient, Vec3::Zero());
+	}
 
 	GLint spotDiffuse = shader->uniforms[17];
-	shader->SetUniform(spotDiffuse, spotlight.diffuse);
+	if (spotlight.isOn)
+	{
+		shader->SetUniform(spotDiffuse, spotlight.diffuse);
+	}
+	else
+	{
+		shader->SetUniform(spotDiffuse, Vec3::Zero());
+	}
 
 	GLint spotSpecular = shader->uniforms[18];
-	shader->SetUniform(spotSpecular, spotlight.specular);
-
+	if (spotlight.isOn)
+	{
+		shader->SetUniform(spotSpecular, spotlight.specular);
+	}
+	else
+	{
+		shader->SetUniform(spotSpecular, Vec3::Zero());
+	}
 }
