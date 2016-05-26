@@ -214,6 +214,14 @@ void GlobalHotkeys(Input* input, World* world)
 	{
 		freeCamera = false;
 	}
+	if(input->keys[SDL_SCANCODE_TAB])
+	{
+		world->spotlight.isOn = false;
+	}
+	if(input->keys[SDL_SCANCODE_TAB] && input->keys[SDL_SCANCODE_LSHIFT])
+	{
+		world->spotlight.isOn = true;
+	}
 }
 
 void PlanetRotation(Entity* planet, Input* input, float centerDistance, float rotationTime, float revolutionTime)

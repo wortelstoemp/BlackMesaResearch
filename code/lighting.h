@@ -35,6 +35,7 @@ struct PointLight
 
 struct Spotlight
 {
+	bool isOn;
 	Vec3 position;
 	Vec3 direction;
 	float cutOff;

@@ -319,10 +319,24 @@ inline void PhongShader_UpdateLight(Shader* shader, const DirectionalLight& dirL
 	shader->SetUniform(spotDirection, spotlight.direction);
 
 	GLint spotCutOff = shader->uniforms[11];
-	shader->SetUniform(spotCutOff, spotlight.cutOff);
+	if (spotlight.isOn)
+	{
+		shader->SetUniform(spotCutOff, spotlight.cutOff);
+	}
+	else
+	{
+		shader->SetUniform(spotCutOff, 0.0f);
+	}
 
 	GLint spotOuterCutOff = shader->uniforms[12];
-	shader->SetUniform(spotOuterCutOff, spotlight.outerCutOff);
+	if (!spotlight.isOn)
+	{
+		shader->SetUniform(spotOuterCutOff, spotlight.outerCutOff);
+	}
+	else
+	{
+		shader->SetUniform(spotOuterCutOff, 0.0f);
+	}
 
 	GLint spotConstant = shader->uniforms[13];
 	shader->SetUniform(spotConstant, spotlight.constant);
