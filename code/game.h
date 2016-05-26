@@ -214,13 +214,9 @@ void GlobalHotkeys(Input* input, World* world)
 	{
 		freeCamera = false;
 	}
-	if(input->keys[SDL_SCANCODE_TAB])
+	if (input->mouseButtonsUp[INPUT_MOUSE_BUTTON_MIDDLE])
 	{
-		world->spotlight.isOn = false;
-	}
-	if(input->keys[SDL_SCANCODE_TAB] && input->keys[SDL_SCANCODE_LSHIFT])
-	{
-		world->spotlight.isOn = true;
+		world->spotlight.isOn = ! world->spotlight.isOn;
 	}
 }
 
