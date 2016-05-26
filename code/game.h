@@ -166,14 +166,6 @@ void FirstPersonMovement(Input* input, World* world)
 	{
 		v = v + Right(camera->transform.orientation);
 	}
-	if(input->keys[SDL_SCANCODE_LCTRL])
-	{
-		v = v + Vec3::Up();
-	}
-	if(input->keys[SDL_SCANCODE_LALT])
-	{
-		v = v + Vec3::Down();
-	}
 
 	if (v.x != 0 || v.y != 0 || v.z != 0)
 	{
