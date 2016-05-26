@@ -325,15 +325,7 @@ inline void PhongShader_UpdateLight(Shader* shader, const DirectionalLight& dirL
 	shader->SetUniform(spotOuterCutOff, spotlight.outerCutOff);
 
 	GLint spotConstant = shader->uniforms[13];
-	if (spotlight.isOn)
-	{
-		shader->SetUniform(spotConstant, spotlight.constant);
-	}
-	else
-	{
-		//NOTE(Simon): Turn off spotlight.
-		shader->SetUniform(spotConstant, -1.0f);
-	}
+	shader->SetUniform(spotConstant, spotlight.constant);
 
 	GLint spotLinear = shader->uniforms[14];
 	shader->SetUniform(spotLinear, spotlight.linear);
@@ -342,12 +334,32 @@ inline void PhongShader_UpdateLight(Shader* shader, const DirectionalLight& dirL
 	shader->SetUniform(spotQuadratic, spotlight.quadratic);
 
 	GLint spotAmbient = shader->uniforms[16];
-	shader->SetUniform(spotAmbient, spotlight.ambient);
+	if (spotlight.isOn)
+	{
+		shader->SetUniform(spotAmbient, spotlight.ambient);
+	}
+	else
+	{
+		shader->SetUniform(spotAmbient, Vec3::Zero());
+	}
 
 	GLint spotDiffuse = shader->uniforms[17];
-	shader->SetUniform(spotDiffuse, spotlight.diffuse);
+	if (spotlight.isOn)
+	{
+		shader->SetUniform(spotDiffuse, spotlight.diffuse);
+	}
+	else
+	{
+		shader->SetUniform(spotDiffuse, Vec3::Zero());
+	}
 
 	GLint spotSpecular = shader->uniforms[18];
-	shader->SetUniform(spotSpecular, spotlight.specular);
-
+	if (spotlight.isOn)
+	{
+		shader->SetUniform(spotSpecular, spotlight.specular);
+	}
+	else
+	{
+		shader->SetUniform(spotSpecular, Vec3::Zero());
+	}
 }
