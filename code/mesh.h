@@ -20,7 +20,7 @@ struct Meshdata
 	std::vector<uint32> indices;
 };
 
-static bool Mesh_LoadOBJ(Mesh* mesh, Meshdata* meshdata, const char* fileName)
+static bool MeshLoadOBJ(Mesh* mesh, Meshdata* meshdata, const char* fileName)
 {
 	FILE* file = fopen(fileName, "r");
 	if (file == NULL )
@@ -115,7 +115,7 @@ static bool Mesh_LoadOBJ(Mesh* mesh, Meshdata* meshdata, const char* fileName)
 	return true;
 }
 
-static bool Mesh_LoadQVM(Mesh* mesh, Meshdata* meshdata, const char* fileName)
+static bool MeshLoadQVM(Mesh* mesh, Meshdata* meshdata, const char* fileName)
 {
 	FILE* file = fopen(fileName, "r");
 	if (file == NULL )
@@ -200,7 +200,7 @@ static bool Mesh_LoadQVM(Mesh* mesh, Meshdata* meshdata, const char* fileName)
 	return true;
 }
 
-Mesh Mesh_CreateFromFile(const char* fileName, Vec3 offset)
+Mesh MeshCreateFromFile(const char* fileName, Vec3 offset)
 {
 	const int32 length = strlen(fileName);
 	const char* extension = fileName + length - 4;
@@ -209,11 +209,11 @@ Mesh Mesh_CreateFromFile(const char* fileName, Vec3 offset)
 
 	if (strcmp(extension, ".obj") == 0)
 	{
-		Mesh_LoadOBJ(&mesh, &meshdata, fileName);
+		MeshLoadOBJ(&mesh, &meshdata, fileName);
 	}
 	else if (strcmp(extension, ".qvm") == 0)
 	{
-		Mesh_LoadQVM(&mesh, &meshdata, fileName);
+		MeshLoadQVM(&mesh, &meshdata, fileName);
 	}
 	else
 	{
@@ -253,12 +253,12 @@ Mesh Mesh_CreateFromFile(const char* fileName, Vec3 offset)
 	return mesh;
 }
 
-Mesh Mesh_CreateFromFile(const char* fileName)
+Mesh MeshCreateFromFile(const char* fileName)
 {
-	return Mesh_CreateFromFile(fileName, {0, 0, 0});
+	return MeshCreateFromFile(fileName, {0, 0, 0});
 }
 
-inline void Mesh_Render(Mesh* mesh)
+inline void MeshRender(Mesh* mesh)
 {
 	glBindVertexArray(mesh->vao);
 

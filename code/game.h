@@ -216,7 +216,6 @@ void GlobalHotkeys(Input* input, World* world)
 	}
 }
 
-
 void PlanetRotation(Entity* planet, Input* input, float centerDistance, float rotationTime, float revolutionTime)
 {
 	planet->transform.Rotate(Vec3::Up(), 1 / (rotationTime * input->deltaTime));
@@ -359,7 +358,7 @@ void DrawRenderQueue(RenderQueue* queue, World* world)
 				printf("You forgot to set the ShaderType enum");
 			}
 		}
-		Mesh_Render(&entity->mesh);
+		MeshRender(&entity->mesh);
 
 		entity->texture.Unuse();
 	}
@@ -403,7 +402,7 @@ void InitGame(World* world)
 	Texture fighterTexture;
 	fighterTexture.LoadFromFile("../data/textures/fighter.dds");
 	//NOTE(Simon): Offset by that vector for easy positioning in cockpit
-	Mesh fighterMesh = Mesh_CreateFromFile("../data/meshes/fighter.obj", {0, -3.85f * 1 / 0.025f, -1.6f * 1 / 0.025f});
+	Mesh fighterMesh = MeshCreateFromFile("../data/meshes/fighter.obj", {0, -3.85f * 1 / 0.025f, -1.6f * 1 / 0.025f});
 
 	Entity cockpit = {};
 		cockpit.name = Hash("cockpit");
@@ -421,7 +420,7 @@ void InitGame(World* world)
 	Entity fighter = {};
 		fighter.name = Hash("fighter");
 		fighter.transform = CreateTransform();
-		fighter.transform.position = { 10.0f, -4.0f, 6.0f };
+		fighter.transform.position = { 35.0f, -10.0f, 35.0f };
 		fighter.transform.scale = {0.025f, 0.025f, 0.025f};
 		fighter.transform.orientation = QuaternionFromAxis(0.0f, 1.0f, 0.0f, 45.0f);
 		fighter.boundingBox.min = { -5.0f, -5.0f, -5.0f };
@@ -437,7 +436,7 @@ void InitGame(World* world)
 		sun.name = Hash("sun");
 		sun.transform = CreateTransform();
 		sun.transform.scale = {log10f(1393000), log10f(1393000), log10f(1393000)};
-		sun.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
+		sun.mesh = MeshCreateFromFile("../data/meshes/sphere.obj");
 		sun.texture.LoadFromFile("../data/textures/sun.dds");
 		sun.texture.type = Texture::DIFFUSE;
 		sun.material = material;
@@ -449,7 +448,7 @@ void InitGame(World* world)
 		mercury.name = Hash("mercury");
 		mercury.transform = CreateTransform();
 		mercury.transform.scale = {log10f(4880), log10f(4880), log10f(4880)};
-		mercury.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
+		mercury.mesh = MeshCreateFromFile("../data/meshes/sphere.obj");
 		mercury.texture.LoadFromFile("../data/textures/mercury.dds");
 		mercury.texture.type = Texture::DIFFUSE;
 		mercury.material = material;
@@ -461,7 +460,7 @@ void InitGame(World* world)
 		venus.name = Hash("venus");
 		venus.transform = CreateTransform();
 		venus.transform.scale = {log10f(12104), log10f(12104), log10f(12104)};
-		venus.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
+		venus.mesh = MeshCreateFromFile("../data/meshes/sphere.obj");
 		venus.texture.LoadFromFile("../data/textures/venus.dds");
 		venus.texture.type = Texture::DIFFUSE;
 		venus.material = material;
@@ -473,7 +472,7 @@ void InitGame(World* world)
 		earth.name = Hash("earth");
 		earth.transform = CreateTransform();
 		earth.transform.scale = {log10f(12742), log10f(12742), log10f(12742)};
-		earth.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
+		earth.mesh = MeshCreateFromFile("../data/meshes/sphere.obj");
 		earth.texture.LoadFromFile("../data/textures/earth.dds");
 		earth.texture.type = Texture::DIFFUSE;
 		earth.material = material;
@@ -485,7 +484,7 @@ void InitGame(World* world)
 		mars.name = Hash("mars");
 		mars.transform = CreateTransform();
 		mars.transform.scale = {log10f(6780), log10f(6780), log10f(6780)};
-		mars.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
+		mars.mesh = MeshCreateFromFile("../data/meshes/sphere.obj");
 		mars.texture.LoadFromFile("../data/textures/mars.dds");
 		mars.texture.type = Texture::DIFFUSE;
 		mars.material = material;
@@ -497,7 +496,7 @@ void InitGame(World* world)
 		jupiter.name = Hash("jupiter");
 		jupiter.transform = CreateTransform();
 		jupiter.transform.scale = {log10f(139822), log10f(139822), log10f(139822)};
-		jupiter.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
+		jupiter.mesh = MeshCreateFromFile("../data/meshes/sphere.obj");
 		jupiter.texture.LoadFromFile("../data/textures/jupiter.dds");
 		jupiter.texture.type = Texture::DIFFUSE;
 		jupiter.material = material;
@@ -509,7 +508,7 @@ void InitGame(World* world)
 		saturn.name = Hash("saturn");
 		saturn.transform = CreateTransform();
 		saturn.transform.scale = {log10f(116464), log10f(116464), log10f(116464)};
-		saturn.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
+		saturn.mesh = MeshCreateFromFile("../data/meshes/sphere.obj");
 		saturn.texture.LoadFromFile("../data/textures/saturn.dds");
 		saturn.texture.type = Texture::DIFFUSE;
 		saturn.material = material;
@@ -521,7 +520,7 @@ void InitGame(World* world)
 		uranus.name = Hash("uranus");
 		uranus.transform = CreateTransform();
 		uranus.transform.scale = {log10f(50724), log10f(50724), log10f(50724)};
-		uranus.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
+		uranus.mesh = MeshCreateFromFile("../data/meshes/sphere.obj");
 		uranus.texture.LoadFromFile("../data/textures/uranus.dds");
 		uranus.texture.type = Texture::DIFFUSE;
 		uranus.material = material;
@@ -533,13 +532,25 @@ void InitGame(World* world)
 		neptune.name = Hash("neptune");
 		neptune.transform = CreateTransform();
 		neptune.transform.scale = {log10f(49248), log10f(49248), log10f(49248)};
-		neptune.mesh = Mesh_CreateFromFile("../data/meshes/sphere.obj");
+		neptune.mesh = MeshCreateFromFile("../data/meshes/sphere.obj");
 		neptune.texture.LoadFromFile("../data/textures/neptune.dds");
 		neptune.texture.type = Texture::DIFFUSE;
 		neptune.material = material;
 		neptune.shader = shader;
 		neptune.Behaviour = &NeptuneBehaviour;
 	AddEntityToWorld(world, &neptune);
+
+	Entity cube = {};
+		cube.transform = CreateTransform();
+		cube.transform.position = { 35.0f, -30.0f, 35.0f };
+		cube.boundingBox.min = { -1.0f, -1.0f, -1.0f };
+		cube.boundingBox.max = { 1.0f, 1.0f, 1.0f };
+		cube.mesh = MeshCreateFromFile("../data/meshes/cube.qvm");
+		cube.texture.LoadFromFile("../data/textures/orange.bmp");
+		cube.texture.type = Texture::DIFFUSE;
+		cube.material = material;
+		cube.shader = shader;
+	AddEntityToWorld(world, &cube);
 
 	DirectionalLight dirLight = {};
 		dirLight.direction = { 0.0f, 0.0f, -1.0f };
