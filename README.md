@@ -13,10 +13,11 @@ Commands:
 	run
 
 ## Controls
-
 * Move mouse too look around
 * WASD (on QWERTY) or ZQSD (on AZERTY) to move ship around
 * Hold Shift key while moving for a speed boost
 * Left mouse button while aiming on opponent ship to push him away
 * Middle mouse button to turn on/off flashlight
 * Right mouse button to turn on/off free camera
+* O key to switch to wireframe mode
+* P key to switch back to polygon mode

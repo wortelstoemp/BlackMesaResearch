@@ -190,11 +190,11 @@ void FirstPersonMovement(Input* input, World* world)
 
 void GlobalHotkeys(Input* input, World* world)
 {
-	if(input->keys[SDL_SCANCODE_P])
+	if(input->keys[SDL_SCANCODE_O])
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
-	if(input->keys[SDL_SCANCODE_O])
+	if(input->keys[SDL_SCANCODE_P])
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	}
